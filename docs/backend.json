@@ -1,0 +1,138 @@
+
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the Ibn Amer application.",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "fullName": { "type": "string" },
+        "role": { "type": "string" },
+        "gender": { "type": "string", "enum": ["man", "woman"] },
+        "pendingDeletion": { "type": "boolean" },
+        "deletionRequestedAt": { "type": "string", "format": "date-time" },
+        "deletionReason": { "type": "string" }
+      },
+      "required": ["id", "email", "fullName", "role", "gender"]
+    },
+    "ContactMessage": {
+      "title": "ContactMessage",
+      "type": "object",
+      "description": "A message sent from a user to the administration.",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "subject": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "isRead": { "type": "boolean" }
+      },
+      "required": ["userId", "userName", "userEmail", "message", "createdAt"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Event": {
+      "title": "Event",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "registrationDeadline": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Survey": {
+      "title": "Survey",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "questions": { "type": "array" }
+      }
+    },
+    "Livestream": {
+      "title": "Livestream",
+      "type": "object",
+      "description": "Represents a meeting or livestream session.",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "callId": { "type": "string" },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "AbsenceNote": {
+      "title": "AbsenceNote",
+      "type": "object",
+      "description": "Notes made by admin regarding a student's absence.",
+      "properties": {
+        "id": { "type": "string" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "authorName": { "type": "string" }
+      }
+    },
+    "WaitingListEntry": {
+      "title": "WaitingListEntry",
+      "type": "object",
+      "description": "A person waiting to join the school.",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phoneNumber": { "type": "string" },
+        "gender": { "type": "string", "enum": ["man", "woman"] },
+        "readingLevel": { "type": "string" },
+        "memorizingLevel": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "phoneNumber", "gender", "createdAt"]
+    }
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/contactMessages/{id}",
+        "definition": { "entityName": "ContactMessage", "description": "Messages sent to admin" }
+      },
+      {
+        "path": "/announcements/{id}",
+        "definition": { "entityName": "Announcement", "description": "Global announcements" }
+      },
+      {
+        "path": "/events/{id}",
+        "definition": { "entityName": "Event", "description": "Event information" }
+      },
+      {
+        "path": "/surveys/{id}",
+        "definition": { "entityName": "Survey", "description": "Survey definitions" }
+      },
+      {
+        "path": "/livestreams/{id}",
+        "definition": { "entityName": "Livestream", "description": "Meeting/Livestream sessions" }
+      },
+      {
+        "path": "/students/{studentId}/absenceNotes/{noteId}",
+        "definition": { "entityName": "AbsenceNote", "description": "Notes on student absence" }
+      },
+      {
+        "path": "/waitingList/{id}",
+        "definition": { "entityName": "WaitingListEntry", "description": "Public school waiting list" }
+      }
+    ]
+  }
+}

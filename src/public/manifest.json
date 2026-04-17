@@ -1,0 +1,22 @@
+{
+  "name": "Ibn Amer",
+  "short_name": "Ibn Amer",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#FFFFFF",
+  "icons": [
+    {
+      "src": "https://i.postimg.cc/RVPTkLJN/frontepagelogo-5282001fe8581541590a.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.postimg.cc/RVPTkLJN/frontepagelogo-5282001fe8581541590a.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

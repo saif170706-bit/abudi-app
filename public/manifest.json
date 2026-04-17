@@ -1,0 +1,59 @@
+{
+  "id": "/",
+  "name": "Ibn Amer Institute",
+  "short_name": "Ibn Amer",
+  "description": "Ibn Amer Institute — Hifz tracking, queue management, and learning platform for students and teachers.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "background_color": "#efebe1",
+  "theme_color": "#004D40",
+  "orientation": "any",
+  "lang": "da",
+  "dir": "ltr",
+  "categories": ["education", "productivity"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/pwa/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/pwa/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/pwa/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/pwa/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/pwa/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Ibn Amer Institute"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Kø System",
+      "short_name": "Kø",
+      "description": "Tilmeld dig dagens kø",
+      "url": "/student",
+      "icons": [{ "src": "/pwa/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}

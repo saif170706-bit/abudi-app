@@ -1,0 +1,20 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // ── Global read: authenticated users only (GDPR / privacy for school app) ──
+    match /{allPaths=**} {
+      allow read: if request.auth != null;
+    }
+
+    // ── Announcements / banners: any authenticated user can write ──
+    match /announcements/{allPaths=**} {
+      allow write: if request.auth != null;
+    }
+
+    // ── Avatars: only the owner can write their own profile picture ──
+    match /avatars/{userId}/{allPaths=**} {
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

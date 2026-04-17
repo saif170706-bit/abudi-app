@@ -1,0 +1,347 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Serif+Display&family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&display=swap');
+@import "@stream-io/video-react-sdk/dist/css/styles.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ── Light Mode — Premium Warm Off-white ── */
+    --background: 35 33% 98%;
+    --foreground: 160 30% 8%;
+
+    --card: 35 25% 99%;
+    --card-foreground: 160 30% 8%;
+
+    --popover: 35 25% 99%;
+    --popover-foreground: 160 30% 12%;
+
+    --primary: 160 88% 17%;
+    --primary-foreground: 35 40% 98%;
+
+    --secondary: 40 18% 94%;
+    --secondary-foreground: 160 30% 8%;
+
+    --muted: 40 14% 93%;
+    --muted-foreground: 160 15% 35%;
+
+    --accent: 38 70% 45%; /* Gold */
+    --accent-foreground: 35 40% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 40 18% 90%;
+    --input: 40 18% 90%;
+    --ring: 160 88% 17%;
+
+    --radius: 1.5rem;
+  }
+
+  .dark {
+    /* ── Dark Mode — Jewel Emerald Luxury ── */
+    --background: 165 25% 6%; /* Deep Jewel base */
+    --foreground: 165 15% 98%;
+
+    --card: 165 25% 8%;
+    --card-foreground: 165 15% 98%;
+
+    --primary: 165 65% 42%; /* Pristine Jewel Emerald */
+    --primary-foreground: 165 10% 98%;
+
+    --secondary: 165 20% 12%;
+    --secondary-foreground: 165 10% 95%;
+
+    --muted: 158 10% 15%;
+    --muted-foreground: 158 5% 65%;
+
+    --accent: 38 80% 58%; /* Radiant Gold */
+    --accent-foreground: 165 10% 98%;
+
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 165 15% 18%;
+    --input: 165 15% 18%;
+    --ring: 165 65% 42%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply antialiased;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    letter-spacing: -0.01em;
+    min-height: 100vh;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    overflow-x: hidden;
+    position: relative;
+    /* Prevent callout on long-press (iOS) */
+    -webkit-touch-callout: none;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image: 
+        radial-gradient(circle at 50% 0%, hsla(38, 70%, 50%, 0.15) 0%, transparent 70%),
+        url("https://i.postimg.cc/xC74tT1V/flat-arabic-pattern-background-79603-1826.avif");
+    background-size: auto, 800px;
+    background-repeat: repeat;
+    opacity: 0.10; 
+    pointer-events: none;
+    filter: grayscale(1);
+    mix-blend-mode: multiply;
+  }
+
+  .dark body::before {
+    opacity: 0.06;
+    mix-blend-mode: screen;
+    filter: invert(1) grayscale(1);
+  }
+
+  /* Allow vertical scroll in the main content areas, block horizontal page scroll */
+  main {
+    touch-action: pan-y;
+  }
+
+  /* Prevent double-tap zoom on interactive elements */
+  button, a, [role="button"] {
+    touch-action: manipulation;
+  }
+
+  .font-quran {
+    font-family: 'Amiri', 'Noto Naskh Arabic', serif;
+    line-height: 2.2;
+  }
+
+  .font-display {
+    font-family: 'DM Serif Display', serif !important;
+  }
+
+  .bismillah {
+    @apply text-foreground;
+  }
+}
+
+/* ── Premium Components ── */
+
+@layer components {
+  .glass-card {
+    @apply rounded-[32px] border border-white/40 shadow-xl;
+    background: rgba(255, 255, 255, 0.50);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    isolation: isolate;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .dark .glass-card {
+    background: rgba(255, 255, 255, 0.045);
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+  }
+
+  .glass-card-inner {
+    @apply h-full w-full rounded-[inherit] p-8 relative z-10;
+    background: linear-gradient(145deg, rgba(255,255,255,0.2), transparent);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.4);
+  }
+
+  .dark .glass-card-inner {
+    background: linear-gradient(145deg, rgba(255,255,255,0.04), transparent);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);
+  }
+
+  .section-label {
+    @apply text-[10px] font-black uppercase tracking-[0.2em] text-[#DEA93E] pl-3 border-l-2 border-[#DEA93E] mb-4;
+  }
+
+  .islamic-divider {
+    @apply flex items-center gap-3 py-4 w-full;
+  }
+
+  .islamic-divider-line {
+    @apply flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#DEA93E]/30 to-transparent;
+  }
+
+  .islamic-divider-gem {
+    @apply w-1.5 h-1.5 bg-[#DEA93E]/40 rotate-45;
+  }
+}
+
+/* ── Animations ── */
+
+@keyframes breathing {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(222, 169, 62, 0); }
+  50% { box-shadow: 0 0 20px 4px rgba(222, 169, 62, 0.2); }
+}
+.breathing-glow {
+  animation: breathing 4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.shimmer-gold {
+  @apply relative overflow-hidden;
+}
+.shimmer-gold::after {
+  content: "";
+  @apply absolute inset-0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: shimmer 2.5s infinite;
+}
+
+@keyframes glass-spin {
+  from { --glass-angle: 0deg; }
+  to { --glass-angle: 360deg; }
+}
+
+@property --glass-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.animate-glass-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(from var(--glass-angle), transparent 0%, #DEA93E 15%, transparent 30%, transparent 70%, #DEA93E 85%, transparent 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: glass-spin 6s linear infinite;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 77, 64, 0.1);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 77, 64, 0.2); }
+
+
+/* ── Luxury Star System ── */
+
+.luxury-star-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(222, 169, 62, 0.08), transparent 35%),
+    radial-gradient(circle at 80% 70%, rgba(222, 169, 62, 0.08), transparent 35%),
+    linear-gradient(180deg, #fdfcf7 0%, #efebe1 45%, #e8e2d4 100%);
+  border: 1px solid rgba(222, 169, 62, 0.2);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.dark .luxury-star-card {
+  background:
+    radial-gradient(circle at 20% 30%, rgba(222, 169, 62, 0.12), transparent 35%),
+    radial-gradient(circle at 80% 70%, rgba(222, 169, 62, 0.12), transparent 35%),
+    linear-gradient(180deg, #002d26 0%, #003d33 45%, #001f1a 100%);
+  border-color: rgba(222, 169, 62, 0.28);
+}
+
+.luxury-star-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(222, 169, 62, 0.45);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.08),
+    0 0 34px rgba(222, 169, 62, 0.14);
+}
+
+.luxury-star-bg-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(222, 169, 62, 0.07), transparent 22%),
+    radial-gradient(circle at 75% 50%, rgba(222, 169, 62, 0.06), transparent 25%),
+    radial-gradient(circle at 50% 100%, rgba(0, 77, 64, 0.06), transparent 40%);
+}
+
+.luxury-star-sparkles {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 12% 26%, rgba(255,255,255,0.9) 0 1px, transparent 2px),
+    radial-gradient(circle at 28% 68%, rgba(255,244,210,0.85) 0 1px, transparent 2px),
+    radial-gradient(circle at 48% 42%, rgba(255,234,180,0.75) 0 1px, transparent 2px),
+    radial-gradient(circle at 65% 24%, rgba(255,255,255,0.85) 0 1px, transparent 2px),
+    radial-gradient(circle at 82% 64%, rgba(255,228,155,0.75) 0 1px, transparent 2px);
+  opacity: 0.65;
+  animation: luxuryTwinkle 3.2s ease-in-out infinite alternate;
+}
+
+@keyframes luxuryTwinkle {
+  0% { opacity: 0.35; transform: scale(1); }
+  100% { opacity: 0.8; transform: scale(1.01); }
+}
+
+.lux-star {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity, width, height, filter;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(222,169,62,0.1) 20%,
+    rgba(222,169,62,0.4) 50%,
+    rgba(222,169,62,0.8) 100%
+  );
+}
+
+.lux-star::after {
+  content: "";
+  position: absolute;
+  right: -1px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: white;
+  box-shadow:
+    0 0 4px white,
+    0 0 12px rgba(222, 169, 62, 1),
+    0 0 24px rgba(222, 169, 62, 0.6);
+}
+
+/* ── Stream Chat Overrides to reveal texture ── */
+.str-chat,
+.str-chat__container,
+.str-chat__main-panel,
+.str-chat__list {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Hide navigation when chat is open */
+body.chat-open .bottom-nav {
+  display: none !important;
+}

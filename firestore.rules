@@ -1,0 +1,119 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── 1. Unified Helper Functions ───────────────────────────────────
+    function isSignedIn() { return request.auth != null; }
+    function isOwner(uid) { return isSignedIn() && request.auth.uid == uid; }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.admin == true ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isTeacher() {
+      return isSignedIn() && exists(/databases/$(database)/documents/teachers/$(request.auth.uid));
+    }
+
+    function isTeacherOrAdmin() { return isAdmin() || isTeacher(); }
+    
+    function teacherChangingOnlyCallFields() {
+      return request.resource.data.diff(resource.data).changedKeys().hasOnly(['calledBy']);
+    }
+
+    // ── 2. User Profiles & Roles ──────────────────────────────────────
+    match /admins/{uid} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /teachers/{uid} {
+      allow read, list: if isSignedIn();
+      allow write: if isOwner(uid) || isAdmin();
+      match /fcmTokens/{token} { allow read, write: if isOwner(uid) || isAdmin(); }
+    }
+
+    match /students/{uid} {
+      allow list: if isTeacherOrAdmin();
+      allow get: if isOwner(uid) || isTeacherOrAdmin();
+      allow create: if isAdmin() || isOwner(uid);
+      allow update: if isAdmin() || isOwner(uid) || (isTeacher() && teacherChangingOnlyCallFields());
+      allow delete: if isAdmin();
+
+      match /assignments/{id} { allow read: if isOwner(uid) || isTeacherOrAdmin(); allow write: if isTeacherOrAdmin(); }
+      match /fcmTokens/{id}    { allow read, write: if isOwner(uid) || isAdmin(); }
+      match /absenceNotes/{id} { allow read, write: if isOwner(uid) || isTeacherOrAdmin(); }
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if isAdmin() || isOwner(userId);
+
+      match /announcements/{id} { allow read, write: if isOwner(userId) || isAdmin(); }
+      match /quranProgress/{id} { allow read: if isOwner(userId) || isTeacherOrAdmin(); allow write: if isOwner(userId); }
+      match /devices/{id}       { allow read, write: if isOwner(userId); }
+    }
+
+    // ── 3. Queue System ───────────────────────────────────────────────
+    match /queues/{teacherId} {
+      allow read, list: if isSignedIn();
+      allow create, delete: if isOwner(teacherId) || isAdmin();
+      allow update: if isOwner(teacherId) || isAdmin() || (
+        isSignedIn() && (
+          get(/databases/$(database)/documents/teachers/$(teacherId)).data.availablePhysical == true ||
+          get(/databases/$(database)/documents/teachers/$(teacherId)).data.availableVirtual == true
+        )
+      );
+    }
+
+    // ── 4. Communication & Calls ──────────────────────────────────────
+    match /callInvites/{uid} {
+      allow get: if isOwner(uid) || isAdmin();
+      allow write: if isOwner(uid) || isAdmin() || isSignedIn(); // Allow callers
+      allow delete: if isOwner(uid) || isAdmin() || isSignedIn();
+    }
+
+    match /activeCalls/{callId} { allow read, write: if isSignedIn(); }
+    match /active_chats/{id}    { allow read, write: if isSignedIn(); }
+    match /push_requests/{id}   { allow create, read: if isSignedIn(); }
+
+    // ── 5. Public / Shared Content ────────────────────────────────────
+    match /announcements/{id} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /events/{id} {
+      allow get: if true;
+      allow list: if isSignedIn();
+      allow write: if isAdmin();
+      match /registrations/{regId} {
+        allow read: if isAdmin() || isOwner(regId);
+        allow create: if (isSignedIn() && regId == request.auth.uid) || 
+                         (!isSignedIn() && get(/databases/$(database)/documents/events/$(id)).data.allowExternalRegistrations == true);
+      }
+    }
+
+    match /surveys/{id} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+      match /responses/{resId} { allow create: if isSignedIn(); allow read: if isAdmin() || isOwner(resId); }
+    }
+
+    match /livestreams/{id} { allow read: if isSignedIn(); allow write: if isAdmin(); }
+    
+    // ── 6. Misc ───────────────────────────────────────────────────────
+    match /placeholders/{email} {
+      allow get: if true;
+      allow list, write: if isAdmin();
+    }
+
+    match /waitingList/{id}   { allow create: if true; allow read, write: if isAdmin(); }
+    match /leaderboard/{uid}  { allow read: if isSignedIn(); allow write: if isTeacherOrAdmin(); }
+    match /contactMessages/{id} { allow create: if isSignedIn(); allow read, write: if isAdmin(); }
+    match /analytics/{id}     { allow create: if isSignedIn(); allow read, list: if isAdmin(); }
+  }
+}
