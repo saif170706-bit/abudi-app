@@ -6,6 +6,7 @@ import {
   collection,
   doc,
   onSnapshot,
+  getDocs,
   query,
   where,
   getDoc,
@@ -194,6 +195,25 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
   const [callingTeacher, setCallingTeacher] = useState<Teacher | null>(null);
   const [callType, setCallType] = useState<'physical' | 'virtual' | null>(null);
   const callTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Single transition guard covering both join AND leave operations.
+  // While true, the Firestore snapshot listener won't override local state,
+  // preventing race conditions during any queue state change.
+  const isTransitioning = useRef(false);
+  const transitionTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const startTransition = () => {
+    if (transitionTimer.current) clearTimeout(transitionTimer.current);
+    isTransitioning.current = true;
+    // Safety net: auto-expire after 5s even if server never responds
+    transitionTimer.current = setTimeout(() => {
+      isTransitioning.current = false;
+    }, 5000);
+  };
+
+  const endTransition = () => {
+    if (transitionTimer.current) clearTimeout(transitionTimer.current);
+    isTransitioning.current = false;
+  };
 
   const getAvailabilityText = (count: number) => {
     if (count === 0) return tGlobal('ingen lærere');
@@ -257,6 +277,37 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
     return () => { unsub1(); unsub2(); unsubStudent(); };
   }, [firestore, user, userQueue?.type]);
 
+  // BOOT CHECK: Find which queue this student is already in (runs once on load)
+  useEffect(() => {
+    if (!firestore || !user || userQueue) return;
+
+    const findMyQueue = async () => {
+      const qSnap = await getDocs(collection(firestore, 'queues'));
+      for (const qDoc of qSnap.docs) {
+        const data = qDoc.data();
+        if (data.studentsById && data.studentsById[user.uid]) {
+          const s = data.studentsById[user.uid];
+          const sortedList = Object.entries(data.studentsById)
+            .map(([id, v]: any) => ({ id, ms: v.joinedAt?.toMillis() || 0 }))
+            .sort((a, b) => a.ms - b.ms);
+          
+          const pos = sortedList.findIndex(item => item.id === user.uid) + 1;
+          
+          setUserQueue({
+            teacherId: qDoc.id,
+            position: pos,
+            queueLength: sortedList.length,
+            type: s.type,
+            ticketNumber: s.ticketNumber
+          });
+          break;
+        }
+      }
+    };
+
+    findMyQueue();
+  }, [firestore, user]);
+
   // Watch ONLY the specific teacher's queue doc after the student has joined.
   // This replaces the previous onSnapshot(collection('queues')) which watched ALL
   // teacher queue documents simultaneously — very expensive at scale.
@@ -285,30 +336,36 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
 
       const idx = list.findIndex(s => s.id === user.uid);
       if (idx >= 0) {
-        setUserQueue(prev => ({
+        endTransition(); // Server confirmed join — safe to clear
+        setUserQueue({
           teacherId,
           position: idx + 1,
           queueLength: list.length,
           type: list[idx].type,
           ticketNumber: list[idx].ticketNumber,
-        }));
+        });
       } else {
-        // Student was removed from queue
-        setUserQueue(null);
-        if (!isCalled) setView('landing');
+        // Only reset if NOT in a grace period (join or leave in progress)
+        if (!isTransitioning.current && !isCalled) {
+          setUserQueue(null);
+          setCurrentTeacher(null);
+          setView('landing');
+        }
       }
     });
 
     return () => unsubQueue();
   }, [firestore, user, userQueue?.teacherId, isCalled]);
 
-  // When the student first joins a queue, set the current teacher
+  // When the student first joins a queue, fetch the teacher profile if not already set.
+  // (handles boot-check case where we find the queue but not the teacher object)
   useEffect(() => {
     if (!firestore || !userQueue?.teacherId || currentTeacher?.id === userQueue.teacherId) return;
     getDoc(doc(firestore, 'teachers', userQueue.teacherId)).then(tDoc => {
       if (tDoc.exists()) {
         setCurrentTeacher({ id: tDoc.id, ...(tDoc.data() as any) } as Teacher);
-        setView('in_queue');
+        // Only switch view during boot-check (join already sets it)
+        if (!isTransitioning.current) setView('in_queue');
       }
     });
   }, [firestore, userQueue?.teacherId]);
@@ -317,6 +374,9 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
     if (!user || !firestore || !profile) return;
     triggerHaptic();
     if (userQueue) { toast({ variant: 'destructive', title: 'Allerede i kø' }); return; }
+
+    // Start transition guard immediately before any async work
+    startTransition();
     setIsJoining(teacherId);
 
     let lat: number | undefined;
@@ -342,7 +402,7 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
       // Call the secure Cloud Function (atomic + server-side geolocation)
       const functions = getFunctions();
       const joinQueueFn = httpsCallable(functions, 'joinQueue');
-      await joinQueueFn({
+      const result = await joinQueueFn({
         teacherId,
         type,
         lat,
@@ -352,7 +412,26 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
         fcmToken: fcm || null,
         phoneNumber: profile.phoneNumber || null,
       });
+
+      const data = result.data as any;
+      if (data.success) {
+        const tObj = physicalTeachers.find(x => x.id === teacherId) || virtualTeachers.find(x => x.id === teacherId);
+
+        // Transition guard is ALREADY set (before the async call) — just update state
+        setCurrentTeacher(tObj || { id: teacherId, displayName: '...' } as any);
+        setUserQueue({
+          teacherId,
+          position: data.position,
+          queueLength: data.queueLength,
+          type,
+          ticketNumber: data.ticketNumber
+        });
+        setView('in_queue');
+      } else {
+        endTransition(); // Unexpected — release guard
+      }
     } catch (err: any) {
+      endTransition(); // Release guard on error so user can retry
       const code = err?.code;
       if (code === 'functions/permission-denied') {
         toast({ variant: 'destructive', title: 'For langt væk', description: 'Du er ikke tæt nok på skolen.' });
@@ -368,11 +447,21 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
 
   const handleLeaveQueue = async (tid: string) => {
     if (!user || !firestore) return;
+    triggerHaptic();
+
+    // Optimistic reset: update UI instantly so user can rejoin immediately
+    startTransition();
+    setUserQueue(null);
+    setCurrentTeacher(null);
+    setView('physical_queue'); // Return to teacher list, not landing
+
     try {
       const functions = getFunctions();
       const leaveQueueFn = httpsCallable(functions, 'leaveQueue');
       await leaveQueueFn({ teacherId: tid });
+      endTransition(); // Server confirmed — release guard
     } catch (err: any) {
+      endTransition();
       toast({ variant: 'destructive', title: 'Kunne ikke forlade køen', description: err?.message });
     }
   };

@@ -15,9 +15,14 @@ const { StreamChat } = require("stream-chat");
 const streamApiKey = process.env.STREAM_API_KEY || "y6fwhwm7qv3y";
 const streamSecret = process.env.STREAM_SECRET_KEY;
 if (!streamSecret) {
-  console.error("[FATAL] STREAM_SECRET_KEY environment variable is not set. Webhook verification will fail.");
+  console.warn("[StreamChat] STREAM_SECRET_KEY not set. Webhook signature verification will be skipped.");
 }
-const serverClient = StreamChat.getInstance(streamApiKey, streamSecret);
+let serverClient = null;
+try {
+  serverClient = StreamChat.getInstance(streamApiKey, streamSecret || 'placeholder');
+} catch (e) {
+  console.error("[StreamChat] Failed to initialize client:", e.message);
+}
 
 /**
  * STREAM WEBHOOK: The most robust way to handle push notifications.
@@ -566,6 +571,102 @@ exports.onUserDelete = functions.auth.user().onDelete(async (user) => {
   }
 });
 
+/**
+ * ADMIN: Delete a user from Firebase Auth and all Firestore collections.
+ * Called by AdminMembers.tsx when an admin clicks the delete button.
+ */
+exports.deleteUser = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Sign in required.');
+
+  // Verify caller is admin
+  const callerDoc = await db.collection('admins').doc(request.auth.uid).get();
+  if (!callerDoc.exists) throw new HttpsError('permission-denied', 'Admin only.');
+
+  const { uid } = request.data;
+  if (!uid) throw new HttpsError('invalid-argument', 'uid is required.');
+
+  try {
+    // Delete from Firebase Auth
+    await admin.auth().deleteUser(uid);
+    // Firestore cleanup is handled by onUserDelete trigger above
+    console.log(`[deleteUser] Deleted user ${uid} by admin ${request.auth.uid}`);
+    return { success: true, message: 'User deleted.' };
+  } catch (err) {
+    console.error('[deleteUser] Error:', err.message);
+    throw new HttpsError('internal', err.message);
+  }
+});
+
+/**
+ * ADMIN: Update a user's email in Firebase Auth and their Firestore document.
+ * Called by AdminMembers.tsx when an admin edits a user's email.
+ */
+exports.updateUserEmail = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Sign in required.');
+
+  const callerDoc = await db.collection('admins').doc(request.auth.uid).get();
+  if (!callerDoc.exists) throw new HttpsError('permission-denied', 'Admin only.');
+
+  const { uid, newEmail, role } = request.data;
+  if (!uid || !newEmail || !role) throw new HttpsError('invalid-argument', 'uid, newEmail, and role are required.');
+
+  try {
+    // Update in Firebase Auth
+    await admin.auth().updateUser(uid, { email: newEmail.toLowerCase() });
+
+    // Update in Firestore
+    const collection = `${role}s`; // 'students', 'teachers', 'admins'
+    await db.collection(collection).doc(uid).update({ email: newEmail.toLowerCase() });
+
+    console.log(`[updateUserEmail] Updated email for ${uid} to ${newEmail} by admin ${request.auth.uid}`);
+    return { success: true };
+  } catch (err) {
+    console.error('[updateUserEmail] Error:', err.message);
+    throw new HttpsError('internal', err.message);
+  }
+});
+
+/**
+ * ADMIN: Restore a previously deleted account's Firestore document.
+ * Called by AdminMembers.tsx restoreAccount flow.
+ */
+exports.restoreAccount = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Sign in required.');
+
+  const callerDoc = await db.collection('admins').doc(request.auth.uid).get();
+  if (!callerDoc.exists) throw new HttpsError('permission-denied', 'Admin only.');
+
+  const { uid, role } = request.data;
+  if (!uid || !role) throw new HttpsError('invalid-argument', 'uid and role are required.');
+
+  try {
+    const userRecord = await admin.auth().getUser(uid);
+    const collection = `${role}s`;
+    const docRef = db.collection(collection).doc(uid);
+    const existing = await docRef.get();
+
+    if (!existing.exists) {
+      await docRef.set({
+        uid,
+        email: userRecord.email || '',
+        displayName: userRecord.displayName || '',
+        photoURL: userRecord.photoURL || '',
+        role,
+        restoredAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+
+    // Re-apply role custom claim
+    await admin.auth().setCustomUserClaims(uid, { role });
+
+    console.log(`[restoreAccount] Restored ${uid} as ${role} by admin ${request.auth.uid}`);
+    return { success: true };
+  } catch (err) {
+    console.error('[restoreAccount] Error:', err.message);
+    throw new HttpsError('internal', err.message);
+  }
+});
+
 exports.updateEventRegistrationCount = onDocumentCreated("events/{eventId}/registrations/{registrationId}", async (event) => {
   const eventId = event.params.eventId;
   const eventRef = db.collection('events').doc(eventId);
@@ -645,7 +746,7 @@ exports.joinQueue = onCall(async (request) => {
 
   // ── Atomic transaction: join queue safely ─────────────────────────────
   try {
-    await db.runTransaction(async (t) => {
+    const result = await db.runTransaction(async (t) => {
       const queueSnap = await t.get(queueRef);
       if (!queueSnap.exists) {
         throw new HttpsError('not-found', 'Kø ikke fundet for denne lærer.');
@@ -680,9 +781,23 @@ exports.joinQueue = onCall(async (request) => {
       }
 
       t.update(queueRef, updates);
+
+      // Calculate position for the return object
+      const sortedStudents = Object.entries({ ...currentStudents, [uid]: updates[`studentsById.${uid}`] })
+        .map(([id, data]) => ({ id, joinedAt: data.joinedAt?.toMillis?.() || Date.now() }))
+        .sort((a, b) => a.joinedAt - b.joinedAt);
+      
+      const position = sortedStudents.findIndex(s => s.id === uid) + 1;
+
+      return { 
+        success: true, 
+        ticketNumber: nextTicket,
+        position: position,
+        queueLength: sortedStudents.length
+      };
     });
 
-    return { success: true };
+    return result;
   } catch (error) {
     if (error instanceof HttpsError) throw error;
     console.error('joinQueue transaction failed:', error);

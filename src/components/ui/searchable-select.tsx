@@ -66,7 +66,7 @@ export function SearchableSelect({
       </PopoverTrigger>
 
       <PopoverContent
-        portalled={false}
+        portalled={true}
         onOpenAutoFocus={(e) => e.preventDefault()}
         className={cn('w-[--radix-popover-trigger-width] p-0 z-[9999]', popoverClassName)}
         align="start"

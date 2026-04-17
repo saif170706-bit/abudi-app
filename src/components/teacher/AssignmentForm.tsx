@@ -210,10 +210,10 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
     const defaultDueDate = new Date();
     defaultDueDate.setDate(defaultDueDate.getDate() + 7);
 
-    const assignmentData = {
+    const assignmentData: any = {
       studentId,
       teacherId: teacher.uid,
-      dueDate: assignment ? assignment.dueDate : defaultDueDate.toISOString().split('T')[0],
+      dueDate: defaultDueDate.toISOString().split('T')[0],
       hifz: {
         surahName: hifzSurah?.name || '',
         endSurahName: hifzEndSurah?.name || null,
@@ -226,17 +226,31 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
         fromAyah: data.murajaraFromAyah || 0,
         toAyah: data.murajaraToAyah || 0,
       },
+      gradeHifz: null,
+      gradeMurajara: null,
+      notes: null,
+      assignedAt: serverTimestamp(),
+      gradedAt: null,
+    };
+
+    // When grading an existing assignment, the notes belong to the OLD (graded) assignment.
+    // The Grade data + note is saved back to the old assignment doc.
+    const gradedAssignmentData = assignment ? {
       gradeHifz: data.gradeHifz || null,
       gradeMurajara: data.gradeMurajara || null,
       notes: data.notes || null,
-      assignedAt: assignment ? assignment.assignedAt : serverTimestamp(),
-      gradedAt: (data.gradeHifz || data.gradeMurajara) ? serverTimestamp() : (assignment?.gradedAt || null),
-    };
+      gradedAt: (data.gradeHifz || data.gradeMurajara) ? serverTimestamp() : (assignment.gradedAt || null),
+    } : null;
 
     try {
       if (assignment) {
-        const docRef = doc(firestore, 'students', studentId, 'assignments', assignment.id);
-        await setDoc(docRef, assignmentData, { merge: true });
+        // 1. Save grades + note back to the OLD (graded) assignment
+        const oldDocRef = doc(firestore, 'students', studentId, 'assignments', assignment.id);
+        await setDoc(oldDocRef, gradedAssignmentData!, { merge: true });
+
+        // 2. Create a brand-new assignment with the new lektie
+        const collectionRef = collection(firestore, 'students', studentId, 'assignments');
+        await addDoc(collectionRef, assignmentData);
 
         // Award points for grading — non-blocking
         if (data.gradeHifz || data.gradeMurajara) {
@@ -251,6 +265,7 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
           });
         }
       } else {
+        // Pure create: no existing assignment to grade
         const collectionRef = collection(firestore, 'students', studentId, 'assignments');
         await addDoc(collectionRef, assignmentData);
       }
@@ -286,8 +301,8 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 pb-10">
       {/* HIFZ */}
-      <div className="glass-card shadow-xl !overflow-visible !isolation-auto relative z-[30]">
-        <div className="glass-card-inner !p-6 space-y-6 !overflow-visible !isolation-auto">
+      <div className="glass-card shadow-xl">
+        <div className="glass-card-inner !p-6 space-y-6">
           <SectionLabel>Memorering (Hifz)</SectionLabel>
 
           <div className="space-y-4">
@@ -352,8 +367,8 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
       </div>
 
       {/* MURAJARA */}
-      <div className="glass-card shadow-xl !overflow-visible !isolation-auto relative z-[20]">
-        <div className="glass-card-inner !p-6 space-y-6 !overflow-visible !isolation-auto">
+      <div className="glass-card shadow-xl">
+        <div className="glass-card-inner !p-6 space-y-6">
           <SectionLabel>Repetition (Murajara)</SectionLabel>
 
           <div className="space-y-4">
@@ -417,12 +432,13 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
         </div>
       </div>
 
-      {/* NOTES */}
-      <div className="glass-card shadow-xl !overflow-visible !isolation-auto relative z-[10]">
-        <div className="glass-card-inner !p-6 space-y-6 !overflow-visible !isolation-auto">
-          <SectionLabel>Noter</SectionLabel>
+      {/* NOTES — only shown when grading an existing assignment */}
+      {assignment && (
+      <div className="glass-card shadow-xl">
+        <div className="glass-card-inner !p-6 space-y-6">
+          <SectionLabel>Rettelse & Feedback</SectionLabel>
           <div className="space-y-3">
-            <Label htmlFor="notes" className="text-[11px] font-black uppercase tracking-widest text-[#004D40]/40 ml-1">Besked til eleven</Label>
+            <Label htmlFor="notes" className="text-[11px] font-black uppercase tracking-widest text-[#004D40]/40 ml-1">Besked om den lektie der er bedømt i dag</Label>
             <Controller
               name="notes"
               control={control}
@@ -431,7 +447,7 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
                   id="notes"
                   {...field}
                   value={field.value || ''}
-                  placeholder={tGlobal("Skriv feedback eller hvad eleven skal arbejde på...")}
+                  placeholder={tGlobal("Skriv feedback, rettelse eller hvad eleven skal arbejde på...")}
                   className="min-h-[120px] rounded-2xl border-white/40 bg-white/60 dark:bg-white/5 shadow-inner text-lg p-6 font-display placeholder:text-[#004D40]/20 dark:placeholder:text-white/20"
                 />
               )}
@@ -439,6 +455,7 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
           </div>
         </div>
       </div>
+      )}
 
       {(errors.hifzSurahName || errors.murajaraSurahName || errors.hifzFromAyah || errors.murajaraFromAyah) && (
         <motion.div 
@@ -465,7 +482,7 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
         ) : (
           <Save className="mr-2 h-6 w-6" />
         )}
-        {assignment ? 'Gem ændring' : 'Opret lektie'}
+        {assignment ? 'Bedøm & Opret ny lektie' : 'Opret lektie'}
       </Button>
     </form>
 
