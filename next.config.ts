@@ -44,16 +44,16 @@ const nextConfig: NextConfig = {
     },
   },
 
-  // Task 18: Webpack optimisations for large JSON assets
+  // Webpack: split heavy vendor libraries into separate cached chunks.
+  // NOTE: maxSize is intentionally omitted — it causes OOM on build servers
+  // by forcing webpack to analyse and re-split every module into tiny pieces.
   webpack: (config, { isServer }) => {
     if (!isServer) {
-      // Split vendor chunks more aggressively
       config.optimization = {
         ...config.optimization,
         splitChunks: {
           ...config.optimization?.splitChunks,
           chunks: 'all',
-          maxSize: 200_000, // 200 KB max chunk (keeps TTI low)
           cacheGroups: {
             // Isolate framer-motion into its own chunk (lazy on first load)
             framerMotion: {
