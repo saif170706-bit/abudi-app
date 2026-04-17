@@ -44,51 +44,10 @@ const nextConfig: NextConfig = {
     },
   },
 
-  // Webpack: split heavy vendor libraries into separate cached chunks.
-  // NOTE: maxSize is intentionally omitted — it causes OOM on build servers
-  // by forcing webpack to analyse and re-split every module into tiny pieces.
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.optimization = {
-        ...config.optimization,
-        splitChunks: {
-          ...config.optimization?.splitChunks,
-          chunks: 'all',
-          cacheGroups: {
-            // Isolate framer-motion into its own chunk (lazy on first load)
-            framerMotion: {
-              test: /[\\/]node_modules[\\/]framer-motion[\\/]/,
-              name: 'framer-motion',
-              chunks: 'all',
-              priority: 30,
-            },
-            // Firebase into its own chunk
-            firebase: {
-              test: /[\\/]node_modules[\\/](firebase|@firebase)[\\/]/,
-              name: 'firebase',
-              chunks: 'all',
-              priority: 20,
-            },
-            // Stream.io into its own chunk
-            stream: {
-              test: /[\\/]node_modules[\\/](stream-chat|stream-chat-react|@stream-io)[\\/]/,
-              name: 'stream-io',
-              chunks: 'all',
-              priority: 20,
-            },
-            // Everything else vendors
-            vendors: {
-              test: /[\\/]node_modules[\\/]/,
-              name: 'vendors',
-              chunks: 'all',
-              priority: 10,
-            },
-          },
-        },
-      };
-    }
-    return config;
-  },
+  // NOTE: Custom webpack chunking config removed — Next.js 15's built-in
+  // chunking is memory-efficient and handles vendor splitting automatically.
+  // Custom cacheGroups were causing OOM on build servers due to the large
+  // JSON data files (QuranAudio segments) that webpack was processing.
 
   // Task 18: Static asset headers — long cache for immutable Quran fonts
   async headers() {
