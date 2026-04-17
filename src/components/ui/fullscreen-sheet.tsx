@@ -26,32 +26,52 @@ export function FullscreenSheet({
   headerClassName?: string;
   containerClassName?: string;
 }) {
-  const { setIsSubView } = useView();
+  const { isSubView, setIsSubView } = useView();
+  const wasOpenRef = React.useRef(false);
+  const wasSubViewOnEntryRef = React.useRef(false);
 
   React.useEffect(() => {
     if (open) {
+      // Capture if we were already in a subview before this sheet opened
+      if (!wasOpenRef.current) {
+        wasSubViewOnEntryRef.current = isSubView;
+      }
+      
       setIsSubView(true);
+      wasOpenRef.current = true;
+      
       // Ensure body is locked immediately
       document.body.style.overflow = 'hidden';
       document.body.style.height = '100dvh';
-    } else {
+    } else if (wasOpenRef.current) {
+      wasOpenRef.current = false;
+      
       // Small timeout to prevent flashes
       const timer = setTimeout(() => {
         document.body.style.pointerEvents = 'auto';
         document.body.style.overflow = 'auto';
         document.body.style.height = 'auto';
-        setIsSubView(false);
+        
+        // Only revert to false if the page wasn't ALREADY a subview 
+        // before we opened the sheet.
+        if (!wasSubViewOnEntryRef.current) {
+          setIsSubView(false);
+        }
       }, 100);
       return () => clearTimeout(timer);
     }
 
     return () => {
-      // Cleanup on unmount
-      setIsSubView(false);
-      document.body.style.overflow = 'auto';
-      document.body.style.height = 'auto';
+      // Cleanup on unmount only if it was open
+      if (wasOpenRef.current) {
+        document.body.style.overflow = 'auto';
+        document.body.style.height = 'auto';
+        if (!wasSubViewOnEntryRef.current) {
+          setIsSubView(false);
+        }
+      }
     };
-  }, [open, setIsSubView]);
+  }, [open, setIsSubView, isSubView]);
 
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
