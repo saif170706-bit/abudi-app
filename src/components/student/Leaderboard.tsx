@@ -62,11 +62,11 @@ function Podium({ top3, currentUserId, filter }: { top3: LeaderboardData[]; curr
                 )}
                 <Avatar className={cn(
                   "border-4 shadow-xl",
-                  isFirst ? "h-20 w-20 border-[#DEA93E]" : "h-14 w-14 border-white",
-                  isMe && "ring-2 ring-[#004D40] ring-offset-2"
+                  isFirst ? "h-20 w-20 border-accent" : "h-14 w-14 border-white",
+                  isMe && "ring-2 ring-primary ring-offset-2"
                 )}>
                   <AvatarImage src={entry.photoURL || undefined} className="object-cover" />
-                  <AvatarFallback className="bg-[#004D40] text-white font-black">
+                  <AvatarFallback className="bg-primary text-white font-black">
                     {getInitials(entry.displayName)}
                   </AvatarFallback>
                 </Avatar>
@@ -78,14 +78,14 @@ function Podium({ top3, currentUserId, filter }: { top3: LeaderboardData[]; curr
                 </div>
              </div>
 
-             <p className="text-[10px] font-black uppercase text-[#004D40]/60 mb-2 truncate max-w-full px-1">
+             <p className="text-[10px] font-black uppercase text-primary/60 mb-2 truncate max-w-full px-1">
                 {entry.displayName.split(' ')[0]}
              </p>
 
              <div className={cn(
                "w-full rounded-t-2xl flex flex-col items-center justify-center p-2 relative overflow-hidden",
                heights[i],
-               isFirst ? "bg-[#004D40] text-white" : "bg-white text-[#004D40] border-x border-t border-[#004D40]/5 shadow-sm"
+               isFirst ? "bg-primary text-white" : "bg-white text-primary border-x border-t border-primary/5 shadow-sm"
              )}>
                 {/* Pattern Overlay for 1st place */}
                 {isFirst && (
@@ -198,26 +198,26 @@ export default function Leaderboard({ onBack }: { onBack: () => void }) {
       <div className="fixed inset-0 bg-[#efebe1] -z-10" />
       
       {/* Header */}
-      <div className="sticky top-0 z-[40] bg-[#efebe1]/80 backdrop-blur-xl border-b border-[#004D40]/5 px-6 pt-12 pb-4">
+      <div className="sticky top-0 z-[40] bg-[#efebe1]/80 backdrop-blur-xl border-b border-primary/5 px-6 pt-12 pb-4">
         <div className="flex items-center gap-4 mb-6">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={onBack}
-            className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shadow-sm border border-[#004D40]/10"
+            className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shadow-sm border border-primary/10"
           >
-            <ChevronRight className="h-5 w-5 text-[#004D40] rotate-180" />
+            <ChevronRight className="h-5 w-5 text-primary rotate-180" />
           </motion.button>
           <div>
-            <h1 className="text-2xl font-display text-[#004D40]">{tGlobal('Leaderboard')}</h1>
+            <h1 className="text-2xl font-display text-primary">{tGlobal('Leaderboard')}</h1>
             <div className="flex items-center gap-2">
-               <div className="h-1.5 w-1.5 rounded-full bg-[#DEA93E] animate-pulse" />
-               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#004D40]/40">{tGlobal('Konkurrér med andre')}</p>
+               <div className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40">{tGlobal('Konkurrér med andre')}</p>
             </div>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="flex p-1 bg-[#004D40]/5 rounded-2xl gap-1">
+        <div className="flex p-1 bg-primary/5 rounded-2xl gap-1">
           {[
             { id: 'monthly', label: tGlobal('Måned'), icon: <Calendar className="h-3 w-3" /> },
             { id: 'allTime', label: tGlobal('Top-liste'), icon: <Award className="h-3 w-3" /> },
@@ -229,8 +229,8 @@ export default function Leaderboard({ onBack }: { onBack: () => void }) {
               className={cn(
                 "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
                 filter === f.id 
-                  ? "bg-white text-[#004D40] shadow-sm" 
-                  : "text-[#004D40]/40 hover:text-[#004D40]/60"
+                  ? "bg-white text-primary shadow-sm" 
+                  : "text-primary/40 hover:text-primary/60"
               )}
             >
               {f.icon}
@@ -243,8 +243,8 @@ export default function Leaderboard({ onBack }: { onBack: () => void }) {
       <div className="px-6 space-y-4">
         {loading ? (
           <div className="space-y-4 pt-12 text-center">
-            <Trophy className="h-12 w-12 text-[#DEA93E]/20 mx-auto animate-bounce" />
-            <p className="text-[10px] font-black uppercase text-[#004D40]/40 tracking-widest">{tGlobal('Henter placeringer...')}</p>
+            <Trophy className="h-12 w-12 text-accent/20 mx-auto animate-bounce" />
+            <p className="text-[10px] font-black uppercase text-primary/40 tracking-widest">{tGlobal('Henter placeringer...')}</p>
           </div>
         ) : (
           <>
@@ -268,29 +268,29 @@ export default function Leaderboard({ onBack }: { onBack: () => void }) {
                     transition={{ delay: i * 0.05 }}
                     className={cn(
                       "glass-card group hover:scale-[1.01] transition-all",
-                      isMe && "ring-2 ring-[#004D40]/20"
+                      isMe && "ring-2 ring-primary/20"
                     )}
                   >
                     <div className="glass-card-inner !p-3 flex items-center gap-3">
-                       <span className="w-6 text-[10px] font-black text-[#004D40]/20 text-center">{rank}</span>
+                       <span className="w-6 text-[10px] font-black text-primary/20 text-center">{rank}</span>
                        <Avatar className="h-10 w-10 border border-white shadow-sm">
                           <AvatarImage src={entry.photoURL || undefined} className="object-cover" />
-                          <AvatarFallback className="bg-[#004D40]/5 text-[#004D40] font-black text-xs">
+                          <AvatarFallback className="bg-primary/5 text-primary font-black text-xs">
                              {getInitials(entry.displayName)}
                           </AvatarFallback>
                        </Avatar>
                        <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-black text-[#004D40] truncate">
+                          <h4 className="text-sm font-black text-primary truncate">
                             {entry.displayName}
-                            {isMe && <span className="ml-2 text-[8px] bg-[#004D40] text-white px-1 rounded">{tGlobal('DIG')}</span>}
+                            {isMe && <span className="ml-2 text-[8px] bg-primary text-white px-1 rounded">{tGlobal('DIG')}</span>}
                           </h4>
-                          <p className="text-[9px] font-bold text-[#004D40]/30 uppercase tracking-widest">
+                          <p className="text-[9px] font-bold text-primary/30 uppercase tracking-widest">
                             {entry.plan} {tGlobal('års plan')} • {entry.frequency} {tGlobal('dage/uge')}
                           </p>
                        </div>
                        <div className="text-right">
-                          <span className="text-sm font-display text-[#004D40] block">{val}</span>
-                          <span className="text-[8px] font-black uppercase text-[#004D40]/30 tracking-widest leading-none">
+                          <span className="text-sm font-display text-primary block">{val}</span>
+                          <span className="text-[8px] font-black uppercase text-primary/30 tracking-widest leading-none">
                             {filter === 'streak' ? tGlobal('Pts') : tGlobal('Score')}
                           </span>
                        </div>
@@ -309,9 +309,9 @@ export default function Leaderboard({ onBack }: { onBack: () => void }) {
           <motion.div 
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="bg-[#004D40] text-white rounded-3xl p-4 shadow-2xl flex items-center gap-3 border border-white/20"
+            className="bg-primary text-white rounded-3xl p-4 shadow-2xl flex items-center gap-3 border border-white/20"
           >
-             <div className="h-10 w-10 rounded-2xl bg-white/10 flex items-center justify-center font-display text-lg text-[#DEA93E]">
+             <div className="h-10 w-10 rounded-2xl bg-white/10 flex items-center justify-center font-display text-lg text-accent">
                 #{myRank}
              </div>
              <div className="flex-1">

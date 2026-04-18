@@ -49,21 +49,21 @@ export default function QuranContinueCard() {
           onClick={() => navigateToQuranPage(pageToShow)}
         >
           <div className="glass-card-inner !p-5 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-2xl bg-[#DEA93E]/10 flex items-center justify-center shrink-0">
-              <BookOpen className="h-6 w-6 text-[#DEA93E]" />
+            <div className="h-12 w-12 rounded-2xl bg-accent/10 flex items-center justify-center shrink-0">
+              <BookOpen className="h-6 w-6 text-accent" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#DEA93E] mb-0.5">
+              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-accent mb-0.5">
                 {tGlobal('Fortsæt læsning')}
               </p>
-              <h3 className="text-base font-black text-[#004D40] leading-tight">
+              <h3 className="text-base font-black text-primary leading-tight">
                 {tGlobal('Side')} {pageToShow} {tGlobal('i Quran')}
               </h3>
-              <p className="text-[10px] text-[#004D40]/40 font-bold mt-0.5">
+              <p className="text-[10px] text-primary/40 font-bold mt-0.5">
                 {tGlobal('Tryk for at fortsætte')}
               </p>
             </div>
-            <div className="h-9 w-9 rounded-full bg-[#004D40] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+            <div className="h-9 w-9 rounded-full bg-primary flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
               <ChevronRight className="h-4 w-4 text-white" />
             </div>
           </div>
@@ -77,10 +77,10 @@ export default function QuranContinueCard() {
           className="relative glass-card border-none bg-black/[0.02] shadow-none min-h-[96px]"
         >
           <div className="glass-card-inner !p-5 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-2xl bg-[#004D40]/5 animate-pulse shrink-0" />
+            <div className="h-12 w-12 rounded-2xl bg-primary/5 animate-pulse shrink-0" />
             <div className="flex-1 min-w-0 space-y-2">
-              <div className="h-2 w-20 bg-[#004D40]/5 animate-pulse rounded" />
-              <div className="h-4 w-32 bg-[#004D40]/10 animate-pulse rounded" />
+              <div className="h-2 w-20 bg-primary/5 animate-pulse rounded" />
+              <div className="h-4 w-32 bg-primary/10 animate-pulse rounded" />
             </div>
           </div>
         </motion.div>

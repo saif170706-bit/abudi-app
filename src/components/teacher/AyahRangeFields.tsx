@@ -51,8 +51,17 @@ export function AyahRangeFields({
   }, [value.from, value.to]);
 
   useEffect(() => {
-    setIsCrossSurah(!!endSurahName);
-  }, [endSurahName]);
+    const isNowCross = !!endSurahName;
+    setIsCrossSurah(isNowCross);
+
+    // Auto-clamp internalTo if the new end target has fewer ayahs than currently entered
+    const activeMax = isNowCross ? maxAyahEnd : maxAyahStart;
+    if (activeMax !== null && internalTo !== null && internalTo > activeMax) {
+      setInternalTo(activeMax);
+      onChange({ from: internalFrom, to: activeMax });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [endSurahName, maxAyahEnd, maxAyahStart]);
 
   const handleFromBlur = () => {
     if (maxAyahStart === null) return;
@@ -193,7 +202,7 @@ export function AyahRangeFields({
                 size="icon"
                 onClick={toggleCrossSurah}
                 className={`absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-xl transition-all ${
-                    isCrossSurah ? "bg-[#004D40] text-white rotate-0" : "bg-[#004D40]/5 text-[#004D40] hover:bg-[#004D40]/10"
+                    isCrossSurah ? "bg-primary text-white rotate-0" : "bg-primary/5 text-primary hover:bg-primary/10"
                 }`}
             >
                 {isCrossSurah ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
@@ -203,9 +212,9 @@ export function AyahRangeFields({
       </div>
 
       {isCrossSurah && (
-        <div className="p-4 rounded-3xl bg-[#004D40]/5 border border-[#004D40]/10 space-y-4 animate-in slide-in-from-top-2 duration-300">
+        <div className="p-4 rounded-3xl bg-primary/5 border border-primary/10 space-y-4 animate-in slide-in-from-top-2 duration-300">
           <div className="space-y-1.5">
-            <Label className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/40 ml-1">Vælg slut-surah</Label>
+            <Label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Vælg slut-surah</Label>
             <SurahSelect
               surahs={surahSelectItems}
               value={endSurahName || null}

@@ -69,15 +69,15 @@ export default function EvaluationHeatmap({ assignments, className }: Evaluation
 
                 <div className="pb-8 relative z-10 flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-2xl bg-[#DEA93E]/10 flex items-center justify-center border border-[#DEA93E]/20">
-                            <Flame className="h-6 w-6 text-[#DEA93E]" />
+                        <div className="h-12 w-12 rounded-2xl bg-accent/10 flex items-center justify-center border border-accent/20">
+                            <Flame className="h-6 w-6 text-accent" />
                         </div>
                         <div>
-                            <h3 className="text-xl font-black tracking-tight text-[#004D40]">Konsistens</h3>
-                            <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#DEA93E]">Din ugentlige indsats</p>
+                            <h3 className="text-xl font-black tracking-tight text-primary">Konsistens</h3>
+                            <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-accent">Din ugentlige indsats</p>
                         </div>
                     </div>
-                    <div className="px-3 py-1.5 rounded-xl bg-[#004D40]/5 border border-[#004D40]/10 text-[9px] font-black uppercase tracking-widest text-[#004D40]/40">
+                    <div className="px-3 py-1.5 rounded-xl bg-primary/5 border border-primary/10 text-[9px] font-black uppercase tracking-widest text-primary/40">
                         Mål: 2-3 gange/uge
                     </div>
                 </div>
@@ -102,10 +102,10 @@ export default function EvaluationHeatmap({ assignments, className }: Evaluation
                                                 title={`${day.date.toLocaleDateString()}: ${day.intensity === 3 ? 'Perfekt' : day.intensity === 2 ? 'Meget godt' : day.intensity === 1 ? 'Godt' : 'Mangler'}`}
                                                 className={cn(
                                                     "h-4.5 w-4.5 rounded-[5px] transition-all duration-500 shadow-sm",
-                                                    day.intensity === 0 ? "bg-[#004D40]/5 border border-white/40" :
-                                                    day.intensity === 1 ? "bg-[#004D40]/30 shadow-[#004D40]/10" :
-                                                    day.intensity === 2 ? "bg-[#004D40]/60 shadow-[#004D40]/20" :
-                                                    "bg-[#004D40] shadow-[0_2px_8px_rgba(0,77,64,0.3)] ring-1 ring-white/20"
+                                                    day.intensity === 0 ? "bg-primary/5 border border-white/40" :
+                                                    day.intensity === 1 ? "bg-primary/30 shadow-[#004D40]/10" :
+                                                    day.intensity === 2 ? "bg-primary/60 shadow-[#004D40]/20" :
+                                                    "bg-primary shadow-[0_2px_8px_rgba(0,77,64,0.3)] ring-1 ring-white/20"
                                                 )}
                                             />
                                         ))}
@@ -114,18 +114,18 @@ export default function EvaluationHeatmap({ assignments, className }: Evaluation
                             </div>
                         </div>
                         
-                        <div className="flex items-center justify-between pt-6 border-t border-[#004D40]/5">
+                        <div className="flex items-center justify-between pt-6 border-t border-primary/5">
                             <div className="flex items-center gap-6">
                                 <div className="flex items-center gap-2">
-                                    <div className="h-3 w-3 rounded-sm bg-[#004D40]/10" />
-                                    <span className="text-[10px] uppercase font-black tracking-widest text-[#004D40]/40">Lav</span>
+                                    <div className="h-3 w-3 rounded-sm bg-primary/10" />
+                                    <span className="text-[10px] uppercase font-black tracking-widest text-primary/40">Lav</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <div className="h-3 w-3 rounded-sm bg-[#004D40] shadow-sm" />
-                                    <span className="text-[10px] uppercase font-black tracking-widest text-[#004D40]/40">Høj</span>
+                                    <div className="h-3 w-3 rounded-sm bg-primary shadow-sm" />
+                                    <span className="text-[10px] uppercase font-black tracking-widest text-primary/40">Høj</span>
                                 </div>
                             </div>
-                            <div className="text-[9px] uppercase font-black tracking-[0.15em] text-[#004D40]/20 bg-[#004D40]/5 px-4 py-1.5 rounded-full">
+                            <div className="text-[9px] uppercase font-black tracking-[0.15em] text-primary/20 bg-primary/5 px-4 py-1.5 rounded-full">
                                 Seneste 14 uger
                             </div>
                         </div>

@@ -23,7 +23,7 @@ function LeaderboardPreviewSkeleton() {
     <div className="space-y-4">
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-2">
-          <Trophy className="h-4 w-4 text-[#DEA93E]/40" />
+          <Trophy className="h-4 w-4 text-accent/40" />
           <Skeleton className="h-3 w-24 rounded-full" />
         </div>
         <Skeleton className="h-3 w-12 rounded-full" />
@@ -46,7 +46,7 @@ function LeaderboardPreviewSkeleton() {
               <Skeleton className="h-2 w-12 rounded" />
               <Skeleton className="h-6 w-8 rounded" />
             </div>
-            <ChevronRight className="h-5 w-5 text-[#004D40]/10" />
+            <ChevronRight className="h-5 w-5 text-primary/10" />
           </div>
         </div>
       </div>
@@ -97,14 +97,14 @@ export default function LeaderboardPreview({
     <div className="space-y-4">
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-2">
-          <Trophy className="h-4 w-4 text-[#DEA93E]" />
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#004D40]/30">
+          <Trophy className="h-4 w-4 text-accent" />
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30">
             {tGlobal('Leaderboard')}
           </span>
         </div>
         <button
           onClick={() => setView('leaderboard')}
-          className="text-[10px] font-black uppercase tracking-widest text-[#DEA93E] hover:opacity-70 transition-all active:scale-95"
+          className="text-[10px] font-black uppercase tracking-widest text-accent hover:opacity-70 transition-all active:scale-95"
         >
           {tGlobal('Se alle →')}
         </button>
@@ -128,17 +128,17 @@ export default function LeaderboardPreview({
                   )}
                 >
                   <AvatarImage src={s.photoURL || undefined} className="object-cover" />
-                  <AvatarFallback className="bg-[#004D40] text-white text-[10px]">
+                  <AvatarFallback className="bg-primary text-white text-[10px]">
                     {getInitials(s.displayName)}
                   </AvatarFallback>
                 </Avatar>
               ))}
             </div>
             <div>
-              <p className="text-[11px] font-black text-[#004D40] uppercase tracking-tight">
+              <p className="text-[11px] font-black text-primary uppercase tracking-tight">
                 {userRank === 1 ? tGlobal('Du fører!') : userRank && userRank <= 3 ? tGlobal('Du er i Top 3!') : tGlobal('Top 3 er tæt!')}
               </p>
-              <p className="text-[9px] font-bold text-[#004D40]/30 uppercase">
+              <p className="text-[9px] font-bold text-primary/30 uppercase">
                 {userRank ? tGlobal('Du er nummer') + ` ${userRank}` : tGlobal('Se hvem der fører')}
               </p>
             </div>
@@ -146,17 +146,17 @@ export default function LeaderboardPreview({
 
           <div className="text-right flex items-center gap-4">
             <div className="flex flex-col items-end">
-              <span className="text-[9px] font-black text-[#004D40]/30 uppercase tracking-widest">
+              <span className="text-[9px] font-black text-primary/30 uppercase tracking-widest">
                 {tGlobal('Din plads')}
               </span>
               <div className="flex items-center gap-1">
-                <Sparkles className="h-3 w-3 text-[#DEA93E]" />
-                <span className="text-xl font-display text-[#004D40]">
+                <Sparkles className="h-3 w-3 text-accent" />
+                <span className="text-xl font-display text-primary">
                   #{userRank || '?'}
                 </span>
               </div>
             </div>
-            <ChevronRight className="h-5 w-5 text-[#004D40]/20" />
+            <ChevronRight className="h-5 w-5 text-primary/20" />
           </div>
         </div>
       </motion.div>

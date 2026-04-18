@@ -64,7 +64,7 @@ export function Navbar() {
         className={cn(
           'flex flex-col items-center justify-center gap-0.5 transition-colors relative',
           'min-h-[44px] min-w-[44px] flex-1',
-          active ? 'text-[#DEA93E]' : 'text-white/40'
+          active ? 'text-accent' : 'text-white/40'
         )}
         aria-label={label}
         aria-current={active ? 'page' : undefined}
@@ -74,7 +74,7 @@ export function Navbar() {
           {active && (
             <motion.span
               layoutId="navActiveDot"
-              className="absolute top-0 h-[3px] w-6 bg-[#DEA93E] rounded-full"
+              className="absolute top-0 h-[3px] w-6 bg-accent rounded-full"
               initial={{ opacity: 0, scaleX: 0 }}
               animate={{ opacity: 1, scaleX: 1 }}
               exit={{ opacity: 0, scaleX: 0 }}
@@ -88,7 +88,7 @@ export function Navbar() {
         </span>
         <span className={cn(
           'text-[9px] font-black uppercase tracking-widest leading-none',
-          active ? 'text-[#DEA93E]' : 'text-white/40'
+          active ? 'text-accent' : 'text-white/40'
         )}>
           {label}
         </span>
@@ -139,13 +139,13 @@ export function Navbar() {
           onClick={handleClick}
           className={cn(
             'flex flex-col items-center justify-center gap-1 min-h-[44px] min-w-[44px] flex-1 transition-colors',
-            active ? 'text-[#DEA93E]' : 'text-[#6B7280]'
+            active ? 'text-accent' : 'text-[#6B7280]'
           )}
           aria-label={label}
           aria-current={active ? 'page' : undefined}
         >
           <span className="relative grid h-7 w-7 place-items-center">{icon}</span>
-          <span className={cn('text-[9px] font-black uppercase tracking-widest', active ? 'text-[#DEA93E]' : 'text-[#6B7280]')}>
+          <span className={cn('text-[9px] font-black uppercase tracking-widest', active ? 'text-accent' : 'text-[#6B7280]')}>
             {label}
           </span>
         </motion.button>
@@ -192,12 +192,12 @@ export function Navbar() {
         <div className={cn(
           'h-14 w-14 rounded-[20px] flex items-center justify-center transition-all shadow-xl',
           isHomeActive
-            ? 'bg-[#DEA93E] text-[#004D40] scale-110 shadow-[#DEA93E]/20'
+            ? 'bg-accent text-primary scale-110 shadow-accent/20'
             : 'bg-[#00332B] dark:bg-white/5 text-white/40 border border-white/5'
         )}>
           <Home className="h-7 w-7" />
         </div>
-        <span className={cn('text-[9px] font-black uppercase tracking-widest mt-1', isHomeActive ? 'text-[#DEA93E]' : 'text-white/20 dark:text-white/40')}>
+        <span className={cn('text-[9px] font-black uppercase tracking-widest mt-1', isHomeActive ? 'text-accent' : 'text-white/20 dark:text-white/40')}>
           {tGlobal('home')}
         </span>
       </motion.button>
@@ -208,7 +208,7 @@ export function Navbar() {
     <nav
       className="fixed bottom-0 left-0 right-0 z-[100] px-4 pb-8 pt-2 bottom-nav"
     >
-      <div className="mx-auto max-w-lg relative overflow-hidden rounded-[36px] bg-[#004D40]/80 dark:bg-black/40 backdrop-blur-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+      <div className="mx-auto max-w-lg relative overflow-hidden rounded-[36px] bg-primary/80 dark:bg-black/40 backdrop-blur-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
         {/* Background Pattern Overlay */}
         <div className="absolute inset-0 opacity-[0.05] pointer-events-none mix-blend-overlay">
           <div className="absolute inset-0 bg-[url('https://i.postimg.cc/xC74tT1V/flat-arabic-pattern-background-79603-1826.avif')] bg-repeat bg-center scale-150" />

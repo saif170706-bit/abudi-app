@@ -565,8 +565,8 @@ export default function AdminAbsence() {
               <Calendar className="h-10 w-10 text-amber-600" />
             </div>
             <div>
-              <h2 className="text-2xl font-display text-[#004D40]">{selectedStudent?.displayName}</h2>
-              <p className="text-xs font-black uppercase tracking-widest text-[#004D40]/40 mt-1">Indmeldt fravær</p>
+              <h2 className="text-2xl font-display text-primary">{selectedStudent?.displayName}</h2>
+              <p className="text-xs font-black uppercase tracking-widest text-primary/40 mt-1">Indmeldt fravær</p>
             </div>
           </div>
 
@@ -574,16 +574,16 @@ export default function AdminAbsence() {
             <div className="glass-card-inner space-y-6">
               <div className="grid grid-cols-2 gap-8 py-2">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/40">Fra</p>
-                  <p className="text-xl font-display text-[#004D40]">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-primary/40">Fra</p>
+                  <p className="text-xl font-display text-primary">
                     {reportData?.[reportPeriod]?.[selectedStudent?.uid || '']?.absenceNote?.startDate?.toDate ? 
                       reportData?.[reportPeriod]?.[selectedStudent?.uid || '']?.absenceNote?.startDate?.toDate().toLocaleDateString('da-DK', { day: 'numeric', month: 'short' }) : 
                       '--'}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/40">Til</p>
-                  <p className="text-xl font-display text-[#004D40]">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-primary/40">Til</p>
+                  <p className="text-xl font-display text-primary">
                     {reportData?.[reportPeriod]?.[selectedStudent?.uid || '']?.absenceNote?.endDate?.toDate ? 
                       reportData?.[reportPeriod]?.[selectedStudent?.uid || '']?.absenceNote?.endDate?.toDate().toLocaleDateString('da-DK', { day: 'numeric', month: 'short' }) : 
                       '--'}
@@ -591,11 +591,11 @@ export default function AdminAbsence() {
                 </div>
               </div>
 
-              <div className="h-[1px] w-full bg-[#004D40]/5" />
+              <div className="h-[1px] w-full bg-primary/5" />
 
               <div className="space-y-3">
-                <p className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/40">Årsag</p>
-                <div className="bg-white/80 rounded-[24px] p-6 text-[15px] font-medium leading-relaxed italic text-[#004D40] border border-white/60 shadow-inner">
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary/40">Årsag</p>
+                <div className="bg-white/80 rounded-[24px] p-6 text-[15px] font-medium leading-relaxed italic text-primary border border-white/60 shadow-inner">
                   "{reportData?.[reportPeriod]?.[selectedStudent?.uid || '']?.absenceNote?.text || 'Ingen besked angivet'}"
                 </div>
               </div>
@@ -604,7 +604,7 @@ export default function AdminAbsence() {
 
           <Button 
             onClick={() => setIsAbsenceDetailOpen(false)}
-            className="w-full h-16 rounded-[28px] bg-[#004D40] text-white font-black uppercase text-[11px] tracking-[0.2em] shadow-2xl mt-8"
+            className="w-full h-16 rounded-[28px] bg-primary text-white font-black uppercase text-[11px] tracking-[0.2em] shadow-2xl mt-8"
           >
             Luk oversigt
           </Button>

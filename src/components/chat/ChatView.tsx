@@ -674,24 +674,24 @@ export default function ChatView() {
       <div className="flex-1 w-full px-6 pt-12 pb-32 space-y-10 max-w-lg mx-auto">
         <div className="flex items-center justify-between">
           <div className="space-y-3">
-            <div className="h-10 w-32 bg-[#004D40]/5 animate-pulse rounded-2xl" />
-            <div className="h-3 w-40 bg-[#DEA93E]/10 animate-pulse rounded-full" />
+            <div className="h-10 w-32 bg-primary/5 animate-pulse rounded-2xl" />
+            <div className="h-3 w-40 bg-accent/10 animate-pulse rounded-full" />
           </div>
-          <div className="h-16 w-16 rounded-[24px] bg-[#004D40]/5 animate-pulse shadow-sm" />
+          <div className="h-16 w-16 rounded-[24px] bg-primary/5 animate-pulse shadow-sm" />
         </div>
 
-        <div className="h-16 rounded-[28px] bg-[#004D40]/5 animate-pulse w-full" />
+        <div className="h-16 rounded-[28px] bg-primary/5 animate-pulse w-full" />
 
         <div className="space-y-6">
-          <div className="h-4 w-24 bg-[#004D40]/5 animate-pulse rounded-full ml-4" />
+          <div className="h-4 w-24 bg-primary/5 animate-pulse rounded-full ml-4" />
           <div className="glass-card overflow-hidden !border-none !bg-black/[0.02]">
             <div className="glass-card-inner !p-8 space-y-8">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full bg-[#004D40]/5 animate-pulse shrink-0" />
+                  <div className="h-12 w-12 rounded-full bg-primary/5 animate-pulse shrink-0" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 w-1/3 bg-[#004D40]/5 animate-pulse rounded" />
-                    <div className="h-3 w-1/2 bg-[#004D40]/5 animate-pulse rounded opacity-50" />
+                    <div className="h-4 w-1/3 bg-primary/5 animate-pulse rounded" />
+                    <div className="h-3 w-1/2 bg-primary/5 animate-pulse rounded opacity-50" />
                   </div>
                 </div>
               ))}
@@ -721,15 +721,15 @@ export default function ChatView() {
             className="flex items-center justify-between"
           >
             <div>
-                <h1 className="text-5xl font-display text-[#004D40] tracking-tight">{tGlobal('Beskeder')}</h1>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#DEA93E] mt-2">{tGlobal('Chat med dine lærere')}</p>
+                <h1 className="text-5xl font-display text-primary tracking-tight">{tGlobal('Beskeder')}</h1>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent mt-2">{tGlobal('Chat med dine lærere')}</p>
             </div>
 
             <NewChatDialog>
               <motion.button
                 whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.9 }}
-                className="h-16 w-16 rounded-[24px] bg-[#004D40] text-white shadow-2xl flex items-center justify-center transition-all"
+                className="h-16 w-16 rounded-[24px] bg-primary text-white shadow-2xl flex items-center justify-center transition-all"
                 aria-label={tGlobal('Start ny chat')}
               >
                 <Plus className="h-8 w-8" />
@@ -738,12 +738,12 @@ export default function ChatView() {
           </motion.div>
 
           <div className="relative group">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-[#004D40]/20 group-focus-within:text-[#004D40] transition-colors" />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-primary/20 group-focus-within:text-primary transition-colors" />
             <Input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={tGlobal('Søg i samtaler...')}
-              className="h-16 rounded-[28px] pl-16 pr-6 text-base font-bold bg-[#004D40]/5 border-white/40 focus:bg-white focus:shadow-xl transition-all"
+              className="h-16 rounded-[28px] pl-16 pr-6 text-base font-bold bg-primary/5 border-white/40 focus:bg-white focus:shadow-xl transition-all"
             />
           </div>
 
@@ -761,10 +761,10 @@ export default function ChatView() {
                       <div className="space-y-8 !p-8 animate-pulse">
                         {[1, 2, 3].map(i => (
                           <div key={i} className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-full bg-[#004D40]/5" />
+                            <div className="h-12 w-12 rounded-full bg-primary/5" />
                             <div className="flex-1 space-y-2">
-                                <div className="h-4 w-1/3 bg-[#004D40]/5 rounded" />
-                                <div className="h-3 w-1/2 bg-[#004D40]/5 rounded opacity-50" />
+                                <div className="h-4 w-1/3 bg-primary/5 rounded" />
+                                <div className="h-3 w-1/2 bg-primary/5 rounded opacity-50" />
                             </div>
                           </div>
                         ))}
@@ -783,12 +783,12 @@ export default function ChatView() {
                     }
                     EmptyStateIndicator={() => (
                       <div className="flex flex-col items-center justify-center py-24 px-10 text-center space-y-6">
-                        <div className="h-20 w-20 bg-[#004D40]/5 rounded-[32px] flex items-center justify-center animate-pulse">
-                            <MessageSquare className="h-10 w-10 text-[#004D40]/20" />
+                        <div className="h-20 w-20 bg-primary/5 rounded-[32px] flex items-center justify-center animate-pulse">
+                            <MessageSquare className="h-10 w-10 text-primary/20" />
                         </div>
                         <div className="space-y-2">
-                            <h3 className="text-xl font-bold text-[#004D40]">{tGlobal('Ingen beskeder endnu')}</h3>
-                            <p className="text-xs text-[#004D40]/40 font-bold uppercase tracking-wider">{tGlobal('Start din første samtale med en lærer')}</p>
+                            <h3 className="text-xl font-bold text-primary">{tGlobal('Ingen beskeder endnu')}</h3>
+                            <p className="text-xs text-primary/40 font-bold uppercase tracking-wider">{tGlobal('Start din første samtale med en lærer')}</p>
                         </div>
                       </div>
                     )}

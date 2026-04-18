@@ -84,39 +84,39 @@ export default function QuranIndex({ onNavigate, BackButton }: QuranIndexProps) 
   }, [searchTerm, allSurahs]);
   
   if (isContextLoading) {
-    return <div className="flex h-screen items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-[#004D40]" /></div>;
+    return <div className="flex h-screen items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
   return (
     <div className="min-h-screen pt-12 pb-32 px-6 w-full max-w-lg mx-auto space-y-10">
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="flex items-center justify-between">
           <div>
-              <h1 className="text-5xl font-display text-[#004D40] tracking-tight">{tGlobal('quran')}</h1>
-              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[#DEA93E] mt-2">{tGlobal('Udforsk de hellige skrifter')}</p>
+              <h1 className="text-5xl font-display text-primary tracking-tight">{tGlobal('quran')}</h1>
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-accent mt-2">{tGlobal('Udforsk de hellige skrifter')}</p>
           </div>
-          <div className="h-16 w-16 rounded-[24px] bg-[#004D40]/5 flex items-center justify-center border border-[#004D40]/10">
-              <BookOpen className="h-8 w-8 text-[#004D40]" />
+          <div className="h-16 w-16 rounded-[24px] bg-primary/5 flex items-center justify-center border border-primary/10">
+              <BookOpen className="h-8 w-8 text-primary" />
           </div>
       </motion.div>
 
       <Tabs defaultValue="surah" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 h-16 bg-[#004D40]/5 p-2 rounded-[28px] border border-[#004D40]/5">
-          <TabsTrigger value="surah" className="rounded-2xl font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-white data-[state=active]:text-[#004D40] data-[state=active]:shadow-lg active:scale-95 transition-all">
+        <TabsList className="grid w-full grid-cols-2 h-16 bg-primary/5 p-2 rounded-[28px] border border-primary/5">
+          <TabsTrigger value="surah" className="rounded-2xl font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-lg active:scale-95 transition-all">
             {tGlobal('surah')}
           </TabsTrigger>
-          <TabsTrigger value="page" className="rounded-2xl font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-white data-[state=active]:text-[#004D40] data-[state=active]:shadow-lg active:scale-95 transition-all">
+          <TabsTrigger value="page" className="rounded-2xl font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-lg active:scale-95 transition-all">
             {tGlobal('Side')}
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="surah" className="mt-8 space-y-8 outline-none">
           <div className="relative group">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-[#004D40]/20 group-focus-within:text-[#004D40] transition-colors" />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-primary/20 group-focus-within:text-primary transition-colors" />
             <Input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={tGlobal('Find din surah...')}
-              className="h-16 rounded-[28px] pl-16 pr-6 text-base font-bold bg-[#004D40]/5 border-white/40 focus:bg-white focus:shadow-xl transition-all"
+              className="h-16 rounded-[28px] pl-16 pr-6 text-base font-bold bg-primary/5 border-white/40 focus:bg-white focus:shadow-xl transition-all"
             />
           </div>
 
@@ -136,8 +136,8 @@ export default function QuranIndex({ onNavigate, BackButton }: QuranIndexProps) 
                     className="glass-card shadow-sm cursor-pointer"
                   >
                     <div className="glass-card-inner !p-4 text-center">
-                        <p className="font-bold text-[#004D40] truncate text-sm">{visit.surahName}</p>
-                        <p className="text-[10px] text-[#DEA93E] font-black uppercase tracking-widest mt-1">{tGlobal('Side')} {visit.page}</p>
+                        <p className="font-bold text-primary truncate text-sm">{visit.surahName}</p>
+                        <p className="text-[10px] text-accent font-black uppercase tracking-widest mt-1">{tGlobal('Side')} {visit.page}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -161,27 +161,27 @@ export default function QuranIndex({ onNavigate, BackButton }: QuranIndexProps) 
                   className="glass-card group cursor-pointer"
                 >
                   <div className="glass-card-inner !py-5 !px-6 flex items-center gap-5">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-[#004D40]/5 flex items-center justify-center font-display text-lg text-[#004D40] group-hover:bg-[#DEA93E] group-hover:text-white transition-all">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center font-display text-lg text-primary group-hover:bg-accent group-hover:text-white transition-all">
                       {surah.number}
                     </div>
                     <div className="flex-grow">
-                      <h3 className="font-bold text-[17px] text-[#004D40]">{surah.englishName}</h3>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/30 mt-1">
+                      <h3 className="font-bold text-[17px] text-primary">{surah.englishName}</h3>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-1">
                         {surah.revelationPlace === 'Meccan' ? tGlobal('Makki') : tGlobal('Madani')} • {surah.versesCount} {tGlobal('vers')}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-quran text-3xl text-[#004D40] group-hover:text-[#DEA93E] transition-colors">{surah.arabicName}</p>
+                      <p className="font-quran text-3xl text-primary group-hover:text-accent transition-colors">{surah.arabicName}</p>
                     </div>
                   </div>
                 </motion.div>
               ))
             ) : searchTerm && (
               <div className="py-20 text-center space-y-4">
-                <div className="h-16 w-16 bg-[#004D40]/5 rounded-full flex items-center justify-center mx-auto">
-                    <Search className="h-8 w-8 text-[#004D40]/20" />
+                <div className="h-16 w-16 bg-primary/5 rounded-full flex items-center justify-center mx-auto">
+                    <Search className="h-8 w-8 text-primary/20" />
                 </div>
-                <p className="text-[#004D40]/40 font-bold">{tGlobal('noResults').replace('{searchTerm}', searchTerm)}</p>
+                <p className="text-primary/40 font-bold">{tGlobal('noResults').replace('{searchTerm}', searchTerm)}</p>
               </div>
             )}
           </div>
@@ -190,11 +190,11 @@ export default function QuranIndex({ onNavigate, BackButton }: QuranIndexProps) 
         <TabsContent value="page" className="mt-12 outline-none">
           <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="max-w-xs mx-auto text-center space-y-10">
             <div className="space-y-4">
-              <div className="h-24 w-24 bg-[#DEA93E]/10 rounded-[40px] flex items-center justify-center mx-auto shadow-inner">
-                <BookOpen className="h-12 w-12 text-[#DEA93E]" />
+              <div className="h-24 w-24 bg-accent/10 rounded-[40px] flex items-center justify-center mx-auto shadow-inner">
+                <BookOpen className="h-12 w-12 text-accent" />
               </div>
-              <h3 className="text-3xl font-display text-[#004D40]">{tGlobal('goToPage')}</h3>
-              <p className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/30">{tGlobal('Vælg en side mellem 1 og 604')}</p>
+              <h3 className="text-3xl font-display text-primary">{tGlobal('goToPage')}</h3>
+              <p className="text-[10px] font-black uppercase tracking-widest text-primary/30">{tGlobal('Vælg en side mellem 1 og 604')}</p>
             </div>
             
             <form onSubmit={handlePageSearch} className="space-y-6">
@@ -206,7 +206,7 @@ export default function QuranIndex({ onNavigate, BackButton }: QuranIndexProps) 
                 placeholder="1 - 604"
                 className="h-20 text-center text-4xl font-display rounded-[32px] border-white focus:shadow-2xl bg-white/60 backdrop-blur-md transition-all"
               />
-              <Button type="submit" className="w-full h-20 rounded-[32px] text-lg font-black uppercase tracking-[0.2em] bg-[#004D40] text-white shadow-2xl active:scale-95 transition-all">
+              <Button type="submit" className="w-full h-20 rounded-[32px] text-lg font-black uppercase tracking-[0.2em] bg-primary text-white shadow-2xl active:scale-95 transition-all">
                 {tGlobal('go')}
               </Button>
             </form>

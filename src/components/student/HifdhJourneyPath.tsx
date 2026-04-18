@@ -405,10 +405,10 @@ export default function HifdhJourneyPath({
                     "mx-auto flex items-center justify-center rounded-2xl shadow-sm transition-colors duration-500",
                     isFinal
                       ? unlocked
-                        ? "h-16 w-16 bg-[#004D40]"
+                        ? "h-16 w-16 bg-primary"
                         : "h-16 w-16 bg-neutral-300"
                       : unlocked
-                      ? "h-11 w-11 bg-[#DEA93E]"
+                      ? "h-11 w-11 bg-accent"
                       : "h-11 w-11 bg-neutral-200",
                   ].join(" ")}
                 >

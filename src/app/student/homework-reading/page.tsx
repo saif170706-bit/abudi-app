@@ -474,16 +474,16 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
         <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="glass-card w-full shadow-2xl">
           <div className="glass-card-inner !p-12 space-y-10">
             <div className="relative h-32 w-32 mx-auto">
-               <div className="absolute inset-0 animate-ping bg-[#DEA93E]/20 rounded-full scale-150" />
-               <div className="relative h-full w-full bg-[#004D40] rounded-[40px] flex items-center justify-center shadow-2xl border-4 border-white">
-                  <Sparkles className="h-16 w-16 text-[#DEA93E]" />
+               <div className="absolute inset-0 animate-ping bg-accent/20 rounded-full scale-150" />
+               <div className="relative h-full w-full bg-primary rounded-[40px] flex items-center justify-center shadow-2xl border-4 border-white">
+                  <Sparkles className="h-16 w-16 text-accent" />
                </div>
             </div>
             <div className="space-y-4">
-               <h2 className="text-4xl font-display text-[#004D40] tracking-tight">
+               <h2 className="text-4xl font-display text-primary tracking-tight">
                   {callType === 'virtual' ? tGlobal('Vær klar!') : tGlobal('Det er din tur!')}
                </h2>
-               <p className="text-sm font-bold text-[#004D40]/40 uppercase tracking-widest leading-relaxed">
+               <p className="text-sm font-bold text-primary/40 uppercase tracking-widest leading-relaxed">
                   {callType === 'virtual' 
                     ? tGlobal('Din lærer ringer dig op virtuelt lige nu. Bliv på denne skærm.') 
                     : tGlobal('{teacherName} venter på dig i lokale {room}.')
@@ -491,7 +491,7 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
                       .replace('{room}', callingTeacher.room || '')}
                </p>
             </div>
-            <Button onClick={handleReturnToLanding} className="w-full h-20 rounded-[32px] bg-[#004D40] text-white font-black uppercase tracking-[0.2em] shadow-xl">
+            <Button onClick={handleReturnToLanding} className="w-full h-20 rounded-[32px] bg-primary text-white font-black uppercase tracking-[0.2em] shadow-xl">
                {tGlobal('Tilbage til forside')}
             </Button>
           </div>
@@ -506,17 +506,17 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
         <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="glass-card w-full shadow-2xl">
           <div className="glass-card-inner !p-10 space-y-12">
             <div className="space-y-4">
-               <div className="px-6 py-2 bg-[#DEA93E]/10 text-[#DEA93E] rounded-full text-[10px] font-black uppercase tracking-widest inline-block">{userQueue.type === 'physical' ? tGlobal('Fysisk') : tGlobal('Virtuelt')}</div>
-               <h2 className="text-4xl font-display text-[#004D40]">{tGlobal('Du er i kø')}</h2>
-               <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[#004D40]/30">{currentTeacher.displayName}</p>
+               <div className="px-6 py-2 bg-accent/10 text-accent rounded-full text-[10px] font-black uppercase tracking-widest inline-block">{userQueue.type === 'physical' ? tGlobal('Fysisk') : tGlobal('Virtuelt')}</div>
+               <h2 className="text-4xl font-display text-primary">{tGlobal('Du er i kø')}</h2>
+               <p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary/30">{currentTeacher.displayName}</p>
             </div>
             <div className="space-y-4">
-               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#DEA93E]">{tGlobal('Din plads i køen')}</p>
-               <div className="text-[140px] font-display text-[#004D40] leading-none tracking-tighter">#{userQueue.position}</div>
+               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent">{tGlobal('Din plads i køen')}</p>
+               <div className="text-[140px] font-display text-primary leading-none tracking-tighter">#{userQueue.position}</div>
                {userQueue.ticketNumber && userQueue.type === 'physical' && currentTeacher && (
-                 <div className="bg-[#004D40]/5 rounded-2xl p-4 border border-[#004D40]/10">
-                   <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#004D40]/40 mb-1">{tGlobal('Dit Kø ID (TV system)')}</p>
-                   <p className="text-2xl font-display text-[#004D40]">{(currentTeacher.queueLetter || 'A')}{userQueue.ticketNumber}</p>
+                 <div className="bg-primary/5 rounded-2xl p-4 border border-primary/10">
+                   <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/40 mb-1">{tGlobal('Dit Kø ID (TV system)')}</p>
+                   <p className="text-2xl font-display text-primary">{(currentTeacher.queueLetter || 'A')}{userQueue.ticketNumber}</p>
                  </div>
                )}
             </div>
@@ -533,7 +533,7 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
     <div className="min-h-screen pt-12 pb-32 px-6 w-full max-w-lg mx-auto space-y-10">
        <div className="flex items-center gap-4">
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => setView('landing')} className="h-14 w-14 rounded-2xl bg-white/80 backdrop-blur-md flex items-center justify-center shadow-lg border border-white transition-all">
-             <ChevronRight className="h-6 w-6 text-[#004D40] rotate-180" />
+             <ChevronRight className="h-6 w-6 text-primary rotate-180" />
           </motion.button>
           <div className="section-label">{tGlobal('Vælg Lærer')}</div>
        </div>
@@ -543,16 +543,16 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
                <div className="glass-card-inner !py-6 !px-6 flex items-center gap-5">
                   <Avatar className="h-16 w-16 border-4 border-white shadow-xl">
                      <AvatarImage src={t.photoURL || ''} className="object-cover" />
-                     <AvatarFallback className="bg-[#004D40]/5 font-display text-xl text-[#004D40]">{getInitials(t.displayName)}</AvatarFallback>
+                     <AvatarFallback className="bg-primary/5 font-display text-xl text-primary">{getInitials(t.displayName)}</AvatarFallback>
                   </Avatar>
                   <div className="flex-grow">
-                     <h3 className="font-bold text-lg text-[#004D40]">{t.displayName}</h3>
+                     <h3 className="font-bold text-lg text-primary">{t.displayName}</h3>
                      <div className="flex items-center gap-4 mt-1">
-                        <span className="text-[10px] font-black text-[#DEA93E] uppercase tracking-widest">{isV ? tGlobal('Virtuelt') : `${tGlobal('Lokale')} ${t.room}`}</span>
-                        <div className="flex items-center gap-1 text-[10px] font-bold text-[#004D40]/30"><Users className="h-3 w-3" /> {queueData[t.id]?.count || 0}</div>
+                        <span className="text-[10px] font-black text-accent uppercase tracking-widest">{isV ? tGlobal('Virtuelt') : `${tGlobal('Lokale')} ${t.room}`}</span>
+                        <div className="flex items-center gap-1 text-[10px] font-bold text-primary/30"><Users className="h-3 w-3" /> {queueData[t.id]?.count || 0}</div>
                      </div>
                   </div>
-                  <div className="h-12 w-12 rounded-2xl bg-[#004D40] text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-all">
+                  <div className="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-all">
                      {isJoining === t.id ? <Loader2 className="h-5 w-5 animate-spin" /> : <ChevronRight className="h-5 w-5" />}
                   </div>
                </div>
@@ -569,11 +569,11 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
     <div className="min-h-screen pt-12 pb-32 px-6 w-full max-w-lg mx-auto space-y-12">
        <div className="flex items-center gap-4">
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => setParentView('overview')} className="h-14 w-14 rounded-2xl bg-white/80 backdrop-blur-md flex items-center justify-center shadow-lg border border-white cursor-pointer">
-             <ChevronRight className="h-6 w-6 text-[#004D40] rotate-180" />
+             <ChevronRight className="h-6 w-6 text-primary rotate-180" />
           </motion.button>
           <div>
-              <h1 className="text-4xl font-display text-[#004D40] leading-none mb-1">{tGlobal('Kø System')}</h1>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#DEA93E]">{tGlobal('Tilmeld dig dagens kø')}</p>
+              <h1 className="text-4xl font-display text-primary leading-none mb-1">{tGlobal('Kø System')}</h1>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent">{tGlobal('Tilmeld dig dagens kø')}</p>
           </div>
        </div>
 
@@ -590,14 +590,14 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
                  <div className="absolute inset-0 opacity-[0.04] pointer-events-none mix-blend-multiply">
                     <div className="absolute inset-0 bg-[url('https://i.postimg.cc/xC74tT1V/flat-arabic-pattern-background-79603-1826.avif')] bg-center bg-repeat" />
                  </div>
-                 <div className="absolute top-0 right-0 w-64 h-64 bg-[#DEA93E]/10 blur-3xl -mr-32 -mt-32 transition-transform group-hover:scale-125 duration-700" />
+                 <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 blur-3xl -mr-32 -mt-32 transition-transform group-hover:scale-125 duration-700" />
                  <div className="flex items-center gap-8 relative z-10">
-                    <div className="h-20 w-20 bg-[#004D40] rounded-[32px] flex items-center justify-center shadow-2xl border-4 border-white/20 group-hover:rotate-6 transition-transform">
-                       <Book className="h-10 w-10 text-[#DEA93E]" />
+                    <div className="h-20 w-20 bg-primary rounded-[32px] flex items-center justify-center shadow-2xl border-4 border-white/20 group-hover:rotate-6 transition-transform">
+                       <Book className="h-10 w-10 text-accent" />
                     </div>
                     <div>
-                       <h3 className="text-2xl font-display text-[#004D40]">{tGlobal('Læs Fysisk')}</h3>
-                       <p className="text-[10px] font-black uppercase tracking-widest text-[#DEA93E] mt-1">{getAvailabilityText(physicalTeachers.length)}</p>
+                       <h3 className="text-2xl font-display text-primary">{tGlobal('Læs Fysisk')}</h3>
+                       <p className="text-[10px] font-black uppercase tracking-widest text-accent mt-1">{getAvailabilityText(physicalTeachers.length)}</p>
                     </div>
                  </div>
               </div>
@@ -615,14 +615,14 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
                  <div className="absolute inset-0 opacity-[0.04] pointer-events-none mix-blend-multiply">
                     <div className="absolute inset-0 bg-[url('https://i.postimg.cc/xC74tT1V/flat-arabic-pattern-background-79603-1826.avif')] bg-center bg-repeat" />
                  </div>
-                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#004D40]/10 blur-3xl -ml-32 -mb-32 transition-transform group-hover:scale-125 duration-700" />
+                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 blur-3xl -ml-32 -mb-32 transition-transform group-hover:scale-125 duration-700" />
                  <div className="flex items-center gap-8 relative z-10">
-                    <div className="h-20 w-20 bg-[#004D40] rounded-[32px] flex items-center justify-center shadow-2xl border-4 border-white/20 group-hover:-rotate-6 transition-transform">
-                       <Phone className="h-10 w-10 text-[#DEA93E]" />
+                    <div className="h-20 w-20 bg-primary rounded-[32px] flex items-center justify-center shadow-2xl border-4 border-white/20 group-hover:-rotate-6 transition-transform">
+                       <Phone className="h-10 w-10 text-accent" />
                     </div>
                     <div>
-                       <h3 className="text-2xl font-display text-[#004D40]">{tGlobal('Læs Virtuelt')}</h3>
-                       <p className="text-[10px] font-black uppercase tracking-widest text-[#DEA93E] mt-1">{getAvailabilityText(virtualTeachers.length)}</p>
+                       <h3 className="text-2xl font-display text-primary">{tGlobal('Læs Virtuelt')}</h3>
+                       <p className="text-[10px] font-black uppercase tracking-widest text-accent mt-1">{getAvailabilityText(virtualTeachers.length)}</p>
                     </div>
                  </div>
               </div>

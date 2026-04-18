@@ -94,17 +94,17 @@ export default function Announcements({ BackButton }: AnnouncementsProps) {
           className="mb-10"
         >
           <div className="flex items-center gap-2 mb-1">
-            <p className="text-[#004D40]/40 dark:text-white/30 text-xs font-bold uppercase tracking-widest">
+            <p className="text-primary/40 dark:text-white/30 text-xs font-bold uppercase tracking-widest">
               {today}
             </p>
           </div>
           <div className="flex items-center justify-between">
-            <h1 className="text-4xl font-display text-[#004D40] dark:text-white/90 tracking-tight">
+            <h1 className="text-4xl font-display text-primary dark:text-white/90 tracking-tight">
               {tGlobal('Opslag')}
             </h1>
             <div className="flex -space-x-2">
               {/* Optional: Show active users or just a flourish */}
-              <div className="h-8 w-8 rounded-full border-2 border-background bg-[#DEA93E]/20 flex items-center justify-center text-[10px] font-bold text-[#DEA93E]">
+              <div className="h-8 w-8 rounded-full border-2 border-background bg-accent/20 flex items-center justify-center text-[10px] font-bold text-accent">
                 {feedItems.length}
               </div>
             </div>
@@ -150,7 +150,7 @@ export default function Announcements({ BackButton }: AnnouncementsProps) {
                       <Card className={cn(
                         "group relative border-none bg-card/60 dark:bg-zinc-900/60 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] overflow-hidden transition-all duration-500",
                         "rounded-[40px] p-1 flex flex-col",
-                        item.isNew ? "before:absolute before:inset-0 before:p-[1px] before:rounded-[40px] before:bg-gradient-to-br before:from-[#DEA93E] before:to-transparent before:-z-10" : ""
+                        item.isNew ? "before:absolute before:inset-0 before:p-[1px] before:rounded-[40px] before:bg-gradient-to-br before:from-accent before:to-transparent before:-z-10" : ""
                       )}>
                         <div className="bg-card dark:bg-zinc-950/40 rounded-[39px] h-full flex flex-col overflow-hidden">
                           
@@ -166,7 +166,7 @@ export default function Announcements({ BackButton }: AnnouncementsProps) {
                               
                               {item.isNew && (
                                 <div className="absolute top-6 right-6">
-                                  <div className="bg-[#DEA93E] text-[#004D40] px-3 py-1 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg animate-pulse">
+                                  <div className="bg-accent text-primary px-3 py-1 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg animate-pulse">
                                     {tGlobal('Ny')}
                                   </div>
                                 </div>
@@ -180,12 +180,12 @@ export default function Announcements({ BackButton }: AnnouncementsProps) {
                               <div className="flex items-center gap-3">
                                 <Avatar className="h-10 w-10 border-2 border-background shadow-md">
                                   <AvatarImage src={undefined} />
-                                  <AvatarFallback className="bg-[#004D40] text-white text-xs font-bold font-display">
+                                  <AvatarFallback className="bg-primary text-white text-xs font-bold font-display">
                                     {getInitials(item.authorName)}
                                   </AvatarFallback>
                                 </Avatar>
                                 <div className="flex flex-col">
-                                  <span className="text-sm font-black text-[#004D40] dark:text-white/90 leading-tight">
+                                  <span className="text-sm font-black text-primary dark:text-white/90 leading-tight">
                                     {item.authorName}
                                   </span>
                                   <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider flex items-center gap-1">
@@ -195,13 +195,13 @@ export default function Announcements({ BackButton }: AnnouncementsProps) {
                               </div>
 
                               {!item.imageUrl && item.isNew && (
-                                <div className="bg-[#DEA93E]/10 text-[#DEA93E] px-3 py-1 rounded-full font-black text-[10px] uppercase tracking-widest">
+                                <div className="bg-accent/10 text-accent px-3 py-1 rounded-full font-black text-[10px] uppercase tracking-widest">
                                   {tGlobal('Ny')}
                                 </div>
                               )}
                             </div>
 
-                            <CardTitle className="text-2xl font-display text-[#004D40] dark:text-white font-bold tracking-tight mb-4 leading-tight">
+                            <CardTitle className="text-2xl font-display text-primary dark:text-white font-bold tracking-tight mb-4 leading-tight">
                               {item.title}
                             </CardTitle>
 
@@ -210,7 +210,7 @@ export default function Announcements({ BackButton }: AnnouncementsProps) {
                             </CardContent>
 
                             <div className="mt-8 pt-6 border-t border-border/10 flex items-center justify-between">
-                               <div className="flex items-center gap-1 text-[#DEA93E] text-[11px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                               <div className="flex items-center gap-1 text-accent text-[11px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                  Læs mere <ChevronRight className="h-3 w-3" />
                                </div>
                             </div>

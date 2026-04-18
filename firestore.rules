@@ -113,7 +113,8 @@ service cloud.firestore {
     
     // Pre-authorization placeholders
     match /placeholders/{email} {
-      allow read, list: if isSignedIn();
+      allow get: if true;
+      allow list: if isAdmin();
       allow write: if isAdmin();
       allow update: if isSignedIn()
                     && request.auth.token.email.lower() == email.lower()

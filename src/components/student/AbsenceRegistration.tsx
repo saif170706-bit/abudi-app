@@ -93,7 +93,7 @@ export default function AbsenceRegistration({
       ) : (
         <button
           onClick={() => setIsOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#004D40]/5 hover:bg-[#004D40]/10 text-[#004D40] rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95"
+          className="flex items-center gap-2 px-4 py-2 bg-primary/5 hover:bg-primary/10 text-primary rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95"
         >
           <Calendar className="h-4 w-4" />
           {t('buttonLabel')}
@@ -111,7 +111,7 @@ export default function AbsenceRegistration({
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-3">
-                <Label className="text-[11px] font-black uppercase tracking-widest text-[#004D40]/40 ml-1">
+                <Label className="text-[11px] font-black uppercase tracking-widest text-primary/40 ml-1">
                   {t('fromDate')}
                 </Label>
                 <div className="relative">
@@ -120,13 +120,13 @@ export default function AbsenceRegistration({
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                     required
-                    className="h-14 rounded-2xl border-white bg-white/60 shadow-inner px-4 font-bold text-[#004D40] appearance-none"
+                    className="h-14 rounded-2xl border-white bg-white/60 shadow-inner px-4 font-bold text-primary appearance-none"
                   />
                 </div>
               </div>
 
               <div className="space-y-3">
-                <Label className="text-[11px] font-black uppercase tracking-widest text-[#004D40]/40 ml-1">
+                <Label className="text-[11px] font-black uppercase tracking-widest text-primary/40 ml-1">
                   {t('toDate')}
                 </Label>
                 <Input
@@ -134,13 +134,13 @@ export default function AbsenceRegistration({
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                   required
-                  className="h-14 rounded-2xl border-white bg-white/60 shadow-inner px-4 font-bold text-[#004D40] appearance-none"
+                  className="h-14 rounded-2xl border-white bg-white/60 shadow-inner px-4 font-bold text-primary appearance-none"
                 />
               </div>
             </div>
 
             <div className="space-y-3">
-              <Label className="text-[11px] font-black uppercase tracking-widest text-[#004D40]/40 ml-1">
+              <Label className="text-[11px] font-black uppercase tracking-widest text-primary/40 ml-1">
                 {t('reason')}
               </Label>
               <Textarea
@@ -155,7 +155,7 @@ export default function AbsenceRegistration({
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-16 rounded-[24px] bg-[#004D40] hover:bg-[#00332B] text-white font-display text-lg shadow-xl shadow-[#004D40]/20 flex items-center justify-center gap-3"
+              className="w-full h-16 rounded-[24px] bg-primary hover:bg-[#00332B] text-white font-display text-lg shadow-xl shadow-[#004D40]/20 flex items-center justify-center gap-3"
             >
               {isLoading ? (
                 <Loader2 className="h-6 w-6 animate-spin" />

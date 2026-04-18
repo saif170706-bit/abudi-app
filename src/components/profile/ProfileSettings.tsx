@@ -202,7 +202,7 @@ export default function ProfileSettings() {
   };
 
   if (isProfileLoading || !profile) {
-    return <div className="flex h-screen items-center justify-center bg-[#fdfaf5]"><Loader2 className="h-8 w-8 animate-spin text-[#004D40]" /></div>;
+    return <div className="flex h-screen items-center justify-center bg-[#fdfaf5]"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
   const isAdmin = profile.role === 'admin';
@@ -210,12 +210,12 @@ export default function ProfileSettings() {
   const SettingsRow = ({ icon: Icon, label, onClick, rightElement, className = "", variant = "default" }: { icon: any, label: string, onClick?: () => void, rightElement?: React.ReactNode, className?: string, variant?: "default" | "danger" }) => (
     <button type="button" onClick={onClick} className={cn("flex w-full items-center justify-between px-6 py-5 text-left transition-all", className)}>
       <div className="flex items-center gap-4 relative z-10">
-        <div className={cn("grid h-12 w-12 place-items-center rounded-2xl shadow-sm", variant === "danger" ? "bg-red-50 text-red-500" : "bg-[#004D40]/5 text-[#004D40]")}><Icon className="h-5 w-5" /></div>
-        <span className="text-[17px] font-bold text-[#004D40]">{label}</span>
+        <div className={cn("grid h-12 w-12 place-items-center rounded-2xl shadow-sm", variant === "danger" ? "bg-red-50 text-red-500" : "bg-primary/5 text-primary")}><Icon className="h-5 w-5" /></div>
+        <span className="text-[17px] font-bold text-primary">{label}</span>
       </div>
       <div className="flex items-center gap-3 relative z-10">
         {rightElement}
-        <ChevronRight className="h-5 w-5 text-[#004D40]/20" />
+        <ChevronRight className="h-5 w-5 text-primary/20" />
       </div>
     </button>
   );
@@ -230,17 +230,17 @@ export default function ProfileSettings() {
         <div className="relative group">
            <Avatar className="h-32 w-32 border-8 border-white shadow-2xl mb-6 scale-hover transition-transform duration-500">
             {profile.photoURL && <AvatarImage src={profile.photoURL} className="object-cover" />}
-            <AvatarFallback className="text-3xl bg-[#004D40]/5 text-[#004D40] font-display">{getInitials(profile.displayName)}</AvatarFallback>
+            <AvatarFallback className="text-3xl bg-primary/5 text-primary font-display">{getInitials(profile.displayName)}</AvatarFallback>
           </Avatar>
-          <div className="absolute -bottom-2 -right-2 bg-[#DEA93E] text-white p-2 rounded-2xl shadow-xl border-4 border-white">
+          <div className="absolute -bottom-2 -right-2 bg-accent text-white p-2 rounded-2xl shadow-xl border-4 border-white">
             <User className="h-5 w-5" />
           </div>
         </div>
-        <h1 className="text-4xl font-display text-[#004D40] tracking-tight mb-2">{profile.displayName}</h1>
+        <h1 className="text-4xl font-display text-primary tracking-tight mb-2">{profile.displayName}</h1>
         <div className="flex flex-col items-center gap-3">
-          <p className="text-sm font-bold text-[#004D40]/40 tracking-wider font-jakarta">{profile.email}</p>
+          <p className="text-sm font-bold text-primary/40 tracking-wider font-jakarta">{profile.email}</p>
           {profile.role === 'student' && profile.studentNumber && (
-            <div className="px-4 py-1.5 bg-[#004D40] text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">{tGlobal('Elev')} #{profile.studentNumber}</div>
+            <div className="px-4 py-1.5 bg-primary text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">{tGlobal('Elev')} #{profile.studentNumber}</div>
           )}
         </div>
       </motion.div>
@@ -277,7 +277,7 @@ export default function ProfileSettings() {
                   toast({ title: newVal ? tGlobal('Skjult fra leaderboard') : tGlobal('Synlig på leaderboard'), description: tGlobal('Dit navn og dine point vil ikke være synlige for andre.') });
                 }} 
                 rightElement={
-                  <div className={cn("h-6 w-11 rounded-full p-1 transition-colors", profile.hideFromLeaderboard ? "bg-[#DEA93E]" : "bg-neutral-200")}>
+                  <div className={cn("h-6 w-11 rounded-full p-1 transition-colors", profile.hideFromLeaderboard ? "bg-accent" : "bg-neutral-200")}>
                     <div className={cn("h-4 w-4 rounded-full bg-white transition-transform shadow-sm", profile.hideFromLeaderboard ? "translate-x-5" : "translate-x-0")} />
                   </div>
                 }
@@ -293,8 +293,8 @@ export default function ProfileSettings() {
         <div className="space-y-6">
           <div className="section-label">{tGlobal('Vælg sprog')}</div>
           <div className="space-y-4">
-            <SettingsRow icon={Languages} label={tGlobal('Vælg sprog')} rightElement={<span className="text-[10px] font-black text-[#DEA93E] uppercase tracking-widest bg-[#DEA93E]/10 px-3 py-1 rounded-full">{language}</span>} onClick={() => { const langs: Language[] = ['da', 'en', 'ar', 'so']; const nextIdx = (langs.indexOf(language) + 1) % langs.length; setLanguage(langs[nextIdx]); }} className="glass-card shadow-sm" />
-            <SettingsRow icon={theme === 'dark' ? Moon : Sun} label={theme === 'dark' ? tGlobal('Mørkt Tema') : tGlobal('Lyst Tema')} rightElement={<span className="text-[10px] font-black text-[#DEA93E] uppercase tracking-widest bg-[#DEA93E]/10 px-3 py-1 rounded-full">{theme || 'system'}</span>} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="glass-card shadow-sm" />
+            <SettingsRow icon={Languages} label={tGlobal('Vælg sprog')} rightElement={<span className="text-[10px] font-black text-accent uppercase tracking-widest bg-accent/10 px-3 py-1 rounded-full">{language}</span>} onClick={() => { const langs: Language[] = ['da', 'en', 'ar', 'so']; const nextIdx = (langs.indexOf(language) + 1) % langs.length; setLanguage(langs[nextIdx]); }} className="glass-card shadow-sm" />
+            <SettingsRow icon={theme === 'dark' ? Moon : Sun} label={theme === 'dark' ? tGlobal('Mørkt Tema') : tGlobal('Lyst Tema')} rightElement={<span className="text-[10px] font-black text-accent uppercase tracking-widest bg-accent/10 px-3 py-1 rounded-full">{theme || 'system'}</span>} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="glass-card shadow-sm" />
           </div>
         </div>
 
@@ -306,40 +306,40 @@ export default function ProfileSettings() {
         </div>
       </div>
 
-      <FullscreenSheet open={isEditOpen} onOpenChange={setIsEditOpen} title={tGlobal('Rediger profil')} rightSlot={<button onClick={() => setIsEditOpen(false)} className="p-3 bg-[#004D40]/5 rounded-2xl"><X className="h-5 w-5 text-[#004D40]" /></button>}>
+      <FullscreenSheet open={isEditOpen} onOpenChange={setIsEditOpen} title={tGlobal('Rediger profil')} rightSlot={<button onClick={() => setIsEditOpen(false)} className="p-3 bg-primary/5 rounded-2xl"><X className="h-5 w-5 text-primary" /></button>}>
         <div className="p-6 space-y-10 pb-32 w-full max-w-lg mx-auto">
           <div className="glass-card overflow-hidden">
             <div className="glass-card-inner !p-10 flex flex-col items-center justify-center">
               <AvatarUploader />
-              <p className="mt-4 text-[10px] font-black uppercase text-[#004D40]/30 tracking-widest">{tGlobal('skift billede')}</p>
+              <p className="mt-4 text-[10px] font-black uppercase text-primary/30 tracking-widest">{tGlobal('skift billede')}</p>
             </div>
           </div>
           <div className="space-y-6 w-full">
             <div className="section-label">{tGlobal('Personlige oplysninger')}</div>
             {!isAdmin && (
-              <div className="p-5 rounded-[28px] bg-[#004D40]/5 border border-[#004D40]/10 text-xs font-bold text-[#004D40]/60 leading-relaxed shadow-inner">
+              <div className="p-5 rounded-[28px] bg-primary/5 border border-primary/10 text-xs font-bold text-primary/60 leading-relaxed shadow-inner">
                 {tGlobal('Ændringer i dine profiloplysninger skal ske via Ibn Amers administration. Kontakt os ')}
-                <button onClick={() => { setIsEditOpen(false); setIsContactOpen(true); }} className="text-[#DEA93E] font-black mx-1 hover:underline">{tGlobal('her')}</button>.
+                <button onClick={() => { setIsEditOpen(false); setIsContactOpen(true); }} className="text-accent font-black mx-1 hover:underline">{tGlobal('her')}</button>.
               </div>
             )}
             <div className="glass-card">
               <form onSubmit={handleProfileUpdate} className="glass-card-inner space-y-6">
                   {profile.role === 'student' && (
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/30 ml-2">{tGlobal('Elevnummer')}</Label>
-                      <Input value={profile.studentNumber || tGlobal('Ej tildelt')} disabled className="h-14 rounded-2xl border-white/40 bg-white/40 text-[#004D40]/40 font-black px-6" />
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Elevnummer')}</Label>
+                      <Input value={profile.studentNumber || tGlobal('Ej tildelt')} disabled className="h-14 rounded-2xl border-white/40 bg-white/40 text-primary/40 font-black px-6" />
                     </div>
                   )}
                   <div className="space-y-2">
-                    <Label htmlFor="edit-name" className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/30 ml-2">{tGlobal('Fulde Navn')}</Label>
-                    <Input id="edit-name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} disabled={!isAdmin} className={cn("h-14 rounded-2xl border-white/40 px-6 font-bold text-[#004D40]", !isAdmin ? "bg-white/20" : "bg-white/60 focus:bg-white")} />
+                    <Label htmlFor="edit-name" className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Fulde Navn')}</Label>
+                    <Input id="edit-name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} disabled={!isAdmin} className={cn("h-14 rounded-2xl border-white/40 px-6 font-bold text-primary", !isAdmin ? "bg-white/20" : "bg-white/60 focus:bg-white")} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="edit-phone" className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/30 ml-2">{tGlobal('Telefonnummer')}</Label>
-                    <Input id="edit-phone" type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} disabled={!isAdmin} className={cn("h-14 rounded-2xl border-white/40 px-6 font-bold text-[#004D40]", !isAdmin ? "bg-white/20" : "bg-white/60 focus:bg-white")} />
+                    <Label htmlFor="edit-phone" className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Telefonnummer')}</Label>
+                    <Input id="edit-phone" type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} disabled={!isAdmin} className={cn("h-14 rounded-2xl border-white/40 px-6 font-bold text-primary", !isAdmin ? "bg-white/20" : "bg-white/60 focus:bg-white")} />
                   </div>
                   {isAdmin && (
-                    <Button type="submit" disabled={loadingProfile} className="w-full h-16 rounded-[28px] font-black uppercase text-[11px] tracking-[0.2em] bg-[#004D40] text-white shadow-2xl mt-4">
+                    <Button type="submit" disabled={loadingProfile} className="w-full h-16 rounded-[28px] font-black uppercase text-[11px] tracking-[0.2em] bg-primary text-white shadow-2xl mt-4">
                       {loadingProfile && <Loader2 className="mr-3 h-5 w-5 animate-spin" />}
                       {tGlobal('Gem ændringer')}
                     </Button>
@@ -352,14 +352,14 @@ export default function ProfileSettings() {
             <div className="glass-card">
               <form onSubmit={handlePasswordUpdate} className="glass-card-inner space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="pwd-current" className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/30 ml-2">{tGlobal('Nuværende adgangskode')}</Label>
+                    <Label htmlFor="pwd-current" className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Nuværende adgangskode')}</Label>
                     <Input id="pwd-current" type="password" autoComplete="current-password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="h-14 rounded-2xl border-white/40 bg-white/40 px-6" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="pwd-new" className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/30 ml-2">{tGlobal('Ny adgangskode')}</Label>
+                    <Label htmlFor="pwd-new" className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Ny adgangskode')}</Label>
                     <Input id="pwd-new" type="password" autoComplete="new-password" placeholder={tGlobal('Mindst 6 tegn')} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="h-14 rounded-2xl border-white/40 bg-white/40 px-6" />
                   </div>
-                  <Button type="submit" variant="outline" disabled={loadingPassword} className="w-full h-16 rounded-[28px] font-black uppercase text-[11px] tracking-[0.2em] border-[#004D40]/20 text-[#004D40]">
+                  <Button type="submit" variant="outline" disabled={loadingPassword} className="w-full h-16 rounded-[28px] font-black uppercase text-[11px] tracking-[0.2em] border-primary/20 text-primary">
                     {loadingPassword && <Loader2 className="mr-3 h-5 w-5 animate-spin" />}
                     {tGlobal('Opdater adgangskode')}
                   </Button>
@@ -372,25 +372,25 @@ export default function ProfileSettings() {
         </div>
       </FullscreenSheet>
 
-      <FullscreenSheet open={isContactOpen} onOpenChange={setIsContactOpen} title={tGlobal('Kontakt os')} rightSlot={<button onClick={() => setIsContactOpen(false)} className="p-3 bg-[#004D40]/5 rounded-2xl"><X className="h-5 w-5 text-[#004D40]" /></button>}>
+      <FullscreenSheet open={isContactOpen} onOpenChange={setIsContactOpen} title={tGlobal('Kontakt os')} rightSlot={<button onClick={() => setIsContactOpen(false)} className="p-3 bg-primary/5 rounded-2xl"><X className="h-5 w-5 text-primary" /></button>}>
         <div className="p-6 space-y-10 pb-32 w-full max-w-lg mx-auto">
           <div className="space-y-3">
-             <h2 className="text-3xl font-display text-[#004D40] tracking-tight">{tGlobal('Send en besked til Ibn Amer Instituttet.')}</h2>
+             <h2 className="text-3xl font-display text-primary tracking-tight">{tGlobal('Send en besked til Ibn Amer Instituttet.')}</h2>
           </div>
           <form onSubmit={handleSendContact} className="space-y-8 w-full">
             <div className="glass-card">
               <div className="glass-card-inner space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="contact-subject" className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/30 ml-2">{tGlobal('Emne')}</Label>
+                  <Label htmlFor="contact-subject" className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Emne')}</Label>
                   <Input id="contact-subject" value={contactSubject} onChange={(e) => setContactSubject(e.target.value)} className="h-14 rounded-2xl border-white/40 bg-white/40 px-6 font-bold" placeholder={tGlobal('Fx: Spørgsmål om betaling')} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="contact-message" className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/30 ml-2">{tGlobal('Besked')}</Label>
+                  <Label htmlFor="contact-message" className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Besked')}</Label>
                   <Textarea id="contact-message" value={contactMessage} onChange={(e) => setContactMessage(e.target.value)} required placeholder={tGlobal('Skriv din besked her...')} className="min-h-[250px] rounded-3xl border-white/40 bg-white/40 p-6 text-base font-medium resize-none shadow-inner" />
                 </div>
               </div>
             </div>
-            <Button type="submit" disabled={isSendingContact || !contactMessage.trim()} className="w-full h-20 rounded-[32px] bg-[#004D40] text-white font-black uppercase text-[12px] tracking-[0.25em] shadow-2xl flex items-center justify-center gap-4">
+            <Button type="submit" disabled={isSendingContact || !contactMessage.trim()} className="w-full h-20 rounded-[32px] bg-primary text-white font-black uppercase text-[12px] tracking-[0.25em] shadow-2xl flex items-center justify-center gap-4">
               {isSendingContact ? <Loader2 className="h-6 w-6 animate-spin" /> : <Send className="h-5 w-5" />}
               {tGlobal('Send')}
             </Button>
@@ -405,18 +405,18 @@ export default function ProfileSettings() {
               <AlertTriangle className="h-6 w-6" />
               {tGlobal('Er du helt sikker?')}
             </DialogTitle>
-            <DialogDescription className="pt-2 text-[#004D40]/60 font-medium">
+            <DialogDescription className="pt-2 text-primary/60 font-medium">
               {tGlobal('Din konto vil blive låst med det samme. Din anmodning vil blive behandlet af Ibn Amer inden for ca. 30 dage, hvorefter kontoen slettes permanent.')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/30 ml-2">{tGlobal('Hvorfor ønsker du at slette din konto?')}</Label>
-              <Textarea placeholder={tGlobal("Hvorfor forlader du os?")} value={deletionReason} onChange={(e) => setDeletionReason(e.target.value)} className="rounded-2xl min-h-[100px] border-[#004D40]/10 bg-[#004D40]/5" />
+              <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Hvorfor ønsker du at slette din konto?')}</Label>
+              <Textarea placeholder={tGlobal("Hvorfor forlader du os?")} value={deletionReason} onChange={(e) => setDeletionReason(e.target.value)} className="rounded-2xl min-h-[100px] border-primary/10 bg-primary/5" />
             </div>
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/30 ml-2">{tGlobal('Nuværende adgangskode')}</Label>
-              <Input type="password" autoComplete="off" placeholder={tGlobal('Bekræft med adgangskode')} value={reauthPassword} onChange={(e) => setReauthPassword(e.target.value)} className="h-14 rounded-2xl border-[#004D40]/10" />
+              <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Nuværende adgangskode')}</Label>
+              <Input type="password" autoComplete="off" placeholder={tGlobal('Bekræft med adgangskode')} value={reauthPassword} onChange={(e) => setReauthPassword(e.target.value)} className="h-14 rounded-2xl border-primary/10" />
             </div>
             <div className="flex items-start gap-4 p-5 rounded-3xl bg-red-50 border border-red-100">
               <Checkbox id="confirm-del" checked={deleteConfirmation} onCheckedChange={(v) => setDeleteConfirmation(!!v)} className="mt-1" />
@@ -427,7 +427,7 @@ export default function ProfileSettings() {
             <Button variant="destructive" className="w-full h-14 rounded-2xl font-black uppercase text-[11px] tracking-widest" disabled={!deleteConfirmation || !reauthPassword || loadingDelete} onClick={handleRequestDeletion}>
               {loadingDelete ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : tGlobal('Anmod om sletning')}
             </Button>
-            <Button variant="ghost" className="w-full h-12 rounded-xl font-bold text-[#004D40]/40" onClick={() => setIsDeleteOpen(false)}>{tGlobal('Annuller')}</Button>
+            <Button variant="ghost" className="w-full h-12 rounded-xl font-bold text-primary/40" onClick={() => setIsDeleteOpen(false)}>{tGlobal('Annuller')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -45,7 +45,7 @@ export function OfflineIndicator() {
           exit={{ y: -50, opacity: 0 }}
           className="fixed top-4 left-0 right-0 z-[9999] flex justify-center pointer-events-none px-4"
         >
-          <div className="bg-[#004D40] text-white px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-3 backdrop-blur-md bg-opacity-95 border border-white/10 pointer-events-auto select-none">
+          <div className="bg-primary text-white px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-3 backdrop-blur-md bg-opacity-95 border border-white/10 pointer-events-auto select-none">
             <div className="relative flex items-center justify-center">
               <div className="absolute inset-0 bg-white/20 rounded-full animate-ping scale-150" />
               <div className="relative bg-white/10 p-1 rounded-full">

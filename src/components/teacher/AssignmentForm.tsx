@@ -210,47 +210,30 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
     const defaultDueDate = new Date();
     defaultDueDate.setDate(defaultDueDate.getDate() + 7);
 
-    const assignmentData: any = {
-      studentId,
-      teacherId: teacher.uid,
-      dueDate: defaultDueDate.toISOString().split('T')[0],
-      hifz: {
-        surahName: hifzSurah?.name || '',
-        endSurahName: hifzEndSurah?.name || null,
-        fromAyah: data.hifzFromAyah || 0,
-        toAyah: data.hifzToAyah || 0,
-      },
-      murajara: {
-        surahName: murajaraSurah?.name || '',
-        endSurahName: murajaraEndSurah?.name || null,
-        fromAyah: data.murajaraFromAyah || 0,
-        toAyah: data.murajaraToAyah || 0,
-      },
-      gradeHifz: null,
-      gradeMurajara: null,
-      notes: null,
-      assignedAt: serverTimestamp(),
-      gradedAt: null,
-    };
-
-    // When grading an existing assignment, the notes belong to the OLD (graded) assignment.
-    // The Grade data + note is saved back to the old assignment doc.
-    const gradedAssignmentData = assignment ? {
-      gradeHifz: data.gradeHifz || null,
-      gradeMurajara: data.gradeMurajara || null,
-      notes: data.notes || null,
-      gradedAt: (data.gradeHifz || data.gradeMurajara) ? serverTimestamp() : (assignment.gradedAt || null),
-    } : null;
-
     try {
       if (assignment) {
-        // 1. Save grades + note back to the OLD (graded) assignment
-        const oldDocRef = doc(firestore, 'students', studentId, 'assignments', assignment.id);
-        await setDoc(oldDocRef, gradedAssignmentData!, { merge: true });
+        // 1. Save grades + note + updated lektie back to the OLD (graded) assignment
+        const updatedAssignmentData = {
+          hifz: {
+            surahName: hifzSurah?.name || '',
+            endSurahName: hifzEndSurah?.name || null,
+            fromAyah: data.hifzFromAyah || 0,
+            toAyah: data.hifzToAyah || 0,
+          },
+          murajara: {
+            surahName: murajaraSurah?.name || '',
+            endSurahName: murajaraEndSurah?.name || null,
+            fromAyah: data.murajaraFromAyah || 0,
+            toAyah: data.murajaraToAyah || 0,
+          },
+          gradeHifz: data.gradeHifz || null,
+          gradeMurajara: data.gradeMurajara || null,
+          notes: data.notes || null,
+          gradedAt: (data.gradeHifz || data.gradeMurajara) ? serverTimestamp() : (assignment.gradedAt || null),
+        };
 
-        // 2. Create a brand-new assignment with the new lektie
-        const collectionRef = collection(firestore, 'students', studentId, 'assignments');
-        await addDoc(collectionRef, assignmentData);
+        const oldDocRef = doc(firestore, 'students', studentId, 'assignments', assignment.id);
+        await setDoc(oldDocRef, updatedAssignmentData, { merge: true });
 
         // Award points for grading — non-blocking
         if (data.gradeHifz || data.gradeMurajara) {
@@ -266,8 +249,30 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
         }
       } else {
         // Pure create: no existing assignment to grade
+        const newAssignmentData = {
+          studentId,
+          teacherId: teacher.uid,
+          dueDate: defaultDueDate.toISOString().split('T')[0],
+          hifz: {
+            surahName: hifzSurah?.name || '',
+            endSurahName: hifzEndSurah?.name || null,
+            fromAyah: data.hifzFromAyah || 0,
+            toAyah: data.hifzToAyah || 0,
+          },
+          murajara: {
+            surahName: murajaraSurah?.name || '',
+            endSurahName: murajaraEndSurah?.name || null,
+            fromAyah: data.murajaraFromAyah || 0,
+            toAyah: data.murajaraToAyah || 0,
+          },
+          gradeHifz: null,
+          gradeMurajara: null,
+          notes: null,
+          assignedAt: serverTimestamp(),
+          gradedAt: null,
+        };
         const collectionRef = collection(firestore, 'students', studentId, 'assignments');
-        await addDoc(collectionRef, assignmentData);
+        await addDoc(collectionRef, newAssignmentData);
       }
       onFormSubmit();
     } catch (error: any) {
@@ -276,12 +281,13 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
         : `students/${studentId}/assignments`;
       const operation = assignment ? 'update' : 'create';
 
+      const requestResourceData = assignment ? { ...data } : { hifzSurah: hifzSurah?.name };
       errorEmitter.emit(
         'permission-error',
         new FirestorePermissionError({
           path,
           operation,
-          requestResourceData: assignmentData,
+          requestResourceData,
         })
       );
 
@@ -341,7 +347,7 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
 
             {assignment && (
               <div className="space-y-3">
-                <Label className="text-[11px] font-black uppercase tracking-widest text-[#004D40]/40 ml-1">Karakter (Hifz)</Label>
+                <Label className="text-[11px] font-black uppercase tracking-widest text-primary/40 ml-1">Karakter (Hifz)</Label>
                 <Controller
                   name="gradeHifz"
                   control={control}
@@ -407,7 +413,7 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
 
             {assignment && (
               <div className="space-y-3">
-                <Label className="text-[11px] font-black uppercase tracking-widest text-[#004D40]/40 ml-1">Karakter (Murajara)</Label>
+                <Label className="text-[11px] font-black uppercase tracking-widest text-primary/40 ml-1">Karakter (Murajara)</Label>
                 <Controller
                   name="gradeMurajara"
                   control={control}
@@ -438,7 +444,7 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
         <div className="glass-card-inner !p-6 space-y-6">
           <SectionLabel>Rettelse & Feedback</SectionLabel>
           <div className="space-y-3">
-            <Label htmlFor="notes" className="text-[11px] font-black uppercase tracking-widest text-[#004D40]/40 ml-1">Besked om den lektie der er bedømt i dag</Label>
+            <Label htmlFor="notes" className="text-[11px] font-black uppercase tracking-widest text-primary/40 ml-1">Besked om den lektie der er bedømt i dag</Label>
             <Controller
               name="notes"
               control={control}
@@ -448,7 +454,7 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
                   {...field}
                   value={field.value || ''}
                   placeholder={tGlobal("Skriv feedback, rettelse eller hvad eleven skal arbejde på...")}
-                  className="min-h-[120px] rounded-2xl border-white/40 bg-white/60 dark:bg-white/5 shadow-inner text-lg p-6 font-display placeholder:text-[#004D40]/20 dark:placeholder:text-white/20"
+                  className="min-h-[120px] rounded-2xl border-white/40 bg-white/60 dark:bg-white/5 shadow-inner text-lg p-6 font-display placeholder:text-primary/20 dark:placeholder:text-white/20"
                 />
               )}
             />
@@ -474,7 +480,7 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
 
       <Button
         type="submit"
-        className="w-full h-18 text-xl font-display rounded-3xl bg-[#004D40] hover:bg-[#00332B] text-white shadow-2xl shadow-[#004D40]/20 active:scale-[0.98] transition-all"
+        className="w-full h-18 text-xl font-display rounded-3xl bg-primary hover:bg-[#00332B] text-white shadow-2xl shadow-[#004D40]/20 active:scale-[0.98] transition-all"
         disabled={isLoading}
       >
         {isLoading ? (
@@ -482,7 +488,7 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
         ) : (
           <Save className="mr-2 h-6 w-6" />
         )}
-        {assignment ? 'Bedøm & Opret ny lektie' : 'Opret lektie'}
+        {assignment ? 'Gem ændring' : 'Opret lektie'}
       </Button>
     </form>
 

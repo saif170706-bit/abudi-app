@@ -31,8 +31,8 @@ export default function FairScoreCard({ assignments, courseDuration, startDate, 
 
                 <div className="flex items-center justify-between relative z-10">
                     <div className="space-y-1">
-                        <h3 className="text-xl font-black tracking-tight text-[#004D40]">Din Fair Score</h3>
-                        <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#DEA93E]">Baseret på din indsats</p>
+                        <h3 className="text-xl font-black tracking-tight text-primary">Din Fair Score</h3>
+                        <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-accent">Baseret på din indsats</p>
                     </div>
                 </div>
 
@@ -42,7 +42,7 @@ export default function FairScoreCard({ assignments, courseDuration, startDate, 
                             <circle
                                 cx="88" cy="88" r="78"
                                 fill="none" stroke="currentColor" strokeWidth="8"
-                                className="text-[#004D40]/5"
+                                className="text-primary/5"
                             />
                             <motion.circle
                                 cx="88" cy="88" r="78"
@@ -66,20 +66,20 @@ export default function FairScoreCard({ assignments, courseDuration, startDate, 
                                 initial={{ scale: 0.5, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
                                 transition={{ delay: 0.5, duration: 0.5 }}
-                                className="text-5xl font-display text-[#004D40] leading-none"
+                                className="text-5xl font-display text-primary leading-none"
                             >
                                 {fairScore}
                             </motion.span>
-                            <span className="text-[10px] font-black uppercase text-[#004D40]/30 tracking-widest mt-2">Point</span>
+                            <span className="text-[10px] font-black uppercase text-primary/30 tracking-widest mt-2">Point</span>
                         </div>
                     </div>
 
                     <div className="mt-10 grid grid-cols-2 gap-4 w-full">
                         <div className="p-5 rounded-[28px] bg-white/40 border border-white flex flex-col items-center text-center shadow-sm">
-                            <div className="p-2 bg-[#004D40]/5 rounded-xl mb-3">
-                                <Target className="h-4 w-4 text-[#DEA93E]" />
+                            <div className="p-2 bg-primary/5 rounded-xl mb-3">
+                                <Target className="h-4 w-4 text-accent" />
                             </div>
-                            <span className="text-[10px] font-black uppercase text-[#004D40]/30 mb-1">Status</span>
+                            <span className="text-[10px] font-black uppercase text-primary/30 mb-1">Status</span>
                             <span className={cn(
                                 "text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full",
                                 fairScore > 80 ? "bg-emerald-100 text-emerald-700" :
@@ -90,11 +90,11 @@ export default function FairScoreCard({ assignments, courseDuration, startDate, 
                             </span>
                         </div>
                         <div className="p-5 rounded-[28px] bg-white/40 border border-white flex flex-col items-center text-center shadow-sm">
-                             <div className="p-2 bg-[#004D40]/5 rounded-xl mb-3">
-                                <Star className="h-4 w-4 text-[#DEA93E]" />
+                             <div className="p-2 bg-primary/5 rounded-xl mb-3">
+                                <Star className="h-4 w-4 text-accent" />
                             </div>
-                            <span className="text-[10px] font-black uppercase text-[#004D40]/30 mb-1">Mål</span>
-                            <span className="text-[10px] font-black text-[#004D40] uppercase">Op til 100</span>
+                            <span className="text-[10px] font-black uppercase text-primary/30 mb-1">Mål</span>
+                            <span className="text-[10px] font-black text-primary uppercase">Op til 100</span>
                         </div>
                     </div>
                 </div>

@@ -154,12 +154,12 @@ export default function MushafPage({
     return (
       <div className="w-full min-h-screen flex flex-col items-center justify-center py-8 space-y-4">
         <div className="relative">
-          <Loader2 className="h-12 w-12 animate-spin text-[#DEA93E]" />
+          <Loader2 className="h-12 w-12 animate-spin text-accent" />
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-2 h-2 bg-[#DEA93E] rounded-full animate-pulse" />
+            <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />
           </div>
         </div>
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#004D40]/30">Indlæser Mushaf...</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30">Indlæser Mushaf...</p>
       </div>
     );
   }
@@ -168,6 +168,7 @@ export default function MushafPage({
     <div className="w-full min-h-full h-auto flex flex-col items-center justify-center py-4">
       <div 
         ref={pageRef}
+        dir="rtl"
         className={cn(
           "quran-page-container w-full max-w-3xl mx-auto min-h-full flex flex-col justify-center bg-background border border-border/50 rounded-xl shadow-sm p-4 sm:p-6 md:p-8 font-quran text-foreground transition-opacity duration-300",
           `quran-page-${pageNumber}`,
@@ -196,7 +197,7 @@ export default function MushafPage({
                 <div
                     key={line.line_number}
                     className={cn(
-                        "flex w-full text-foreground items-center justify-center", 
+                        "flex w-full text-foreground items-center justify-center whitespace-nowrap", 
                         line.line_type === 'surah_name' && 'surah-name',
                         line.line_type === 'basmallah' && 'bismillah'
                     )}

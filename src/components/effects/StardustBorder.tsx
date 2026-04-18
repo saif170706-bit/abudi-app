@@ -22,7 +22,7 @@ export default function StardustBorder({ children, className = "" }: StardustBor
           repeat: Infinity,
           ease: "easeInOut",
         }}
-        className="absolute -inset-1.5 bg-gradient-to-r from-[#DEA93E] via-[#004D40] to-[#DEA93E] rounded-[38px] blur-md opacity-40 group-hover:opacity-75 transition-opacity duration-500"
+        className="absolute -inset-1.5 bg-gradient-to-r from-accent via-primary to-accent rounded-[38px] blur-md opacity-40 group-hover:opacity-75 transition-opacity duration-500"
       />
       
       {/* Rotating Stardust Effect */}

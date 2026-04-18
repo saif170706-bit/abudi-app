@@ -148,16 +148,16 @@ function AssignmentCard({
     >
       <div className={cn(
         "glass-card transition-all duration-300 shadow-xl",
-        isUpcoming ? "ring-2 ring-[#DEA93E] shadow-[#DEA93E]/10" : "hover:border-[#004D40]/20"
+        isUpcoming ? "ring-2 ring-accent shadow-accent/10" : "hover:border-primary/20"
       )}>
         <div className="glass-card-inner !p-5">
             <div className="mb-4 flex items-center justify-between">
-                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#004D40]/5 border border-[#004D40]/10 text-[10px] font-black uppercase tracking-widest text-[#004D40]">
+                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-[10px] font-black uppercase tracking-widest text-primary">
                     <Calendar className="h-3 w-3" />
                     {dateStr}
                 </div>
                 {isUpcoming && (
-                    <div className="px-3 py-1 rounded-full bg-[#DEA93E]/10 border border-[#DEA93E]/20 text-[10px] font-black uppercase tracking-widest text-[#B4841F]">
+                    <div className="px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-[10px] font-black uppercase tracking-widest text-[#B4841F]">
                         {tGlobal('Næste lektie')}
                     </div>
                 )}
@@ -166,15 +166,15 @@ function AssignmentCard({
             <div className="space-y-4">
                 <div className="flex items-center justify-between gap-4">
                     <div className="min-w-0">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/40 mb-1">{t('hifz')}</p>
-                        <h4 className="text-sm font-bold text-[#004D40] truncate">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-primary/40 mb-1">{t('hifz')}</p>
+                        <h4 className="text-sm font-bold text-primary truncate">
                             <AssignmentDisplayCompact part={assignment.hifz} t={t} language={language} />
                         </h4>
                     </div>
                     <Badge className={cn(
                         "shrink-0 h-6 px-3 rounded-lg text-[10px] font-black uppercase tracking-widest border-none text-white",
-                        assignment.gradeHifz === 'Perfekt' ? 'bg-[#004D40]' : 
-                        assignment.gradeHifz === 'Meget godt' ? 'bg-[#DEA93E]' :
+                        assignment.gradeHifz === 'Perfekt' ? 'bg-primary' : 
+                        assignment.gradeHifz === 'Meget godt' ? 'bg-accent' :
                         assignment.gradeHifz === 'Godt' ? 'bg-emerald-500' :
                         assignment.gradeHifz === 'Ikke læst' ? 'bg-rose-500' : 'bg-slate-200 text-slate-500'
                     )}>
@@ -184,19 +184,19 @@ function AssignmentCard({
                     </Badge>
                 </div>
 
-                <div className="h-px w-full bg-[#004D40]/5" />
+                <div className="h-px w-full bg-primary/5" />
 
                 <div className="flex items-center justify-between gap-4">
                     <div className="min-w-0">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/40 mb-1">{t('murajara')}</p>
-                        <h4 className="text-sm font-bold text-[#004D40] truncate">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-primary/40 mb-1">{t('murajara')}</p>
+                        <h4 className="text-sm font-bold text-primary truncate">
                             <AssignmentDisplayCompact part={assignment.murajara} t={t} language={language} />
                         </h4>
                     </div>
                     <Badge className={cn(
                         "shrink-0 h-6 px-3 rounded-lg text-[10px] font-black uppercase tracking-widest border-none text-white",
-                        assignment.gradeMurajara === 'Perfekt' ? 'bg-[#004D40]' : 
-                        assignment.gradeMurajara === 'Meget godt' ? 'bg-[#DEA93E]' :
+                        assignment.gradeMurajara === 'Perfekt' ? 'bg-primary' : 
+                        assignment.gradeMurajara === 'Meget godt' ? 'bg-accent' :
                         assignment.gradeMurajara === 'Godt' ? 'bg-emerald-500' :
                         assignment.gradeMurajara === 'Ikke læst' ? 'bg-rose-500' : 'bg-slate-200 text-slate-500'
                     )}>
@@ -303,10 +303,10 @@ export default function AssignmentManager({
     <div className="space-y-12 w-full">
       <div className="flex items-center justify-between gap-4 w-full">
         <div>
-            <h2 className="text-2xl font-display text-[#004D40]">
+            <h2 className="text-2xl font-display text-primary">
                 {t('studentHomework')}
             </h2>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#DEA93E] mt-1">{tGlobal('Lektie historik')}</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent mt-1">{tGlobal('Lektie historik')}</p>
         </div>
 
         <TooltipProvider>
@@ -322,7 +322,7 @@ export default function AssignmentManager({
                     "flex-shrink-0 h-14 px-6 rounded-2xl font-display text-sm shadow-xl transition-all flex items-center gap-2",
                     !!upcomingAssignment 
                         ? "bg-slate-100 text-slate-400 cursor-not-allowed" 
-                        : "bg-[#004D40] text-white hover:bg-[#00332B]"
+                        : "bg-primary text-white hover:bg-[#00332B]"
                   )}
                 >
                   <PlusCircle className="h-5 w-5" />
@@ -331,7 +331,7 @@ export default function AssignmentManager({
               </div>
             </TooltipTrigger>
             {!!upcomingAssignment && (
-              <TooltipContent className="bg-[#004D40] text-white border-none rounded-xl p-3">
+              <TooltipContent className="bg-primary text-white border-none rounded-xl p-3">
                 <p className="text-xs font-bold">{t('gradeCurrentHomework')}</p>
               </TooltipContent>
             )}
@@ -355,10 +355,10 @@ export default function AssignmentManager({
             <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="glass-card rounded-[32px] border-dashed border-[#004D40]/20 py-16 text-center w-full bg-[#004D40]/5"
+                className="glass-card rounded-[32px] border-dashed border-primary/20 py-16 text-center w-full bg-primary/5"
             >
-              <Sparkles className="h-8 w-8 text-[#004D40]/10 mx-auto mb-4" />
-              <p className="text-sm font-bold text-[#004D40]/40 tracking-wide uppercase">{t('noUpcoming')}</p>
+              <Sparkles className="h-8 w-8 text-primary/10 mx-auto mb-4" />
+              <p className="text-sm font-bold text-primary/40 tracking-wide uppercase">{t('noUpcoming')}</p>
             </motion.div>
           )}
         </section>
@@ -382,10 +382,10 @@ export default function AssignmentManager({
             <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="glass-card rounded-[32px] border-dashed border-[#004D40]/20 py-16 text-center w-full"
+                className="glass-card rounded-[32px] border-dashed border-primary/20 py-16 text-center w-full"
             >
-              <History className="h-8 w-8 text-[#004D40]/10 mx-auto mb-4" />
-              <p className="text-sm font-bold text-[#004D40]/40 tracking-wide uppercase">{t('noPrevious')}</p>
+              <History className="h-8 w-8 text-primary/10 mx-auto mb-4" />
+              <p className="text-sm font-bold text-primary/40 tracking-wide uppercase">{t('noPrevious')}</p>
             </motion.div>
           )}
         </section>
@@ -399,11 +399,11 @@ export default function AssignmentManager({
         }}
         title={
             <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-[#004D40]/5 flex items-center justify-center">
-                    <BookOpen className="h-5 w-5 text-[#004D40]" />
+                <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center">
+                    <BookOpen className="h-5 w-5 text-primary" />
                 </div>
                 <div className="text-left">
-                    <div className="text-base font-display text-[#004D40]">
+                    <div className="text-base font-display text-primary">
                         {editingAssignment ? t('editHomework') : t('newHomework')}
                     </div>
                 </div>

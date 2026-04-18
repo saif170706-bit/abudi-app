@@ -144,7 +144,7 @@ function TeacherDashboard() {
                     animate={{ x: 0, opacity: 1 }}
                     className="flex items-center gap-2 mb-1"
                   >
-                    <p className="text-[#004D40]/40 text-sm font-bold">
+                    <p className="text-primary/40 text-sm font-bold">
                        {language === 'ar' ? 'السلام عليكم ' : 'Assalamu Alaikum '}
                        <WavingHand />
                      </p>
@@ -153,7 +153,7 @@ function TeacherDashboard() {
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ delay: 0.1 }}
-                    className="text-3xl font-display text-[#004D40] tracking-tight"
+                    className="text-3xl font-display text-primary tracking-tight"
                   >
                     {profile?.displayName?.split(' ')[0] || tGlobal('Lærer')}
                   </motion.h1>
@@ -174,28 +174,26 @@ function TeacherDashboard() {
                     <div className="glass-card-inner !p-7">
                         <div className="flex items-center justify-between gap-6">
                             <div className="space-y-1">
-                                <p className="text-[#004D40]/40 dark:text-white/40 text-[10px] font-black uppercase tracking-[0.25em]">{tGlobal('Session')}</p>
-                                <h2 className="text-3xl font-display text-[#004D40] dark:text-white tracking-tight">{tGlobal('Lektiehjælp')}</h2>
-                                <p className="text-[10px] font-bold text-[#DEA93E] uppercase tracking-widest mt-1">{tGlobal('Administrer din elev kø')}</p>
+                                <p className="text-primary/40 dark:text-white/40 text-[10px] font-black uppercase tracking-[0.25em]">{tGlobal('Session')}</p>
+                                <h2 className="text-3xl font-display text-primary dark:text-white tracking-tight">{tGlobal('Lektiehjælp')}</h2>
+                                <p className="text-[10px] font-bold text-accent uppercase tracking-widest mt-1">{tGlobal('Administrer din elev kø')}</p>
                                 
-                                <motion.div className="mt-6 flex items-center gap-3 text-[#004D40] dark:text-white font-black text-[11px] uppercase tracking-widest">
+                                <motion.div className="mt-6 flex items-center gap-3 text-primary dark:text-white font-black text-[11px] uppercase tracking-widest">
                                     <span>{tGlobal('Åbn Kø')}</span>
-                                    <div className="h-8 w-8 rounded-full bg-[#004D40] dark:bg-white/10 flex items-center justify-center transition-transform shadow-lg shadow-[#004D40]/20 group-hover:translate-x-1">
+                                    <div className="h-8 w-8 rounded-full bg-primary dark:bg-white/10 flex items-center justify-center transition-transform shadow-lg shadow-[#004D40]/20 group-hover:translate-x-1">
                                         <ChevronRight className="h-4 w-4 text-white" />
                                     </div>
                                 </motion.div>
                             </div>
                             
-                            <div className="h-24 w-24 bg-[#004D40]/5 dark:bg-white/5 rounded-[32px] flex items-center justify-center relative shadow-inner overflow-hidden">
-                                <Users className="h-10 w-10 text-[#004D40]/20 dark:text-white/20" />
-                                <div className="absolute inset-0 bg-gradient-to-br from-[#DEA93E]/10 to-transparent" />
+                            <div className="h-24 w-24 bg-primary/5 dark:bg-white/5 rounded-[32px] flex items-center justify-center relative shadow-inner overflow-hidden">
+                                <Users className="h-10 w-10 text-primary/20 dark:text-white/20" />
+                                <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-transparent" />
                             </div>
                         </div>
                         <button onClick={() => setView('homework-reading')} className="absolute inset-0 z-20 cursor-pointer" aria-label="Start Lektiehjælp" />
                     </div>
                 </div>
-
-                <QuranContinueCard />
 
                 <div className="space-y-4">
                   <SectionLabel>{tGlobal('Hurtige handlinger')}</SectionLabel>
@@ -204,7 +202,7 @@ function TeacherDashboard() {
                             { id: 'find-student', title: tGlobal('Find Elev'), icon: <Search className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />, desc: tGlobal('Søg studerende') },
                             { id: 'chat', title: tGlobal('Beskeder'), icon: <MessageSquare className="h-6 w-6 text-orange-600 dark:text-orange-400" />, desc: tGlobal('Chat med elever') },
                             { id: 'announcements', title: tGlobal('Opslag'), icon: <Bell className="h-6 w-6 text-blue-600 dark:text-blue-400" />, desc: tGlobal('Fælles opslag') },
-                            { id: 'quran-index', title: tGlobal('Quran'), icon: <BookOpen className="h-6 w-6 text-[#DEA93E]" />, desc: tGlobal('Find Surah') }
+                            { id: 'quran-index', title: tGlobal('Quran'), icon: <BookOpen className="h-6 w-6 text-accent" />, desc: tGlobal('Find Surah') }
                         ].map((feat, idx) => (
                             <motion.div 
                                 key={feat.id}
@@ -217,14 +215,16 @@ function TeacherDashboard() {
                                     <UpwardShootingStars />
                                     <div className="p-3 bg-white/40 dark:bg-white/5 rounded-2xl relative z-10 shadow-sm border border-white/20">{feat.icon}</div>
                                     <div className="relative z-10">
-                                        <h3 className="font-black text-sm text-[#004D40] dark:text-white leading-tight tracking-tight">{feat.title}</h3>
-                                        <p className="text-[10px] text-[#004D40]/40 dark:text-white/40 font-bold uppercase tracking-wider mt-0.5">{feat.desc}</p>
+                                        <h3 className="font-black text-sm text-primary dark:text-white leading-tight tracking-tight">{feat.title}</h3>
+                                        <p className="text-[10px] text-primary/40 dark:text-white/40 font-bold uppercase tracking-wider mt-0.5">{feat.desc}</p>
                                     </div>
                                 </div>
                             </motion.div>
                         ))}
                     </div>
                 </div>
+
+                <QuranContinueCard />
 
                 <div className="mt-4">
                   <SectionLabel>{tGlobal('Dagens Vers')}</SectionLabel>
@@ -238,16 +238,16 @@ function TeacherDashboard() {
                         const dailyVerse = getDailyVerse();
                         return (
                           <div className="relative z-10 space-y-6">
-                            <p className="font-quran text-3xl text-[#004D40] leading-relaxed">
+                            <p className="font-quran text-3xl text-primary leading-relaxed">
                               {dailyVerse.arabic}
                             </p>
-                            <p className="text-[#004D40]/60 text-xs italic font-medium leading-relaxed max-w-xs mx-auto">
+                            <p className="text-primary/60 text-xs italic font-medium leading-relaxed max-w-xs mx-auto">
                                "{tGlobal(dailyVerse.translationKey)}"
                             </p>
                             
-                            <div className="h-[1px] w-12 bg-[#DEA93E]/20 mx-auto" />
+                            <div className="h-[1px] w-12 bg-accent/20 mx-auto" />
                             
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#DEA93E]">Surah {dailyVerse.reference}</p>
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent">Surah {dailyVerse.reference}</p>
                           </div>
                         );
                       })()}

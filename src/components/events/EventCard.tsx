@@ -156,7 +156,7 @@ export default function EventCard({ event, isNew }: EventCardProps) {
       <Card className={cn(
         "group relative border-none bg-card/60 dark:bg-zinc-900/60 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] overflow-hidden transition-all duration-500",
         "rounded-[40px] p-1 flex flex-col active:scale-[0.98]",
-        isNew ? "before:absolute before:inset-0 before:p-[1px] before:rounded-[40px] before:bg-gradient-to-br before:from-[#DEA93E] before:to-transparent before:-z-10" : ""
+        isNew ? "before:absolute before:inset-0 before:p-[1px] before:rounded-[40px] before:bg-gradient-to-br before:from-accent before:to-transparent before:-z-10" : ""
       )}>
         <div className="bg-card dark:bg-zinc-950/40 rounded-[39px] h-full flex flex-col overflow-hidden">
         {event.imageUrl && (
@@ -173,21 +173,21 @@ export default function EventCard({ event, isNew }: EventCardProps) {
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="bg-[#004D40]/5 text-[#004D40] dark:text-[#DEA93E] dark:bg-[#DEA93E]/10 border-none font-black px-3 h-6 uppercase tracking-wider text-[9px]">
+                <Badge variant="secondary" className="bg-primary/5 text-primary dark:text-accent dark:bg-accent/10 border-none font-black px-3 h-6 uppercase tracking-wider text-[9px]">
                   {tGlobal('Begivenhed')}
                 </Badge>
                 {isNew && (
-                  <Badge className="bg-[#DEA93E] text-[#004D40] border-none font-black px-3 h-6 uppercase tracking-wider text-[9px]">
+                  <Badge className="bg-accent text-primary border-none font-black px-3 h-6 uppercase tracking-wider text-[9px]">
                     {tGlobal('Ny')}
                   </Badge>
                 )}
               </div>
-              <CardTitle className="text-2xl font-display font-bold leading-tight text-[#004D40] dark:text-white pt-1 break-words">
+              <CardTitle className="text-2xl font-display font-bold leading-tight text-primary dark:text-white pt-1 break-words">
                 {event.title}
               </CardTitle>
             </div>
             
-            <button onClick={handleShare} className="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-[#004D40]/5 text-[#004D40]/20 hover:text-[#004D40] transition-colors shrink-0">
+            <button onClick={handleShare} className="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-primary/5 text-primary/20 hover:text-primary transition-colors shrink-0">
               <Share2 className="h-5 w-5" />
             </button>
           </div>
@@ -200,13 +200,13 @@ export default function EventCard({ event, isNew }: EventCardProps) {
 
           <div className="flex flex-wrap gap-y-3 gap-x-6">
             <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-muted-foreground/60">
-              <Clock className="h-4 w-4 text-[#DEA93E]/60" />
+              <Clock className="h-4 w-4 text-accent/60" />
               <span>{formatDeadline(event.registrationDeadline)}</span>
             </div>
             
             {event.capacity > 0 && (
               <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-muted-foreground/60">
-                <Users className="h-4 w-4 text-[#004D40]/40 dark:text-white/40" />
+                <Users className="h-4 w-4 text-primary/40 dark:text-white/40" />
                 <span>{event.capacity} {tGlobal('Pladser')}</span>
               </div>
             )}
@@ -215,7 +215,7 @@ export default function EventCard({ event, isNew }: EventCardProps) {
 
         <CardFooter className="px-8 pb-8 pt-0">
           {isRegistered ? (
-            <Button disabled className="w-full h-14 rounded-2xl bg-[#004D40]/5 dark:bg-white/5 text-[#004D40] dark:text-white border-none shadow-none font-black text-[15px] gap-3">
+            <Button disabled className="w-full h-14 rounded-2xl bg-primary/5 dark:bg-white/5 text-primary dark:text-white border-none shadow-none font-black text-[15px] gap-3">
               <CheckCircle2 className="h-5 w-5" />
               {tGlobal('Du er tilmeldt')}
             </Button>
@@ -231,7 +231,7 @@ export default function EventCard({ event, isNew }: EventCardProps) {
             <div className="flex flex-col w-full gap-2 overflow-hidden rounded-2xl">
               <Button 
                 onClick={handleOpenRegister} 
-                className="w-full h-14 bg-[#004D40] hover:bg-[#004D40]/90 dark:bg-white dark:hover:bg-white/90 dark:text-[#004D40] text-white font-black text-[16px] shadow-lg shadow-black/10 flex items-center justify-between px-6 transition-all"
+                className="w-full h-14 bg-primary hover:bg-primary/90 dark:bg-white dark:hover:bg-white/90 dark:text-primary text-white font-black text-[16px] shadow-lg shadow-black/10 flex items-center justify-between px-6 transition-all"
               >
                 <span>{tGlobal('Tilmeld dig her')}</span>
                 <ArrowRight className="h-5 w-5 opacity-40" />

@@ -342,13 +342,13 @@ export default function QueueAssignmentManager({ studentId, studentName, onCycle
                                 <div className="space-y-4">
                                     <CurrentAssignmentPart part={currentAssignment.hifz} label={t('hifzLabel')} icon={<BookOpen className="h-6 w-6" />} />
                                     <div className="space-y-3">
-                                        <Label className="text-[11px] font-black uppercase tracking-widest text-[#004D40]/40 ml-1">{t('gradeHifzLabel')}</Label>
+                                        <Label className="text-[11px] font-black uppercase tracking-widest text-primary/40 ml-1">{t('gradeHifzLabel')}</Label>
                                         <Controller
                                             name="gradeHifz"
                                             control={control}
                                             render={({ field }) => (
                                             <Select onValueChange={field.onChange} value={field.value || ''}>
-                                                <SelectTrigger className="h-14 rounded-2xl border-white bg-white/60 shadow-inner font-bold text-[#004D40]">
+                                                <SelectTrigger className="h-14 rounded-2xl border-white bg-white/60 shadow-inner font-bold text-primary">
                                                     <SelectValue placeholder={t('selectGrade')} />
                                                 </SelectTrigger>
                                                 <SelectContent className="rounded-2xl border-white/40 backdrop-blur-xl">
@@ -366,13 +366,13 @@ export default function QueueAssignmentManager({ studentId, studentName, onCycle
                                 <div className="space-y-4">
                                     <CurrentAssignmentPart part={currentAssignment.murajara} label={t('murajaraLabel')} icon={<FileText className="h-6 w-6" />} />
                                     <div className="space-y-3">
-                                        <Label className="text-[11px] font-black uppercase tracking-widest text-[#004D40]/40 ml-1">{t('gradeMurajaraLabel')}</Label>
+                                        <Label className="text-[11px] font-black uppercase tracking-widest text-primary/40 ml-1">{t('gradeMurajaraLabel')}</Label>
                                         <Controller
                                             name="gradeMurajara"
                                             control={control}
                                             render={({ field }) => (
                                             <Select onValueChange={field.onChange} value={field.value || ''}>
-                                                <SelectTrigger className="h-14 rounded-2xl border-white bg-white/60 shadow-inner font-bold text-[#004D40]">
+                                                <SelectTrigger className="h-14 rounded-2xl border-white bg-white/60 shadow-inner font-bold text-primary">
                                                     <SelectValue placeholder={t('selectGrade')} />
                                                 </SelectTrigger>
                                                 <SelectContent className="rounded-2xl border-white/40 backdrop-blur-xl">
@@ -396,7 +396,7 @@ export default function QueueAssignmentManager({ studentId, studentName, onCycle
                             {/* Next Hifz */}
                             <div className="space-y-4">
                                 <div className="space-y-3">
-                                    <Label className="text-[11px] font-black uppercase tracking-widest text-[#004D40]/40 ml-1">{t('hifzSurah')}</Label>
+                                    <Label className="text-[11px] font-black uppercase tracking-widest text-primary/40 ml-1">{t('hifzSurah')}</Label>
                                     <Controller
                                         name="hifzSurahName"
                                         control={control}
@@ -432,7 +432,7 @@ export default function QueueAssignmentManager({ studentId, studentName, onCycle
                             {/* Next Murajara */}
                             <div className="space-y-4">
                                 <div className="space-y-3">
-                                    <Label className="text-[11px] font-black uppercase tracking-widest text-[#004D40]/40 ml-1">{t('murajaraSurah')}</Label>
+                                    <Label className="text-[11px] font-black uppercase tracking-widest text-primary/40 ml-1">{t('murajaraSurah')}</Label>
                                     <Controller
                                         name="murajaraSurahName"
                                         control={control}
@@ -472,7 +472,7 @@ export default function QueueAssignmentManager({ studentId, studentName, onCycle
                     <div className="glass-card shadow-2xl">
                         <div className="glass-card-inner !p-8">
                             <div className="space-y-3">
-                                <Label htmlFor="queue-notes" className="text-[11px] font-black uppercase tracking-widest text-[#004D40]/40 ml-1">Session Feedback</Label>
+                                <Label htmlFor="queue-notes" className="text-[11px] font-black uppercase tracking-widest text-primary/40 ml-1">Session Feedback</Label>
                                 <Controller
                                     name="notes"
                                     control={control}
@@ -497,7 +497,7 @@ export default function QueueAssignmentManager({ studentId, studentName, onCycle
                 >
                     <Button 
                         type="submit" 
-                        className="w-full h-20 rounded-[32px] text-xl font-display bg-[#004D40] hover:bg-[#00332B] text-white shadow-2xl shadow-[#004D40]/20 flex items-center justify-center gap-4 group" 
+                        className="w-full h-20 rounded-[32px] text-xl font-display bg-primary hover:bg-[#00332B] text-white shadow-2xl shadow-[#004D40]/20 flex items-center justify-center gap-4 group" 
                         disabled={isLoading}
                     >
                         {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform"><CheckCircle2 className="h-5 w-5" /></div>}

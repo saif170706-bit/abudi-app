@@ -424,11 +424,11 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                         onClick={handleBackToQueue}
                         className="h-12 w-12 rounded-2xl bg-white/80 backdrop-blur-md flex items-center justify-center shadow-lg border border-white active:scale-95 transition-transform"
                     >
-                        <ArrowLeft className="h-6 w-6 text-[#004D40]" />
+                        <ArrowLeft className="h-6 w-6 text-primary" />
                     </button>
                     <div>
-                        <h1 className="text-3xl font-display text-[#004D40]">Afhøring</h1>
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#DEA93E]">Nuværende Elev</p>
+                        <h1 className="text-3xl font-display text-primary">Afhøring</h1>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent">Nuværende Elev</p>
                     </div>
                 </div>
                 
@@ -454,8 +454,8 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
           <div className="mb-10 flex items-center gap-4">
             <BackButton />
             <div>
-                <h1 className="text-3xl font-display text-[#004D40]">{t('makeAvailable')}</h1>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#DEA93E]">Vælg din status</p>
+                <h1 className="text-3xl font-display text-primary">{t('makeAvailable')}</h1>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent">Vælg din status</p>
             </div>
           </div>
 
@@ -463,7 +463,7 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
             <div className="glass-card shadow-2xl">
               <div className="glass-card-inner !p-8 space-y-8">
                 <div className="flex items-center justify-between gap-4">
-                    <p className="text-[11px] font-black uppercase tracking-[0.25em] text-[#004D40]/30">{t('availability')}</p>
+                    <p className="text-[11px] font-black uppercase tracking-[0.25em] text-primary/30">{t('availability')}</p>
                     <TeacherFilterGroupManager 
                         teacherId={user?.uid || ''}
                         teacherGender={profile?.gender || 'man'}
@@ -486,12 +486,12 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                       <div className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-50 text-emerald-600 shadow-inner">
                         <MapPin className="h-6 w-6" />
                       </div>
-                      <Label htmlFor="physical-switch" className="text-[17px] font-bold text-[#004D40]">{t('physicalHelp')}</Label>
+                      <Label htmlFor="physical-switch" className="text-[17px] font-bold text-primary">{t('physicalHelp')}</Label>
                     </div>
                     <Switch
                       id="physical-switch"
                       checked={isAvailablePhysical}
-                        className="data-[state=checked]:bg-[#DEA93E]"
+                        className="data-[state=checked]:bg-accent"
                       onCheckedChange={(checked) => {
                         triggerHaptic();
                         setIsAvailablePhysical(checked);
@@ -504,12 +504,12 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                       <div className="grid h-12 w-12 place-items-center rounded-2xl bg-rose-50 text-rose-600 shadow-inner">
                         <Phone className="h-6 w-6" />
                       </div>
-                      <Label htmlFor="virtual-switch" className="text-[17px] font-bold text-[#004D40]">{t('virtualHelp')}</Label>
+                      <Label htmlFor="virtual-switch" className="text-[17px] font-bold text-primary">{t('virtualHelp')}</Label>
                     </div>
                     <Switch
                       id="virtual-switch"
                       checked={isAvailableVirtual}
-                        className="data-[state=checked]:bg-[#004D40]"
+                        className="data-[state=checked]:bg-primary"
                       onCheckedChange={(checked) => {
                         triggerHaptic();
                         setIsAvailableVirtual(checked);
@@ -524,20 +524,20 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                     animate={{ height: 'auto', opacity: 1 }}
                     className="space-y-3 pt-6 px-2 pb-4"
                   >
-                    <Label htmlFor="room" className="text-[11px] font-black uppercase tracking-widest text-[#004D40]/40 ml-1">{t('room')}</Label>
+                    <Label htmlFor="room" className="text-[11px] font-black uppercase tracking-widest text-primary/40 ml-1">{t('room')}</Label>
                     <Input
                       id="room"
                       value={room}
                       onChange={(e) => setRoom(e.target.value)}
                       placeholder={t('roomPlaceholder')}
-                      className="h-16 rounded-2xl border-white bg-white/60 shadow-inner text-xl px-6 font-display focus-visible:ring-[#004D40] outline-none"
+                      className="h-16 rounded-2xl border-white bg-white/60 shadow-inner text-xl px-6 font-display focus-visible:ring-primary outline-none"
                     />
                   </motion.div>
                 )}
 
 
                 <Button
-                  className="w-full h-18 text-xl font-display rounded-3xl bg-[#004D40] hover:bg-[#00332B] text-white shadow-2xl shadow-[#004D40]/20 active:scale-[0.98] transition-all"
+                  className="w-full h-18 text-xl font-display rounded-3xl bg-primary hover:bg-[#00332B] text-white shadow-2xl shadow-[#004D40]/20 active:scale-[0.98] transition-all"
                   onClick={handleAvailability}
                   disabled={isButtonDisabled}
                 >
@@ -562,8 +562,8 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
           <div className="flex items-center gap-4">
             <BackButton />
             <div>
-                <h1 className="text-3xl font-display text-[#004D40]">{t('dashboardTitle')}</h1>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#DEA93E]">Administrer din session</p>
+                <h1 className="text-3xl font-display text-primary">{t('dashboardTitle')}</h1>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent">Administrer din session</p>
             </div>
           </div>
           <div className="flex gap-3">
@@ -575,7 +575,7 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                     "grid h-12 w-12 place-items-center rounded-2xl shadow-lg transition-all border",
                     teacher.queueLocked 
                         ? 'bg-rose-500 text-white border-rose-400' 
-                        : 'bg-white/80 backdrop-blur-md text-[#004D40] border-white'
+                        : 'bg-white/80 backdrop-blur-md text-primary border-white'
                 )}
             >
               {teacher.queueLocked ? <Lock className="h-5 w-5" /> : <Unlock className="h-5 w-5" />}
@@ -592,26 +592,26 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
         </div>
 
         <div className="mb-10 flex flex-wrap gap-4">
-          <div className="px-4 py-2 rounded-2xl bg-[#DEA93E]/10 border border-[#DEA93E]/20 flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#DEA93E] animate-pulse" />
+          <div className="px-4 py-2 rounded-2xl bg-accent/10 border border-accent/20 flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
             <span className="text-[11px] font-black uppercase tracking-widest text-[#B4841F]">
                 {t('queueDescription', {count: queue.length})}
             </span>
           </div>
           
           {teacher.availablePhysical && (
-            <div className="px-4 py-2 rounded-2xl bg-[#004D40]/5 border border-[#004D40]/10 flex items-center gap-2">
-                <MapPin className="h-3 w-3 text-[#004D40]" />
-                <span className="text-[11px] font-black uppercase tracking-widest text-[#004D40]">
+            <div className="px-4 py-2 rounded-2xl bg-primary/5 border border-primary/10 flex items-center gap-2">
+                <MapPin className="h-3 w-3 text-primary" />
+                <span className="text-[11px] font-black uppercase tracking-widest text-primary">
                     {t('roomInfo', { room: teacher.room || '' })}
                 </span>
             </div>
           )}
           
           {teacher.availableVirtual && (
-            <div className="px-4 py-2 rounded-2xl bg-[#004D40]/5 border border-[#004D40]/10 flex items-center gap-2">
+            <div className="px-4 py-2 rounded-2xl bg-primary/5 border border-primary/10 flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span className="text-[11px] font-black uppercase tracking-widest text-[#004D40]">
+                <span className="text-[11px] font-black uppercase tracking-widest text-primary">
                     {t('virtualInfo')}
                 </span>
             </div>
@@ -640,7 +640,7 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                         >
                             <div className={cn(
                                 "glass-card transition-all duration-300 shadow-2xl",
-                                isNext ? "ring-2 ring-[#DEA93E] shadow-[#DEA93E]/10" : "hover:border-primary/20"
+                                isNext ? "ring-2 ring-accent shadow-accent/10" : "hover:border-primary/20"
                             )}>
                                 <div className="glass-card-inner !p-6 flex items-center justify-between gap-4">
                                     <div className="flex items-center gap-5 min-w-0">
@@ -650,7 +650,7 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                                         >
                                             <div className={cn(
                                                 "p-1 rounded-[24px] border-2 transition-all duration-500 scale-110",
-                                                isNext ? "border-[#DEA93E] rotate-6" : "border-white/40"
+                                                isNext ? "border-accent rotate-6" : "border-white/40"
                                             )}>
                                                 <Avatar className="h-16 w-16 rounded-[20px] shadow-2xl">
                                                     <AvatarImage src={student.photoURL ?? undefined} alt={student.name} className="object-cover" />
@@ -661,7 +661,7 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                                                 <motion.div 
                                                     initial={{ scale: 0 }}
                                                     animate={{ scale: 1 }}
-                                                    className="absolute -top-3 -left-3 h-8 w-8 rounded-full bg-[#DEA93E] border-2 border-white flex items-center justify-center text-[13px] font-black text-white shadow-lg"
+                                                    className="absolute -top-3 -left-3 h-8 w-8 rounded-full bg-accent border-2 border-white flex items-center justify-center text-[13px] font-black text-white shadow-lg"
                                                 >
                                                     1
                                                 </motion.div>
@@ -670,10 +670,10 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                                         
                                         <div className="min-w-0 flex-1 ml-2">
                                             <h3 
-                                                className={cn("text-xl font-display text-[#004D40] leading-none mb-1.5 cursor-pointer", !isExpanded && "truncate")} 
+                                                className={cn("text-xl font-display text-primary leading-none mb-1.5 cursor-pointer", !isExpanded && "truncate")} 
                                                 onClick={() => toggleNameExpansion(student.id)}
                                             >
-                                                {student.name} {student.ticketNumber && <span className="text-[#DEA93E]">{(teacher?.queueLetter || 'A')}{student.ticketNumber}</span>}
+                                                {student.name} {student.ticketNumber && <span className="text-accent">{(teacher?.queueLetter || 'A')}{student.ticketNumber}</span>}
                                             </h3>
                                             <div className="flex items-center gap-3">
                                                 {isVirtual ? (
@@ -687,7 +687,7 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                                                         Fysisk
                                                     </div>
                                                 )}
-                                                <span className="text-[10px] text-[#004D40]/30 font-bold">Venter nu</span>
+                                                <span className="text-[10px] text-primary/30 font-bold">Venter nu</span>
                                             </div>
                                         </div>
                                     </div>
@@ -697,7 +697,7 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={() => callStudent(student)} 
-                                            className="h-14 px-8 rounded-2xl bg-[#004D40] text-white font-black text-xs uppercase tracking-[0.15em] shadow-xl shadow-[#004D40]/20 flex items-center gap-3"
+                                            className="h-14 px-8 rounded-2xl bg-primary text-white font-black text-xs uppercase tracking-[0.15em] shadow-xl shadow-[#004D40]/20 flex items-center gap-3"
                                         >
                                             {isVirtual ? (
                                                 <><Phone className="h-4 w-4" />{t('ring')}</>
@@ -706,7 +706,7 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                                             )}
                                         </motion.button>
                                     ) : (
-                                        <div className="h-10 w-10 rounded-xl bg-white/20 border border-white flex items-center justify-center text-[#004D40]/20">
+                                        <div className="h-10 w-10 rounded-xl bg-white/20 border border-white flex items-center justify-center text-primary/20">
                                             <Lock className="h-4 w-4" />
                                         </div>
                                     )}
@@ -714,7 +714,7 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                             </div>
                             
                             {isNext && (
-                                <div className="absolute -inset-0.5 bg-gradient-to-r from-[#DEA93E]/20 to-transparent blur-2xl -z-10 rounded-[40px] opacity-20" />
+                                <div className="absolute -inset-0.5 bg-gradient-to-r from-accent/20 to-transparent blur-2xl -z-10 rounded-[40px] opacity-20" />
                             )}
                         </motion.div>
                     );
@@ -724,18 +724,18 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                 <motion.div 
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="flex flex-col items-center justify-center py-20 px-8 text-center rounded-[40px] border-2 border-dashed border-[#004D40]/10 bg-white/20 backdrop-blur-sm w-full"
+                    className="flex flex-col items-center justify-center py-20 px-8 text-center rounded-[40px] border-2 border-dashed border-primary/10 bg-white/20 backdrop-blur-sm w-full"
                 >
                     <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center shadow-xl mb-8 relative">
-                        <UserPlus className="h-10 w-10 text-[#DEA93E]" />
+                        <UserPlus className="h-10 w-10 text-accent" />
                         <motion.div 
                             animate={{ scale: [1, 1.2, 1] }}
                             transition={{ repeat: Infinity, duration: 2 }}
-                            className="absolute inset-0 rounded-full border-4 border-[#DEA93E]/20" 
+                            className="absolute inset-0 rounded-full border-4 border-accent/20" 
                         />
                     </div>
-                    <h3 className="text-2xl font-display text-[#004D40]">{t('queueEmpty')}</h3>
-                    <p className="mt-3 text-[13px] text-[#004D40]/40 font-medium leading-relaxed max-w-[240px] mx-auto">{t('noStudentsInQueue')}</p>
+                    <h3 className="text-2xl font-display text-primary">{t('queueEmpty')}</h3>
+                    <p className="mt-3 text-[13px] text-primary/40 font-medium leading-relaxed max-w-[240px] mx-auto">{t('noStudentsInQueue')}</p>
                 </motion.div>
             )}
           </AnimatePresence>

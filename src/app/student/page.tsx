@@ -197,11 +197,11 @@ function StudentDashboard() {
                   onClick={() => setView('overview')}
                   className="h-12 w-12 rounded-2xl bg-white/80 backdrop-blur-md flex items-center justify-center shadow-lg border border-white"
                 >
-                    <ChevronRight className="h-6 w-6 text-[#004D40] rotate-180" />
+                    <ChevronRight className="h-6 w-6 text-primary rotate-180" />
                 </button>
                 <div>
-                    <h1 className="text-3xl font-display text-[#004D40]">{tGlobal('Hifz Rejse')}</h1>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#DEA93E]">{tGlobal('Din personlige oversigt')}</p>
+                    <h1 className="text-3xl font-display text-primary">{tGlobal('Hifz Rejse')}</h1>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent">{tGlobal('Din personlige oversigt')}</p>
                 </div>
             </div>
 
@@ -253,7 +253,7 @@ function StudentDashboard() {
                       animate={{ x: 0, opacity: 1 }}
                       className="flex items-center gap-2 mb-1"
                     >
-                      <p className="text-[#004D40]/40 text-sm font-bold">
+                      <p className="text-primary/40 text-sm font-bold">
                         {language === 'ar' ? "السلام عليكم " : "Assalamu Alaikum "}
                         <WavingHand />
                       </p>
@@ -262,7 +262,7 @@ function StudentDashboard() {
                       initial={{ x: -20, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
                       transition={{ delay: 0.1 }}
-                      className="text-3xl font-display text-[#004D40] dark:text-foreground tracking-tight"
+                      className="text-3xl font-display text-primary dark:text-foreground tracking-tight"
                     >
                       {profile?.displayName?.split(' ')[0] || tGlobal('Elev')}
                     </motion.h1>
@@ -305,13 +305,13 @@ function StudentDashboard() {
                   >
                     <div className="flex justify-between items-center relative z-10">
                         <div className="space-y-1">
-                             <p className="text-[#004D40]/40 text-[10px] font-black uppercase tracking-[0.25em]">{tGlobal('Session')}</p>
-                             <h2 className="text-4xl font-display text-[#004D40] dark:text-foreground tracking-tight">{tGlobal('Læs Lektie')}</h2>
-                             <p className="text-[10px] font-bold text-[#DEA93E] uppercase tracking-widest mt-1">{tGlobal('Dagens Kø & Evaluering')}</p>
+                             <p className="text-primary/40 text-[10px] font-black uppercase tracking-[0.25em]">{tGlobal('Session')}</p>
+                             <h2 className="text-4xl font-display text-primary dark:text-foreground tracking-tight">{tGlobal('Læs Lektie')}</h2>
+                             <p className="text-[10px] font-bold text-accent uppercase tracking-widest mt-1">{tGlobal('Dagens Kø & Evaluering')}</p>
                              
-                             <motion.div className="mt-10 flex items-center gap-3 text-[#004D40] font-black text-[11px] uppercase tracking-widest">
+                             <motion.div className="mt-10 flex items-center gap-3 text-primary font-black text-[11px] uppercase tracking-widest">
                                 <span>{tGlobal('Tilmeld Kø')}</span>
-                               <ChevronRight className="h-4 w-4 bg-[#004D40] text-white rounded-full p-0.5" />
+                               <ChevronRight className="h-4 w-4 bg-primary text-white rounded-full p-0.5" />
                             </motion.div>
                         </div>
                         
@@ -320,29 +320,21 @@ function StudentDashboard() {
                           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                           className="w-24 h-24 relative"
                         >
-                          <Users className="h-full w-full text-[#004D40] drop-shadow-2xl opacity-10 absolute scale-125 blur-sm" />
-                          <Users className="h-full w-full text-[#004D40] drop-shadow-2xl relative z-10" />
+                          <Users className="h-full w-full text-primary drop-shadow-2xl opacity-10 absolute scale-125 blur-sm" />
+                          <Users className="h-full w-full text-primary drop-shadow-2xl relative z-10" />
                         </motion.div>
                     </div>
                   </motion.div>
                 </div>
 
-                <QuranContinueCard />
-
-                {!profile?.hideFromLeaderboard && (
-                  <LeaderboardPreview userId={user?.uid || ''} setView={setView} />
-                )}
-
-                <IslamicDivider />
-
                 <div className="space-y-4">
                     <div className="section-label">{tGlobal('Hurtig adgang')}</div>
                     <div className="grid grid-cols-2 gap-4">
                         {[
-                            { id: 'progress-journey', title: tGlobal('Hifz Rejse'), icon: <MapIcon className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />, desc: tGlobal('Se dit kort') },
                             { id: 'view-homework', title: tGlobal('Lektie Liste'), icon: <FileText className="h-6 w-6 text-orange-600 dark:text-orange-400" />, desc: tGlobal('Alle opgaver') },
+                            { id: 'progress-journey', title: tGlobal('Hifz Rejse'), icon: <MapIcon className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />, desc: tGlobal('Se dit kort') },
                             { id: 'quran-index', title: tGlobal('quran'), icon: <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />, desc: tGlobal('Find Surah') },
-                            { id: 'leaderboard', title: tGlobal('Leaderboard'), icon: <Trophy className="h-6 w-6 text-[#DEA93E]" />, desc: tGlobal('Vind over venner') }
+                            { id: 'leaderboard', title: tGlobal('Leaderboard'), icon: <Trophy className="h-6 w-6 text-accent" />, desc: tGlobal('Vind over venner') }
                         ].map((feat, idx) => (
                             <motion.div 
                               key={feat.id}
@@ -353,16 +345,24 @@ function StudentDashboard() {
                             >
                                 <div className="glass-card-inner !p-6 flex flex-col items-center justify-center text-center gap-3">
                                     <UpwardShootingStars />
-                                    <div className="p-3 bg-[#004D40]/5 dark:bg-white/5 rounded-2xl relative z-10">{feat.icon}</div>
+                                    <div className="p-3 bg-primary/5 dark:bg-white/5 rounded-2xl relative z-10">{feat.icon}</div>
                                     <div className="relative z-10">
-                                        <h3 className="font-black text-sm text-[#004D40] dark:text-white leading-tight tracking-tight">{feat.title}</h3>
-                                        <p className="text-[10px] text-[#004D40]/40 dark:text-white/40 font-bold uppercase tracking-wider mt-0.5">{feat.desc}</p>
+                                        <h3 className="font-black text-sm text-primary dark:text-white leading-tight tracking-tight">{feat.title}</h3>
+                                        <p className="text-[10px] text-primary/40 dark:text-white/40 font-bold uppercase tracking-wider mt-0.5">{feat.desc}</p>
                                     </div>
                                 </div>
                             </motion.div>
                         ))}
                     </div>
                 </div>
+
+                <IslamicDivider />
+
+                <QuranContinueCard />
+
+                {!profile?.hideFromLeaderboard && (
+                  <LeaderboardPreview userId={user?.uid || ''} setView={setView} />
+                )}
 
                 <IslamicDivider />
 
@@ -376,10 +376,10 @@ function StudentDashboard() {
                            const dailyVerse = getDailyVerse();
                            return (
                              <div className="relative z-10">
-                               <p className="text-3xl font-quran text-[#004D40] mb-6 leading-relaxed">{dailyVerse.arabic}</p>
-                               <p className="text-xs text-[#004D40]/60 italic font-medium leading-relaxed mb-4">"{tGlobal(dailyVerse.translationKey)}"</p>
-                               <div className="h-[1px] w-12 bg-[#DEA93E]/20 mx-auto mb-4" />
-                               <p className="text-[10px] font-black uppercase text-[#DEA93E] tracking-[0.2em]">Surah {dailyVerse.reference}</p>
+                               <p className="text-3xl font-quran text-primary mb-6 leading-relaxed">{dailyVerse.arabic}</p>
+                               <p className="text-xs text-primary/60 italic font-medium leading-relaxed mb-4">"{tGlobal(dailyVerse.translationKey)}"</p>
+                               <div className="h-[1px] w-12 bg-accent/20 mx-auto mb-4" />
+                               <p className="text-[10px] font-black uppercase text-accent tracking-[0.2em]">Surah {dailyVerse.reference}</p>
                              </div>
                            )
                         })()}

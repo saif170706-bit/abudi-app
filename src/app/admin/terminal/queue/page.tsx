@@ -186,7 +186,7 @@ export default function TerminalQueue() {
               className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer"
               onClick={() => setView('input')}
             >
-              <div className="absolute inset-0 bg-[#004D40]/5" />
+              <div className="absolute inset-0 bg-primary/5" />
               
               <motion.div 
                 animate={{ y: [0, -20, 0] }}
@@ -205,9 +205,9 @@ export default function TerminalQueue() {
                    />
                 </div>
 
-                <h1 className="text-6xl md:text-8xl font-display text-[#004D40] tracking-tight mb-4">Træk Nummer</h1>
+                <h1 className="text-6xl md:text-8xl font-display text-primary tracking-tight mb-4">Træk Nummer</h1>
                 
-                <div className="mt-20 px-10 py-5 rounded-full bg-[#004D40] text-white shadow-2xl animate-pulse flex items-center gap-4">
+                <div className="mt-20 px-10 py-5 rounded-full bg-primary text-white shadow-2xl animate-pulse flex items-center gap-4">
                   <span className="text-xl md:text-2xl font-bold uppercase tracking-widest">Tryk skærmen for at starte</span>
                 </div>
               </motion.div>
@@ -224,12 +224,12 @@ export default function TerminalQueue() {
             >
               <div className="max-w-2xl w-full">
                  <div className="text-center mb-10">
-                   <h2 className="text-4xl md:text-6xl font-display text-[#004D40] mb-2">Dit Elevnummer</h2>
-                   <p className="text-xl text-[#004D40]/60 font-medium">Indtast dit elevnummer for at fortsætte</p>
+                   <h2 className="text-4xl md:text-6xl font-display text-primary mb-2">Dit Elevnummer</h2>
+                   <p className="text-xl text-primary/60 font-medium">Indtast dit elevnummer for at fortsætte</p>
                  </div>
 
                  <div className="bg-white rounded-[40px] md:rounded-[60px] p-8 md:p-12 shadow-2xl border border-white">
-                   <div className="h-24 md:h-32 w-full bg-[#F0F5F3] rounded-3xl mb-8 flex items-center justify-center text-5xl md:text-7xl font-display text-[#004D40] tracking-widest border-2 border-transparent focus-within:border-[#DEA93E]">
+                   <div className="h-24 md:h-32 w-full bg-[#F0F5F3] rounded-3xl mb-8 flex items-center justify-center text-5xl md:text-7xl font-display text-primary tracking-widest border-2 border-transparent focus-within:border-accent">
                      {studentNumber || <span className="text-gray-300">____</span>}
                    </div>
 
@@ -244,7 +244,7 @@ export default function TerminalQueue() {
                            else if (btn === 'DEL') handleNumpadDel();
                            else handleNumberPad(btn.toString());
                          }}
-                         className="h-20 md:h-28 bg-gray-50 rounded-2xl md:rounded-[32px] active:bg-gray-200 active:scale-95 transition-all text-3xl md:text-5xl font-display text-[#004D40]"
+                         className="h-20 md:h-28 bg-gray-50 rounded-2xl md:rounded-[32px] active:bg-gray-200 active:scale-95 transition-all text-3xl md:text-5xl font-display text-primary"
                        >
                          {btn}
                        </button>
@@ -256,7 +256,7 @@ export default function TerminalQueue() {
                      <Button 
                        onClick={handleLookupStudent} 
                        disabled={!studentNumber || loading}
-                       className="flex-1 h-20 rounded-[24px] bg-[#004D40] hover:bg-[#00332B] text-white text-xl font-bold"
+                       className="flex-1 h-20 rounded-[24px] bg-primary hover:bg-[#00332B] text-white text-xl font-bold"
                      >
                        {loading ? <Loader2 className="animate-spin h-8 w-8" /> : 'Næste'}
                      </Button>
@@ -283,8 +283,8 @@ export default function TerminalQueue() {
                     className="h-16 w-16 md:h-24 md:w-24 bg-white rounded-full p-2 md:p-4 cursor-pointer active:scale-90 transition-transform shadow-xl" 
                   />
                   <div>
-                    <h2 className="text-4xl md:text-6xl font-display text-[#004D40]">Vælg Lærer</h2>
-                    <p className="text-lg md:text-2xl font-bold uppercase tracking-widest text-[#DEA93E] mt-2">Elev: {student?.displayName || 'Ukendt'}</p>
+                    <h2 className="text-4xl md:text-6xl font-display text-primary">Vælg Lærer</h2>
+                    <p className="text-lg md:text-2xl font-bold uppercase tracking-widest text-accent mt-2">Elev: {student?.displayName || 'Ukendt'}</p>
                   </div>
                 </div>
                  <Button 
@@ -304,7 +304,7 @@ export default function TerminalQueue() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 overflow-y-auto pb-20 scrollbar-hide">
                 {teachers.filter(t => t.gender === student?.gender).length === 0 ? (
                   <div className="col-span-full text-center py-20 bg-white rounded-[40px] shadow-sm">
-                    <p className="text-3xl text-[#004D40]/50 font-bold">Ingen lærere er fysisk tilgængelige lige nu.</p>
+                    <p className="text-3xl text-primary/50 font-bold">Ingen lærere er fysisk tilgængelige lige nu.</p>
                   </div>
                 ) : (
                   teachers.filter(t => t.gender === student?.gender).map(t => (
@@ -317,13 +317,13 @@ export default function TerminalQueue() {
                     >
                       <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-white shadow-lg">
                         <AvatarImage src={t.photoURL} className="object-cover" />
-                        <AvatarFallback className="bg-[#004D40]/10 text-4xl text-[#004D40]">{getInitials(t.displayName)}</AvatarFallback>
+                        <AvatarFallback className="bg-primary/10 text-4xl text-primary">{getInitials(t.displayName)}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <h3 className="text-3xl md:text-5xl font-display text-[#004D40]">{t.displayName}</h3>
+                        <h3 className="text-3xl md:text-5xl font-display text-primary">{t.displayName}</h3>
                         <div className="mt-4 flex flex-wrap items-center gap-6">
-                          <span className="px-4 py-2 rounded-xl bg-[#DEA93E]/10 text-[14px] font-black uppercase tracking-widest text-[#DEA93E]">Lokale {t.room}</span>
-                          <div className="flex items-center gap-3 text-xl md:text-2xl font-bold text-[#004D40]/30">
+                          <span className="px-4 py-2 rounded-xl bg-accent/10 text-[14px] font-black uppercase tracking-widest text-accent">Lokale {t.room}</span>
+                          <div className="flex items-center gap-3 text-xl md:text-2xl font-bold text-primary/30">
                             <Users className="h-6 w-6 md:h-8 md:w-8" /> {queueData[t.id] || 0} i kø
                           </div>
                         </div>
@@ -335,7 +335,7 @@ export default function TerminalQueue() {
               </div>
               {loading && (
                  <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-50">
-                    <Loader2 className="h-20 w-20 text-[#004D40] animate-spin" />
+                    <Loader2 className="h-20 w-20 text-primary animate-spin" />
                  </div>
               )}
             </motion.div>
@@ -347,16 +347,16 @@ export default function TerminalQueue() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 flex flex-col items-center justify-center bg-[#004D40]"
+              className="absolute inset-0 flex flex-col items-center justify-center bg-primary"
             >
               <div className="text-center text-white space-y-8 p-10">
-                <div className="text-[16px] md:text-[20px] font-black uppercase tracking-[0.6em] text-[#DEA93E] mb-12">Du Er Tilmeldt Køen</div>
+                <div className="text-[16px] md:text-[20px] font-black uppercase tracking-[0.6em] text-accent mb-12">Du Er Tilmeldt Køen</div>
                 <div className="text-[12rem] md:text-[20rem] font-display font-light leading-none mb-8">{successInfo?.letter}{successInfo?.position}</div>
                 <h2 className="text-5xl md:text-7xl font-display mt-8">Lærer {successInfo?.teacherName}</h2>
                 <p className="text-2xl md:text-3xl font-medium opacity-70 mt-8 max-w-2xl mx-auto">Sæt dig og vent på, at dit nummer eller navn bliver kaldt på skærmen.</p>
                 
                 <div className="mt-24">
-                  <Button onClick={() => setView('rest')} className="h-20 md:h-24 px-16 rounded-full bg-white text-[#004D40] text-2xl md:text-3xl font-bold hover:bg-gray-100 shadow-2xl">
+                  <Button onClick={() => setView('rest')} className="h-20 md:h-24 px-16 rounded-full bg-white text-primary text-2xl md:text-3xl font-bold hover:bg-gray-100 shadow-2xl">
                     Færdig
                   </Button>
                 </div>

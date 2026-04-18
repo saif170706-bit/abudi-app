@@ -224,7 +224,7 @@ export default function TerminalTV() {
 
   if (!selectedGender) {
     return (
-      <div className="fixed inset-0 z-[9999] bg-[#004D40] flex flex-col items-center justify-center p-8 overflow-y-auto">
+      <div className="fixed inset-0 z-[9999] bg-primary flex flex-col items-center justify-center p-8 overflow-y-auto">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -236,7 +236,7 @@ export default function TerminalTV() {
             className="h-32 w-32 bg-white rounded-full p-4 mx-auto mb-8 shadow-2xl"
           />
           <h1 className="text-5xl font-display text-white mb-4">Kø Oversigt</h1>
-          <p className="text-[#DEA93E] font-bold uppercase tracking-widest">Vælg afdeling for denne skærm</p>
+          <p className="text-accent font-bold uppercase tracking-widest">Vælg afdeling for denne skærm</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
@@ -246,10 +246,10 @@ export default function TerminalTV() {
             onClick={() => setSelectedGender('man')}
             className="bg-white rounded-[40px] p-12 text-center shadow-2xl group transition-all"
           >
-            <div className="h-24 w-24 bg-[#004D40]/5 rounded-3xl mx-auto mb-6 flex items-center justify-center group-hover:bg-[#004D40] transition-colors">
-              <Users className="h-12 w-12 text-[#004D40] group-hover:text-white transition-colors" />
+            <div className="h-24 w-24 bg-primary/5 rounded-3xl mx-auto mb-6 flex items-center justify-center group-hover:bg-primary transition-colors">
+              <Users className="h-12 w-12 text-primary group-hover:text-white transition-colors" />
             </div>
-            <h2 className="text-3xl font-display text-[#004D40]">Mandlig Afdeling</h2>
+            <h2 className="text-3xl font-display text-primary">Mandlig Afdeling</h2>
           </motion.button>
 
           <motion.button
@@ -258,10 +258,10 @@ export default function TerminalTV() {
             onClick={() => setSelectedGender('woman')}
             className="bg-white rounded-[40px] p-12 text-center shadow-2xl group transition-all"
           >
-            <div className="h-24 w-24 bg-[#DEA93E]/5 rounded-3xl mx-auto mb-6 flex items-center justify-center group-hover:bg-[#DEA93E] transition-colors">
-              <Users className="h-12 w-12 text-[#DEA93E] group-hover:text-white transition-colors" />
+            <div className="h-24 w-24 bg-accent/5 rounded-3xl mx-auto mb-6 flex items-center justify-center group-hover:bg-accent transition-colors">
+              <Users className="h-12 w-12 text-accent group-hover:text-white transition-colors" />
             </div>
-            <h2 className="text-3xl font-display text-[#004D40]">Kvindelig Afdeling</h2>
+            <h2 className="text-3xl font-display text-primary">Kvindelig Afdeling</h2>
           </motion.button>
         </div>
 
@@ -306,7 +306,7 @@ export default function TerminalTV() {
   }
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-[#004D40] font-sans overflow-hidden flex flex-col p-6 md:p-12">
+    <div className="fixed inset-0 z-[9999] bg-primary font-sans overflow-hidden flex flex-col p-6 md:p-12">
       {/* Arabic Texture Overlay */}
       <div className="absolute inset-0 opacity-[0.08] pointer-events-none mix-blend-overlay">
         <div className="absolute inset-0 bg-[url('https://i.postimg.cc/xC74tT1V/flat-arabic-pattern-background-79603-1826.avif')] bg-center bg-repeat" />
@@ -337,31 +337,31 @@ export default function TerminalTV() {
             <motion.div 
               key={t.id}
               layout
-              className="rounded-[40px] bg-[#FDF8F3] shadow-2xl border border-[#004D40]/5 overflow-hidden transition-all flex flex-col"
+              className="rounded-[40px] bg-[#FDF8F3] shadow-2xl border border-primary/5 overflow-hidden transition-all flex flex-col"
             >
               <div className="p-8 flex-1 flex flex-col">
                 <div className="flex flex-col items-center text-center gap-4 mb-8">
                   <Avatar className="h-20 w-20 md:h-28 md:w-28 border-4 border-white shadow-xl">
                     <AvatarImage src={t.photoURL} className="object-cover" />
-                    <AvatarFallback className="bg-[#004D40]/10 text-3xl text-[#004D40] font-display">{getInitials(t.displayName)}</AvatarFallback>
+                    <AvatarFallback className="bg-primary/10 text-3xl text-primary font-display">{getInitials(t.displayName)}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <h3 className="text-2xl md:text-3xl font-display text-[#004D40] leading-tight">
+                    <h3 className="text-2xl md:text-3xl font-display text-primary leading-tight">
                       {t.displayName}
                     </h3>
-                    <div className="mt-2 inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[12px] font-black uppercase tracking-widest bg-[#004D40] text-white">
+                    <div className="mt-2 inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[12px] font-black uppercase tracking-widest bg-primary text-white">
                       <MapPin className="h-3 w-3" /> Lokale {t.room}
                     </div>
                   </div>
                 </div>
 
-                <div className="p-6 md:p-8 rounded-3xl text-center bg-white/60 border border-[#004D40]/5 shadow-inner mt-auto">
-                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#004D40]/40 mb-3">Nu Betjenes</p>
-                  <p className="text-5xl md:text-7xl font-display text-[#004D40]">
+                <div className="p-6 md:p-8 rounded-3xl text-center bg-white/60 border border-primary/5 shadow-inner mt-auto">
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/40 mb-3">Nu Betjenes</p>
+                  <p className="text-5xl md:text-7xl font-display text-primary">
                     {(t.currentlyCalling?.ticketNumber || t.lastCalledTicket?.ticketNumber) ? (
                       <>
                         {(t.currentlyCalling?.ticketNumber ? (t.queueLetter || 'A') : (t.lastCalledTicket?.queueLetter || 'A'))}{t.currentlyCalling?.ticketNumber || t.lastCalledTicket?.ticketNumber}
-                        <span className="block text-xl md:text-2xl text-[#DEA93E] font-bold mt-2">
+                        <span className="block text-xl md:text-2xl text-accent font-bold mt-2">
                            - (#{t.currentlyCalling?.studentNumber || t.lastCalledTicket?.studentNumber || '----'})
                         </span>
                       </>
@@ -385,31 +385,31 @@ export default function TerminalTV() {
             exit={{ opacity: 0, scale: 0.95 }}
             className="fixed inset-0 z-[10000] flex items-center justify-center p-8 md:p-24"
           >
-            <div className="absolute inset-0 bg-[#004D40]/80 backdrop-blur-2xl" />
+            <div className="absolute inset-0 bg-primary/80 backdrop-blur-2xl" />
             
             <div className="bg-[#FDF8F3] w-full max-w-4xl rounded-[60px] p-12 md:p-20 text-center relative z-10 shadow-[0_0_80px_rgba(0,0,0,0.3)] border border-white/20">
               <div className="flex flex-col items-center space-y-10">
                 {/* Visual Icon */}
-                <div className="h-24 w-24 bg-[#004D40] rounded-[32px] flex items-center justify-center shadow-xl">
-                  <Megaphone className="h-10 w-10 text-[#DEA93E]" />
+                <div className="h-24 w-24 bg-primary rounded-[32px] flex items-center justify-center shadow-xl">
+                  <Megaphone className="h-10 w-10 text-accent" />
                 </div>
 
                 <div className="space-y-4">
-                  <p className="text-[14px] font-black uppercase tracking-[0.5em] text-[#DEA93E]">Nummer Kaldt</p>
-                  <h2 className="text-[100px] md:text-[180px] font-display text-[#004D40] leading-none tracking-tighter">
+                  <p className="text-[14px] font-black uppercase tracking-[0.5em] text-accent">Nummer Kaldt</p>
+                  <h2 className="text-[100px] md:text-[180px] font-display text-primary leading-none tracking-tighter">
                     {announcement.letter}{announcement.ticketNumber}
                   </h2>
-                  <p className="text-3xl md:text-5xl font-display text-[#DEA93E]">
+                  <p className="text-3xl md:text-5xl font-display text-accent">
                     - (#{announcement.studentNumber || '----'})
                   </p>
                 </div>
 
-                <div className="h-px w-20 bg-[#004D40]/10" />
+                <div className="h-px w-20 bg-primary/10" />
 
                 <div className="space-y-6">
-                  <p className="text-4xl md:text-6xl font-display text-[#004D40]">Gå venligst til <span className="text-[#DEA93E]">Lokale {announcement.room}</span></p>
+                  <p className="text-4xl md:text-6xl font-display text-primary">Gå venligst til <span className="text-accent">Lokale {announcement.room}</span></p>
                   <div className="flex items-center justify-center gap-3">
-                    <p className="text-xl md:text-2xl font-bold text-[#004D40]/40 uppercase tracking-widest">Lærer {announcement.teacherName}</p>
+                    <p className="text-xl md:text-2xl font-bold text-primary/40 uppercase tracking-widest">Lærer {announcement.teacherName}</p>
                   </div>
                 </div>
               </div>

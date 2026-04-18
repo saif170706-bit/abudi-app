@@ -29,14 +29,14 @@ export default function GlobalErrorBoundary({
 
   return (
     <div className="min-h-[100dvh] flex flex-col items-center justify-center p-6 text-center bg-background">
-      <Loader2 className="h-10 w-10 animate-spin text-[#004D40] mb-6" />
-      <h2 className="text-2xl font-black font-display text-[#004D40] mb-2">Vent venligst...</h2>
-      <p className="text-[#004D40]/60 text-sm font-medium mb-8 max-w-sm">
+      <Loader2 className="h-10 w-10 animate-spin text-primary mb-6" />
+      <h2 className="text-2xl font-black font-display text-primary mb-2">Vent venligst...</h2>
+      <p className="text-primary/60 text-sm font-medium mb-8 max-w-sm">
         Appen henter den nyeste opdatering fra serveren for at sikre alt fungerer perfekt.
       </p>
       <button
         onClick={() => window.location.reload()}
-        className="px-8 py-3 rounded-full bg-[#004D40] text-white font-bold tracking-wider uppercase text-xs shadow-lg"
+        className="px-8 py-3 rounded-full bg-primary text-white font-bold tracking-wider uppercase text-xs shadow-lg"
       >
         Genindlæs Manuelt
       </button>

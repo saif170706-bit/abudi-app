@@ -59,23 +59,23 @@ function AchievementsPanel({
         </div>
 
         <div className="flex justify-center pt-3 pb-1 relative z-10">
-          <div className="w-12 h-1.5 rounded-full bg-[#004D40]/10" />
+          <div className="w-12 h-1.5 rounded-full bg-primary/10" />
         </div>
 
         <div className="px-6 pb-2 pt-4 relative z-10 flex justify-between items-start">
           <div>
-            <p className="text-xl font-black text-[#004D40] tracking-tight">{tGlobal('Dine Præstationer')}</p>
-            <p className="text-[11px] uppercase font-bold tracking-widest text-[#004D40]/40 mt-1">{tGlobal('Hifdh Journey Achievements')}</p>
+            <p className="text-xl font-black text-primary tracking-tight">{tGlobal('Dine Præstationer')}</p>
+            <p className="text-[11px] uppercase font-bold tracking-widest text-primary/40 mt-1">{tGlobal('Hifdh Journey Achievements')}</p>
           </div>
-          <button onClick={onClose} className="p-2 bg-[#004D40]/5 rounded-full"><X className="h-5 w-5 text-[#004D40]" /></button>
+          <button onClick={onClose} className="p-2 bg-primary/5 rounded-full"><X className="h-5 w-5 text-primary" /></button>
         </div>
 
         <div className="overflow-y-auto px-6 pb-20 relative z-10" style={{ maxHeight: "70vh" }}>
           {categories.map((cat) => (
             <div key={cat.id} className="mt-8 first:mt-4">
               <div className="flex items-center gap-2 mb-4">
-                <div className="p-1.5 bg-[#004D40]/5 rounded-lg text-[#004D40]">{cat.icon}</div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#004D40]/40">{cat.label}</p>
+                <div className="p-1.5 bg-primary/5 rounded-lg text-primary">{cat.icon}</div>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40">{cat.label}</p>
               </div>
               <div className="space-y-4">
                 {cat.items.map(s => {
@@ -83,22 +83,22 @@ function AchievementsPanel({
                   const desc = language === 'ar' ? s.achievement.descAr : language === 'en' ? s.achievement.descEn : language === 'so' ? s.achievement.descSo : s.achievement.descDa;
                   return (
                     <div key={s.achievement.id} className="flex items-center gap-4 py-2" style={{ opacity: s.earned ? 1 : 0.4 }}>
-                      <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center text-3xl", s.earned ? "bg-[#DEA93E]/10" : "bg-neutral-200")}>
+                      <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center text-3xl", s.earned ? "bg-accent/10" : "bg-neutral-200")}>
                         {s.achievement.icon}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-black text-[#004D40]">{title}</p>
-                        <p className="text-xs text-[#004D40]/60 font-medium">{desc}</p>
+                        <p className="text-sm font-black text-primary">{title}</p>
+                        <p className="text-xs text-primary/60 font-medium">{desc}</p>
                         {!s.earned && s.progress > 0 && (
                           <div className="mt-2.5">
-                            <div className="h-1.5 rounded-full overflow-hidden bg-[#004D40]/5 w-full">
-                              <motion.div className="h-full rounded-full bg-[#DEA93E]" initial={{ width: 0 }} animate={{ width: `${s.progress * 100}%` }} />
+                            <div className="h-1.5 rounded-full overflow-hidden bg-primary/5 w-full">
+                              <motion.div className="h-full rounded-full bg-accent" initial={{ width: 0 }} animate={{ width: `${s.progress * 100}%` }} />
                             </div>
-                            <p className="text-[9px] font-bold text-[#DEA93E] mt-1.5 uppercase tracking-wider">{s.currentValue} / {s.achievement.threshold}</p>
+                            <p className="text-[9px] font-bold text-accent mt-1.5 uppercase tracking-wider">{s.currentValue} / {s.achievement.threshold}</p>
                           </div>
                         )}
                       </div>
-                      {s.earned && <div className="h-8 w-8 rounded-full bg-[#DEA93E] flex items-center justify-center shadow-lg"><Star className="h-4 w-4 text-white fill-white" /></div>}
+                      {s.earned && <div className="h-8 w-8 rounded-full bg-accent flex items-center justify-center shadow-lg"><Star className="h-4 w-4 text-white fill-white" /></div>}
                     </div>
                   );
                 })}
@@ -126,11 +126,10 @@ export default function AchievementBanner({
   const [showPanel, setShowPanel] = useState(false);
   const statuses = useMemo(() => calculateAchievements(totalPages, streak, reviewCount), [totalPages, streak, reviewCount]);
   const latest = getLatestEarned(statuses);
-  const dismissKey = latest ? `achievement_dismissed_${latest.achievement.id}` : "";
+  const dismissKey = "achievement_banner_global_closed";
 
   const [dismissed, setDismissed] = useState(() => {
     if (typeof window === 'undefined') return false;
-    if (!latest) return false;
     return localStorage.getItem(dismissKey) === "true";
   });
 
@@ -140,12 +139,12 @@ export default function AchievementBanner({
   const dismiss = (e: React.MouseEvent) => {
     e.stopPropagation();
     setDismissed(true);
-    if (latest) localStorage.setItem(dismissKey, "true");
+    localStorage.setItem(dismissKey, "true");
   };
 
   const openApp = () => {
     setDismissed(false);
-    if (latest) localStorage.removeItem(dismissKey);
+    localStorage.removeItem(dismissKey);
   };
 
   if (dismissed || !latest) {
@@ -153,7 +152,7 @@ export default function AchievementBanner({
       <motion.button
         initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
         onClick={openApp}
-        className="fixed right-0 top-1/2 -translate-y-1/2 z-[90] bg-[#DEA93E] text-white p-3 pr-4 rounded-l-2xl shadow-2xl flex items-center gap-2 border border-white/20"
+        className="fixed right-0 top-1/2 -translate-y-1/2 z-[90] bg-accent text-white p-3 pr-4 rounded-l-2xl shadow-2xl flex items-center gap-2 border border-white/20"
       >
         <Trophy className="h-5 w-5" />
         <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">{tGlobal('Dine Præstationer')}</span>
@@ -178,18 +177,18 @@ export default function AchievementBanner({
         <GoldBurst trigger={!!latest} />
         <div className="absolute inset-[-50%]" style={{ background: "conic-gradient(from 0deg, transparent 0%, transparent 60%, #DEA93E 75%, transparent 90%, transparent 100%)", animation: "spin 4s linear infinite" }} />
 
-        <div className="relative z-10 w-full bg-[#004D40] rounded-[30px] p-4 text-white overflow-hidden">
+        <div className="relative z-10 w-full bg-primary dark:bg-card rounded-[30px] p-4 text-white overflow-hidden border border-transparent dark:border-primary/30">
             <div className="absolute inset-0 opacity-[0.05] pointer-events-none"><div className="absolute inset-0 bg-[url('https://i.postimg.cc/xC74tT1V/flat-arabic-pattern-background-79603-1826.avif')] bg-cover" /></div>
             <div className="flex items-center gap-4 relative z-10">
                 <div className="relative">
-                    <motion.div initial={{ scale: 0.8 }} animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 2, repeat: Infinity }} className="h-16 w-16 bg-[#DEA93E]/20 rounded-2xl flex items-center justify-center text-4xl shadow-inner border border-[#DEA93E]/30">
+                    <motion.div initial={{ scale: 0.8 }} animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 2, repeat: Infinity }} className="h-16 w-16 bg-accent/20 rounded-2xl flex items-center justify-center text-4xl shadow-inner border border-accent/30">
                         {latest.achievement.icon}
                     </motion.div>
                 </div>
                 <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                        <div className="h-1.5 w-1.5 rounded-full bg-[#DEA93E] animate-pulse" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#DEA93E]">{tGlobal('Ny præstation optjent')}</span>
+                        <div className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-accent">{tGlobal('Ny præstation optjent')}</span>
                     </div>
                     <h3 className="text-lg font-black tracking-tight">{latestTitle}</h3>
                     <p className="text-[10px] text-white/50 font-bold uppercase tracking-wider mt-1">{tGlobal('Tryk for at se alle præstationer').replace('{0}', ACHIEVEMENTS.length.toString())}</p>
@@ -206,7 +205,7 @@ export default function AchievementBanner({
                     ))}
                     <div className="h-6 px-2 rounded-lg bg-white/5 flex items-center justify-center text-[9px] font-black uppercase text-white/30">{ACHIEVEMENTS.length - earnedCount} {tGlobal('tilbage')}</div>
                 </div>
-                <div className="flex items-center gap-1.5"><Trophy className="h-3 w-3 text-[#DEA93E]" /></div>
+                <div className="flex items-center gap-1.5"><Trophy className="h-3 w-3 text-accent" /></div>
             </div>
         </div>
       </motion.div>

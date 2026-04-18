@@ -22,7 +22,7 @@ function Ring({ pct, size = 36 }: { pct: number; size?: number }) {
   const dash = (pct / 100) * circ;
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="rotate-[-90deg]">
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="currentColor" strokeWidth="2.5" className="text-[#004D40]/10" />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="currentColor" strokeWidth="2.5" className="text-primary/10" />
       <circle
         cx={size / 2} cy={size / 2} r={r}
         fill="none"
@@ -31,7 +31,7 @@ function Ring({ pct, size = 36 }: { pct: number; size?: number }) {
         strokeLinecap="round"
         strokeDasharray={circ}
         strokeDashoffset={circ - dash}
-        className={pct === 100 ? 'text-[#DEA93E]' : 'text-[#004D40]'}
+        className={pct === 100 ? 'text-accent' : 'text-primary'}
         style={{ transition: 'stroke-dashoffset 1s ease-out' }}
       />
     </svg>
@@ -81,21 +81,21 @@ export default function QuranProgressMap({
         {/* Header */}
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6">
           <div className="flex items-center gap-4">
-            <div className="h-14 w-14 rounded-2xl bg-[#004D40]/5 dark:bg-white/5 flex items-center justify-center border border-[#004D40]/5">
-              <Map className="h-6 w-6 text-[#DEA93E]" />
+            <div className="h-14 w-14 rounded-2xl bg-primary/5 dark:bg-white/5 flex items-center justify-center border border-primary/5">
+              <Map className="h-6 w-6 text-accent" />
             </div>
             <div>
-              <h3 className="text-xl font-black tracking-tight text-[#004D40] dark:text-white/90">
+              <h3 className="text-xl font-black tracking-tight text-primary dark:text-white/90">
                 {tGlobal('Quran kortet')}
               </h3>
-              <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#DEA93E] mt-0.5">
+              <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-accent mt-0.5">
                 {overallPct}% {tGlobal('af Quranen fuldført')}
               </p>
             </div>
           </div>
 
           {/* View switcher */}
-          <div className="flex bg-[#004D40]/5 dark:bg-white/5 p-1 rounded-2xl w-fit self-start sm:self-center border border-[#004D40]/5">
+          <div className="flex bg-primary/5 dark:bg-white/5 p-1 rounded-2xl w-fit self-start sm:self-center border border-primary/5">
             {tabs.map(tab => (
               <button
                 key={tab.key}
@@ -103,8 +103,8 @@ export default function QuranProgressMap({
                 className={cn(
                   'px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all',
                   mapView === tab.key
-                    ? 'bg-[#004D40] text-white shadow-lg'
-                    : 'text-[#004D40]/40 dark:text-white/30'
+                    ? 'bg-primary text-white shadow-lg'
+                    : 'text-primary/40 dark:text-white/30'
                 )}
               >
                 {tab.label}
@@ -136,8 +136,8 @@ export default function QuranProgressMap({
                         className={cn(
                           'aspect-square rounded-[2px] transition-all duration-500',
                           isCompleted
-                            ? 'bg-gradient-to-br from-[#004D40] to-[#00695C] shadow-sm ring-1 ring-white/10'
-                            : 'bg-[#004D40]/5 dark:bg-white/5 border border-[#004D40]/5 dark:border-white/5'
+                            ? 'bg-gradient-to-br from-primary to-[#00695C] shadow-sm ring-1 ring-white/10'
+                            : 'bg-primary/5 dark:bg-white/5 border border-primary/5 dark:border-white/5'
                         )}
                         title={`${tGlobal('Side')} ${pageNum}`}
                       />
@@ -145,14 +145,14 @@ export default function QuranProgressMap({
                   })}
                 </div>
 
-                <div className="flex items-center gap-8 pt-4 border-t border-[#004D40]/5 dark:border-white/5">
+                <div className="flex items-center gap-8 pt-4 border-t border-primary/5 dark:border-white/5">
                   <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-sm bg-gradient-to-br from-[#004D40] to-[#00695C]" />
-                    <span className="text-[10px] uppercase font-black tracking-widest text-[#004D40]/40 dark:text-white/30">{tGlobal('Færdig')}</span>
+                    <div className="h-3 w-3 rounded-sm bg-gradient-to-br from-primary to-[#00695C]" />
+                    <span className="text-[10px] uppercase font-black tracking-widest text-primary/40 dark:text-white/30">{tGlobal('Færdig')}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-sm bg-[#004D40]/5 border border-[#004D40]/5" />
-                    <span className="text-[10px] uppercase font-black tracking-widest text-[#004D40]/40 dark:text-white/30">{tGlobal('Mangler')}</span>
+                    <div className="h-3 w-3 rounded-sm bg-primary/5 border border-primary/5" />
+                    <span className="text-[10px] uppercase font-black tracking-widest text-primary/40 dark:text-white/30">{tGlobal('Mangler')}</span>
                   </div>
                 </div>
               </motion.div>
@@ -184,19 +184,19 @@ export default function QuranProgressMap({
                       className={cn(
                         'p-4 rounded-[24px] border overflow-hidden relative transition-all',
                         isDone
-                          ? 'bg-gradient-to-br from-[#DEA93E]/10 to-[#DEA93E]/5 border-[#DEA93E]/30'
+                          ? 'bg-gradient-to-br from-accent/10 to-accent/5 border-accent/30'
                           : 'bg-white/40 dark:bg-white/5 border-white dark:border-white/10'
                       )}
                     >
                       <div className="flex items-center justify-between mb-3">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/40 dark:text-white/30">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-primary/40 dark:text-white/30">
                           {tGlobal('Juz')} {juzNum}
                         </span>
-                        <span className={cn('text-sm font-display', isDone ? 'text-[#DEA93E]' : 'text-[#004D40] dark:text-white/80')}>
+                        <span className={cn('text-sm font-display', isDone ? 'text-accent' : 'text-primary dark:text-white/80')}>
                           {Math.round(progress)}%
                         </span>
                       </div>
-                      <div className="h-2 w-full bg-[#004D40]/5 dark:bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-2 w-full bg-primary/5 dark:bg-white/10 rounded-full overflow-hidden">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${progress}%` }}
@@ -204,8 +204,8 @@ export default function QuranProgressMap({
                           className={cn(
                             'h-full rounded-full',
                             isDone
-                              ? 'bg-gradient-to-r from-[#DEA93E] to-[#F5C842]'
-                              : 'bg-gradient-to-r from-[#004D40] to-[#00695C]'
+                              ? 'bg-gradient-to-r from-accent to-[#F5C842]'
+                              : 'bg-gradient-to-r from-primary to-[#00695C]'
                           )}
                         />
                       </div>
@@ -235,25 +235,25 @@ export default function QuranProgressMap({
                         className={cn(
                           'flex flex-col items-center justify-center gap-1 p-2 rounded-2xl border transition-all text-center',
                           s.done
-                            ? 'bg-gradient-to-br from-[#DEA93E]/15 to-[#DEA93E]/5 border-[#DEA93E]/40 shadow-sm'
+                            ? 'bg-gradient-to-br from-accent/15 to-accent/5 border-accent/40 shadow-sm'
                             : 'bg-white/30 dark:bg-white/5 border-white/50 dark:border-white/10',
-                          isActive && 'ring-2 ring-[#DEA93E] ring-offset-1'
+                          isActive && 'ring-2 ring-accent ring-offset-1'
                         )}
                       >
                         <span className={cn(
                           'text-[9px] font-black leading-none',
-                          s.done ? 'text-[#DEA93E]' : 'text-[#004D40]/30 dark:text-white/30'
+                          s.done ? 'text-accent' : 'text-primary/30 dark:text-white/30'
                         )}>
                           {s.number}
                         </span>
                         <span className={cn(
                           'text-[11px] font-quran leading-none',
-                          s.done ? 'text-[#004D40] dark:text-white' : 'text-[#004D40]/40 dark:text-white/20'
+                          s.done ? 'text-primary dark:text-white' : 'text-primary/40 dark:text-white/20'
                         )}>
                           {s.name}
                         </span>
                         {s.done && (
-                          <span className="text-[8px] text-[#DEA93E] font-black">✓</span>
+                          <span className="text-[8px] text-accent font-black">✓</span>
                         )}
                       </motion.button>
                     );
@@ -270,16 +270,16 @@ export default function QuranProgressMap({
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 8 }}
-                        className="p-4 rounded-2xl bg-[#004D40]/5 dark:bg-white/5 border border-[#004D40]/10 dark:border-white/10 flex items-center gap-4"
+                        className="p-4 rounded-2xl bg-primary/5 dark:bg-white/5 border border-primary/10 dark:border-white/10 flex items-center gap-4"
                       >
-                        <div className="h-12 w-12 rounded-xl bg-[#004D40] flex items-center justify-center shrink-0">
+                        <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center shrink-0">
                           <span className="text-white text-xs font-black">{s.number}</span>
                         </div>
                         <div>
-                          <p className="font-black text-[#004D40] dark:text-white/90">{s.name}</p>
-                          <p className="text-[11px] text-[#004D40]/40 dark:text-white/30">{s.englishName} · {s.numberOfAyahs} ayah</p>
+                          <p className="font-black text-primary dark:text-white/90">{s.name}</p>
+                          <p className="text-[11px] text-primary/40 dark:text-white/30">{s.englishName} · {s.numberOfAyahs} ayah</p>
                           <p className={cn('text-[10px] font-black uppercase tracking-widest mt-1',
-                            s.done ? 'text-[#DEA93E]' : 'text-[#004D40]/20 dark:text-white/20'
+                            s.done ? 'text-accent' : 'text-primary/20 dark:text-white/20'
                           )}>
                             {s.done ? `✓ ${tGlobal('Memoreret')}` : tGlobal('Ikke memoreret')}
                           </p>
@@ -290,17 +290,17 @@ export default function QuranProgressMap({
                 </AnimatePresence>
 
                 {/* Summary */}
-                <div className="flex items-center gap-6 pt-4 border-t border-[#004D40]/5 dark:border-white/5">
+                <div className="flex items-center gap-6 pt-4 border-t border-primary/5 dark:border-white/5">
                   <div>
-                    <span className="text-2xl font-display text-[#DEA93E]">{completedSurahs.size}</span>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/30 dark:text-white/20 ml-2">/ 114 {tGlobal('suraher')}</span>
+                    <span className="text-2xl font-display text-accent">{completedSurahs.size}</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-primary/30 dark:text-white/20 ml-2">/ 114 {tGlobal('suraher')}</span>
                   </div>
-                  <div className="flex-1 h-2 bg-[#004D40]/5 dark:bg-white/10 rounded-full overflow-hidden">
+                  <div className="flex-1 h-2 bg-primary/5 dark:bg-white/10 rounded-full overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${(completedSurahs.size / 114) * 100}%` }}
                       transition={{ duration: 1.5, ease: 'circOut' }}
-                      className="h-full bg-gradient-to-r from-[#DEA93E] to-[#F5C842] rounded-full"
+                      className="h-full bg-gradient-to-r from-accent to-[#F5C842] rounded-full"
                     />
                   </div>
                 </div>

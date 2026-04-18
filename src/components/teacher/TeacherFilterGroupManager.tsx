@@ -146,8 +146,8 @@ export default function TeacherFilterGroupManager({
                     className={cn(
                         "h-12 w-12 rounded-2xl flex items-center justify-center transition-all border shadow-sm relative",
                         activeFilterId 
-                            ? "bg-[#DEA93E] text-white border-[#DEA93E] shadow-[#DEA93E]/20" 
-                            : "bg-white/60 text-[#004D40] border-white/40"
+                            ? "bg-accent text-white border-accent shadow-accent/20" 
+                            : "bg-white/60 text-primary border-white/40"
                     )}
                 >
                     <Filter className="h-5 w-5" />
@@ -159,8 +159,8 @@ export default function TeacherFilterGroupManager({
             <DialogContent className="max-w-md bg-[#FDF8F3] border-none rounded-[40px] shadow-2xl overflow-hidden p-0">
                 <div className="p-8">
                     <DialogHeader className="mb-6">
-                        <DialogTitle className="text-3xl font-display text-[#004D40]">Elevgrupper</DialogTitle>
-                        <p className="text-xs font-bold text-[#004D40]/40 uppercase tracking-widest">Hvem kan se din kø?</p>
+                        <DialogTitle className="text-3xl font-display text-primary">Elevgrupper</DialogTitle>
+                        <p className="text-xs font-bold text-primary/40 uppercase tracking-widest">Hvem kan se din kø?</p>
                     </DialogHeader>
 
                     <div className="space-y-6">
@@ -171,11 +171,11 @@ export default function TeacherFilterGroupManager({
                                         onClick={() => { onFilterChange(null); setIsDialogOpen(false); }}
                                         className={cn(
                                             "w-full flex items-center justify-between p-5 rounded-[24px] transition-all border text-left",
-                                            !activeFilterId ? "bg-[#004D40] text-white border-[#004D40] shadow-xl" : "bg-white border-black/5 text-[#004D40]"
+                                            !activeFilterId ? "bg-primary text-white border-primary shadow-xl" : "bg-white border-black/5 text-primary"
                                         )}
                                     >
                                         <div className="flex items-center gap-4">
-                                            <Users className={cn("h-5 w-5", !activeFilterId ? "text-white/40" : "text-[#004D40]/20")} />
+                                            <Users className={cn("h-5 w-5", !activeFilterId ? "text-white/40" : "text-primary/20")} />
                                             <span className="font-bold">Alle elever</span>
                                         </div>
                                         {!activeFilterId && <Check className="h-5 w-5" />}
@@ -187,16 +187,16 @@ export default function TeacherFilterGroupManager({
                                             onClick={() => { onFilterChange(f.id); setIsDialogOpen(false); }}
                                             className={cn(
                                                 "w-full flex items-center justify-between p-5 rounded-[24px] cursor-pointer transition-all border text-left",
-                                                activeFilterId === f.id ? "bg-[#DEA93E] text-white border-[#DEA93E] shadow-xl" : "bg-white border-black/5 text-[#004D40]"
+                                                activeFilterId === f.id ? "bg-accent text-white border-accent shadow-xl" : "bg-white border-black/5 text-primary"
                                             )}
                                         >
                                             <div className="flex items-center gap-4 min-w-0">
-                                                <div className={cn("shrink-0 h-10 w-10 flex items-center justify-center rounded-xl", activeFilterId === f.id ? "bg-white/20" : "bg-[#004D40]/5")}>
+                                                <div className={cn("shrink-0 h-10 w-10 flex items-center justify-center rounded-xl", activeFilterId === f.id ? "bg-white/20" : "bg-primary/5")}>
                                                     <Users className="h-5 w-5" />
                                                 </div>
                                                 <div className="min-w-0">
                                                     <p className="font-bold truncate">{f.name}</p>
-                                                    <p className={cn("text-[10px] uppercase font-black tracking-widest", activeFilterId === f.id ? "text-white/60" : "text-[#004D40]/30")}>
+                                                    <p className={cn("text-[10px] uppercase font-black tracking-widest", activeFilterId === f.id ? "text-white/60" : "text-primary/30")}>
                                                         {f.studentIds.length} elever
                                                     </p>
                                                 </div>
@@ -208,7 +208,7 @@ export default function TeacherFilterGroupManager({
                                         </div>
                                     ))}
                                 </div>
-                                <Button onClick={() => handleStartEdit()} className="w-full h-16 rounded-[24px] bg-[#004D40]/5 text-[#004D40] hover:bg-[#004D40]/10 font-black uppercase text-[11px] tracking-[0.2em]">
+                                <Button onClick={() => handleStartEdit()} className="w-full h-16 rounded-[24px] bg-primary/5 text-primary hover:bg-primary/10 font-black uppercase text-[11px] tracking-[0.2em]">
                                     <Plus className="h-5 w-5 mr-2" /> Opret Ny Gruppe
                                 </Button>
                             </>
@@ -216,25 +216,25 @@ export default function TeacherFilterGroupManager({
                             <div className="space-y-6">
                                 <div className="space-y-5">
                                     <div className="space-y-2">
-                                        <Label className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/40 ml-2">Gruppenavn</Label>
+                                        <Label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-2">Gruppenavn</Label>
                                         <Input value={tempName} onChange={(e) => setTempName(e.target.value)} placeholder="F.eks. Hold 1" className="h-14 rounded-2xl bg-white/60 border-white shadow-inner font-bold" />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/40 ml-2">Søg efter elev</Label>
+                                        <Label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-2">Søg efter elev</Label>
                                         <div className="relative">
-                                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#004D40]/30" />
+                                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/30" />
                                             <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Søg..." className="h-14 rounded-2xl bg-white/60 border-white shadow-inner pl-11 font-bold" />
                                         </div>
                                     </div>
                                     <div className="rounded-3xl border border-black/5 bg-white overflow-hidden shadow-sm">
                                         <ScrollArea className="h-64 p-2">
                                             {isLoadingStudents ? (
-                                                <div className="flex flex-col items-center justify-center h-40 text-[#004D40]/30 gap-3">
+                                                <div className="flex flex-col items-center justify-center h-40 text-primary/30 gap-3">
                                                     <Loader2 className="animate-spin h-8 w-8"/>
                                                     <p className="text-[10px] font-black uppercase tracking-widest">Indlæser elever...</p>
                                                 </div>
                                             ) : filteredStudents.length === 0 ? (
-                                                <div className="flex flex-col items-center justify-center h-40 text-[#004D40]/20 gap-2">
+                                                <div className="flex flex-col items-center justify-center h-40 text-primary/20 gap-2">
                                                     <Users className="h-8 w-8" />
                                                     <p className="text-xs font-bold">Ingen elever fundet</p>
                                                 </div>
@@ -251,7 +251,7 @@ export default function TeacherFilterGroupManager({
                                                         >
                                                             <div className="flex items-center gap-3">
                                                                 <Checkbox checked={tempSelectedIds.has(s.id)} className="rounded-md border-emerald-200 data-[state=checked]:bg-emerald-500" />
-                                                                <span className={cn("text-sm font-bold", tempSelectedIds.has(s.id) ? "text-emerald-700" : "text-[#004D40]")}>
+                                                                <span className={cn("text-sm font-bold", tempSelectedIds.has(s.id) ? "text-emerald-700" : "text-primary")}>
                                                                     {s.displayName || s.name}
                                                                 </span>
                                                             </div>
@@ -262,13 +262,13 @@ export default function TeacherFilterGroupManager({
                                         </ScrollArea>
                                     </div>
                                     <div className="flex justify-center">
-                                        <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#DEA93E]">{tempSelectedIds.size} valgte elever</span>
+                                        <span className="text-[10px] font-black uppercase tracking-[0.25em] text-accent">{tempSelectedIds.size} valgte elever</span>
                                     </div>
                                 </div>
                                 
                                 <div className="flex gap-3">
-                                    <Button variant="ghost" className="flex-1 h-14 rounded-2xl font-bold text-[#004D40]/40" onClick={() => setEditingGroup(null)}>Annuller</Button>
-                                    <Button className="flex-1 h-14 rounded-2xl bg-[#004D40] hover:bg-[#00332B] text-white font-bold" disabled={!tempName.trim()} onClick={handleSaveGroup}>Gem Gruppe</Button>
+                                    <Button variant="ghost" className="flex-1 h-14 rounded-2xl font-bold text-primary/40" onClick={() => setEditingGroup(null)}>Annuller</Button>
+                                    <Button className="flex-1 h-14 rounded-2xl bg-primary hover:bg-[#00332B] text-white font-bold" disabled={!tempName.trim()} onClick={handleSaveGroup}>Gem Gruppe</Button>
                                 </div>
                             </div>
                         )}
@@ -281,7 +281,7 @@ export default function TeacherFilterGroupManager({
 
   return (
     <div className="w-full space-y-3">
-        <Label className="text-[11px] font-black uppercase tracking-widest text-[#004D40]/40 ml-1">Hvem kan se dig?</Label>
+        <Label className="text-[11px] font-black uppercase tracking-widest text-primary/40 ml-1">Hvem kan se dig?</Label>
         <div className="flex gap-2">
             <Select 
                 value={activeFilterId || 'all'} 
@@ -301,12 +301,12 @@ export default function TeacherFilterGroupManager({
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                     <Button onClick={handleOpenDialog} variant="outline" className="h-16 w-16 rounded-2xl border-white bg-white/60 shadow-inner">
-                        <Edit className="h-5 w-5 text-[#004D40]" />
+                        <Edit className="h-5 w-5 text-primary" />
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md bg-[#FDF8F3] border-[#004D40]/10 rounded-[32px] overflow-hidden">
+                <DialogContent className="max-w-md bg-[#FDF8F3] border-primary/10 rounded-[32px] overflow-hidden">
                     <DialogHeader>
-                        <DialogTitle className="text-2xl font-display text-[#004D40]">Håndter Elevgrupper</DialogTitle>
+                        <DialogTitle className="text-2xl font-display text-primary">Håndter Elevgrupper</DialogTitle>
                     </DialogHeader>
                     
                     <div className="mt-4 space-y-4">
@@ -319,8 +319,8 @@ export default function TeacherFilterGroupManager({
                                         savedFilters.map(f => (
                                             <div key={f.id} className="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-black/5">
                                                 <div>
-                                                    <p className="font-bold text-[#004D40]">{f.name}</p>
-                                                    <p className="text-xs font-bold uppercase tracking-widest text-[#DEA93E]">{f.studentIds.length} elever</p>
+                                                    <p className="font-bold text-primary">{f.name}</p>
+                                                    <p className="text-xs font-bold uppercase tracking-widest text-accent">{f.studentIds.length} elever</p>
                                                 </div>
                                                 <div className="flex gap-2">
                                                     <Button size="icon" variant="ghost" onClick={() => handleStartEdit(f)}><Edit className="h-4 w-4" /></Button>
@@ -330,7 +330,7 @@ export default function TeacherFilterGroupManager({
                                         ))
                                     )}
                                 </div>
-                                <Button onClick={() => handleStartEdit()} className="w-full h-14 rounded-2xl bg-[#004D40]/10 text-[#004D40] hover:bg-[#004D40]/20 font-bold">
+                                <Button onClick={() => handleStartEdit()} className="w-full h-14 rounded-2xl bg-primary/10 text-primary hover:bg-primary/20 font-bold">
                                     <Plus className="h-5 w-5 mr-2" /> Opret Ny Gruppe
                                 </Button>
                             </>
@@ -338,7 +338,7 @@ export default function TeacherFilterGroupManager({
                             <div className="space-y-6">
                                 <div className="space-y-4">
                                     <div className="space-y-2">
-                                        <Label className="text-[#004D40] font-bold">Gruppenavn</Label>
+                                        <Label className="text-primary font-bold">Gruppenavn</Label>
                                         <Input 
                                             value={tempName} 
                                             onChange={(e) => setTempName(e.target.value)} 
@@ -347,7 +347,7 @@ export default function TeacherFilterGroupManager({
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-[#004D40] font-bold">Søg efter elev</Label>
+                                        <Label className="text-primary font-bold">Søg efter elev</Label>
                                         <Input 
                                             value={searchQuery} 
                                             onChange={(e) => setSearchQuery(e.target.value)} 
@@ -357,7 +357,7 @@ export default function TeacherFilterGroupManager({
                                     </div>
                                     <ScrollArea className="h-64 rounded-xl border bg-white p-2">
                                         {isLoadingStudents ? (
-                                            <div className="flex justify-center items-center h-full text-[#004D40]/30"><Loader2 className="animate-spin h-6 w-6"/></div>
+                                            <div className="flex justify-center items-center h-full text-primary/30"><Loader2 className="animate-spin h-6 w-6"/></div>
                                         ) : filteredStudents.length === 0 ? (
                                             <div className="flex justify-center items-center h-full text-sm text-gray-500">Ingen valgte elever fundet.</div>
                                         ) : (
@@ -371,14 +371,14 @@ export default function TeacherFilterGroupManager({
                                             ))
                                         )}
                                     </ScrollArea>
-                                    <div className="flex justify-between items-center text-sm font-bold text-[#DEA93E]">
+                                    <div className="flex justify-between items-center text-sm font-bold text-accent">
                                         <span>{tempSelectedIds.size} valgte elever</span>
                                     </div>
                                 </div>
                                 
                                 <div className="flex gap-3">
                                     <Button variant="outline" className="flex-1 h-12 rounded-xl" onClick={() => setEditingGroup(null)}>Annuller</Button>
-                                    <Button className="flex-1 h-12 rounded-xl bg-[#004D40] hover:bg-[#00332B] text-white" disabled={!tempName.trim()} onClick={handleSaveGroup}>Gem Gruppe</Button>
+                                    <Button className="flex-1 h-12 rounded-xl bg-primary hover:bg-[#00332B] text-white" disabled={!tempName.trim()} onClick={handleSaveGroup}>Gem Gruppe</Button>
                                 </div>
                             </div>
                         )}

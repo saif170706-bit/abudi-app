@@ -45,7 +45,7 @@ function AssignmentSection({ title, part, grade, onReadClick }: { title: string;
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between px-2">
-        <span className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/30">{tGlobal(title)}</span>
+        <span className="text-[10px] font-black uppercase tracking-widest text-primary/30">{tGlobal(title)}</span>
         {gradeText && (
           <span style={{ color: getGradeColor(grade), backgroundColor: `${getGradeColor(grade)}10` }} className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
             {gradeText}
@@ -56,14 +56,14 @@ function AssignmentSection({ title, part, grade, onReadClick }: { title: string;
       <div className="glass-card shadow-sm group">
         <div className="glass-card-inner !p-5 flex items-center justify-between gap-4">
            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-[#004D40]/5 flex items-center justify-center">
-                 <BookOpen className="h-6 w-6 text-[#004D40]" />
+              <div className="h-12 w-12 rounded-2xl bg-primary/5 flex items-center justify-center">
+                 <BookOpen className="h-6 w-6 text-primary" />
               </div>
               <div>
-                 <h4 className={cn("font-bold text-[#004D40] text-lg leading-tight", language === 'ar' && "font-quran")}>
+                 <h4 className={cn("font-bold text-primary text-lg leading-tight", language === 'ar' && "font-quran")}>
                     {hasEndSurah ? `${startName} - ${endName}` : startName}
                  </h4>
-                 <p className="text-[11px] font-bold text-[#004D40]/40">
+                 <p className="text-[11px] font-bold text-primary/40">
                     {hasEndSurah 
                       ? `${startName} ${part.fromAyah || 0} → ${endName} ${part.toAyah || 0}`
                       : `${ayahLabel} ${part.fromAyah || 0} - ${part.toAyah || 0}`
@@ -71,7 +71,7 @@ function AssignmentSection({ title, part, grade, onReadClick }: { title: string;
                  </p>
               </div>
            </div>
-           <motion.button whileTap={{ scale: 0.9 }} onClick={() => onReadClick(part)} disabled={!(part.surahName && part.fromAyah)} className="h-12 w-12 rounded-2xl bg-[#004D40] text-white flex items-center justify-center shadow-lg disabled:opacity-20 transition-all">
+           <motion.button whileTap={{ scale: 0.9 }} onClick={() => onReadClick(part)} disabled={!(part.surahName && part.fromAyah)} className="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg disabled:opacity-20 transition-all">
               <ChevronRight className="h-5 w-5" />
            </motion.button>
         </div>
@@ -120,11 +120,11 @@ export default function ViewHomeworkPage({ BackButton, assignments, isLoading }:
     <div className="min-h-screen pt-12 pb-32 px-6 w-full max-w-lg mx-auto space-y-12">
        <div className="flex items-center gap-4">
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => setParentView('overview')} className="h-14 w-14 rounded-2xl bg-white/80 backdrop-blur-md flex items-center justify-center shadow-lg border border-white cursor-pointer">
-             <ChevronRight className="h-6 w-6 text-[#004D40] rotate-180" />
+             <ChevronRight className="h-6 w-6 text-primary rotate-180" />
           </motion.button>
           <div>
-              <h1 className="text-4xl font-display text-[#004D40] tracking-tight">{tGlobal('Lektie Liste')}</h1>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#DEA93E]">{tGlobal('Følg dine fremskridt')}</p>
+              <h1 className="text-4xl font-display text-primary tracking-tight">{tGlobal('Lektie Liste')}</h1>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent">{tGlobal('Følg dine fremskridt')}</p>
           </div>
        </div>
 
@@ -132,13 +132,13 @@ export default function ViewHomeworkPage({ BackButton, assignments, isLoading }:
           {upcomingAssignment ? (
             <div className="space-y-6">
               <div className="section-label flex items-center gap-2">
-                 <div className="h-2 w-2 rounded-full bg-[#DEA93E] animate-pulse" />
+                 <div className="h-2 w-2 rounded-full bg-accent animate-pulse" />
                  {tGlobal('Næste Lektie')}
               </div>
               <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="glass-card shadow-2xl relative overflow-visible">
-                 <div className="absolute -top-3 -right-3 px-4 py-1.5 bg-[#004D40] text-white rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl border-4 border-white z-10">{tGlobal('Kommende')}</div>
+                 <div className="absolute -top-3 -right-3 px-4 py-1.5 bg-primary text-white rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl border-4 border-white z-10">{tGlobal('Kommende')}</div>
                  <div className="glass-card-inner !p-8 space-y-10">
-                    <div className="flex items-center gap-3 text-[10px] font-black text-[#004D40]/30 uppercase tracking-widest">
+                    <div className="flex items-center gap-3 text-[10px] font-black text-primary/30 uppercase tracking-widest">
                        <Calendar className="h-3 w-3" />
                        {upcomingAssignment.assignedAt?.toDate()?.toLocaleDateString(currentLocale, { day: 'numeric', month: 'long' })}
                     </div>
@@ -150,7 +150,7 @@ export default function ViewHomeworkPage({ BackButton, assignments, isLoading }:
               </motion.div>
             </div>
           ) : !isLoading && (
-            <p className="text-sm font-bold text-[#004D40]/40 uppercase tracking-widest text-center py-10">{tGlobal('Du har ingen kommende lektier.')}</p>
+            <p className="text-sm font-bold text-primary/40 uppercase tracking-widest text-center py-10">{tGlobal('Du har ingen kommende lektier.')}</p>
           )}
 
           {previousAssignments.length > 0 ? (
@@ -161,18 +161,18 @@ export default function ViewHomeworkPage({ BackButton, assignments, isLoading }:
                     <motion.div key={a.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className="glass-card shadow-sm">
                        <div className="glass-card-inner !p-6 space-y-6">
                           <div className="flex items-center justify-between">
-                             <div className="flex items-center gap-2 text-[10px] font-black text-[#004D40]/30 uppercase tracking-widest">
+                             <div className="flex items-center gap-2 text-[10px] font-black text-primary/30 uppercase tracking-widest">
                                 <Calendar className="h-3 w-3" />
                                 {a.assignedAt?.toDate()?.toLocaleDateString(currentLocale, { day: 'numeric', month: 'short' })}
                              </div>
-                             {a.notes && <div className="h-8 w-8 bg-[#DEA93E]/10 rounded-xl flex items-center justify-center"><FileText className="h-4 w-4 text-[#DEA93E]" /></div>}
+                             {a.notes && <div className="h-8 w-8 bg-accent/10 rounded-xl flex items-center justify-center"><FileText className="h-4 w-4 text-accent" /></div>}
                           </div>
                           <div className="space-y-6">
                              <AssignmentSection title={'Hifz'} part={a.hifz} grade={a.gradeHifz} onReadClick={handleRead} />
                              <AssignmentSection title={'Mura\'jah'} part={a.murajara} grade={a.gradeMurajara} onReadClick={handleRead} />
                           </div>
                           {a.notes && (
-                            <div className="p-4 rounded-2xl bg-[#DEA93E]/5 border border-[#DEA93E]/10 text-xs font-bold text-[#004D40]/60 italic leading-relaxed">
+                            <div className="p-4 rounded-2xl bg-accent/5 border border-accent/10 text-xs font-bold text-primary/60 italic leading-relaxed">
                                 "{a.notes}"
                             </div>
                           )}

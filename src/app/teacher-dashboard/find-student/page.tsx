@@ -130,8 +130,8 @@ export default function FindStudentPage({ setView, BackButton }: FindStudentPage
         <div className="mb-10 flex items-center gap-4">
           <BackButton />
           <div>
-            <h1 className="text-3xl font-display text-[#004D40] dark:text-[#DEA93E]">{t('findStudent')}</h1>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#DEA93E]">
+            <h1 className="text-3xl font-display text-primary dark:text-accent">{t('findStudent')}</h1>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent">
               {foundStudent ? tGlobal('Student Detaljer') : tGlobal('Søg efter elev')}
             </p>
           </div>
@@ -150,7 +150,7 @@ export default function FindStudentPage({ setView, BackButton }: FindStudentPage
                 <form onSubmit={handleSearch} className="glass-card-inner !p-8">
                   <div className="space-y-6">
                     <div className="space-y-3">
-                      <Label htmlFor="student-number" className="text-[11px] font-black uppercase tracking-widest text-[#004D40]/40 dark:text-white/40 ml-1">
+                      <Label htmlFor="student-number" className="text-[11px] font-black uppercase tracking-widest text-primary/40 dark:text-white/40 ml-1">
                         {t('studentNumberLabel')}
                       </Label>
                       <Input
@@ -159,13 +159,13 @@ export default function FindStudentPage({ setView, BackButton }: FindStudentPage
                         value={studentNumber}
                         autoFocus
                         onChange={(e) => setStudentNumber(e.target.value)}
-                        className="h-16 rounded-2xl border-white/40 bg-white/60 dark:bg-white/5 shadow-inner text-xl px-6 font-display placeholder:text-[#004D40]/20 dark:placeholder:text-white/20 dark:text-white"
+                        className="h-16 rounded-2xl border-white/40 bg-white/60 dark:bg-white/5 shadow-inner text-xl px-6 font-display placeholder:text-primary/20 dark:placeholder:text-white/20 dark:text-white"
                       />
                     </div>
 
                     <Button
                       type="submit"
-                      className="w-full h-18 text-xl font-display rounded-3xl bg-[#004D40] hover:bg-[#00332B] text-white shadow-2xl shadow-[#004D40]/20 active:scale-[0.98] transition-all"
+                      className="w-full h-18 text-xl font-display rounded-3xl bg-primary hover:bg-[#00332B] text-white shadow-2xl shadow-[#004D40]/20 active:scale-[0.98] transition-all"
                       disabled={isLoading}
                     >
                       {isLoading ? (
@@ -192,7 +192,7 @@ export default function FindStudentPage({ setView, BackButton }: FindStudentPage
                   <div className="min-w-0">
                     <h2 
                       className={cn(
-                        "text-2xl font-display text-[#004D40] dark:text-[#DEA93E] cursor-pointer",
+                        "text-2xl font-display text-primary dark:text-accent cursor-pointer",
                         !isNameExpanded && "truncate"
                       )}
                       onClick={() => setIsNameExpanded(!isNameExpanded)}
@@ -200,7 +200,7 @@ export default function FindStudentPage({ setView, BackButton }: FindStudentPage
                       {foundStudent.displayName}
                     </h2>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs font-black uppercase tracking-widest text-[#DEA93E]">
+                      <span className="text-xs font-black uppercase tracking-widest text-accent">
                         ID: #{foundStudent.studentNumber}
                       </span>
                     </div>
