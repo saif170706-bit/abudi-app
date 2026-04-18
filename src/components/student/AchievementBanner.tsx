@@ -51,7 +51,7 @@ function AchievementsPanel({
       <motion.div
         initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
         transition={{ type: "spring", damping: 28, stiffness: 300 }}
-        className="fixed inset-x-0 bottom-0 z-[101] rounded-t-[40px] shadow-2xl overflow-hidden bg-[#efebe1]"
+        className="fixed inset-x-0 bottom-0 z-[101] rounded-t-[40px] shadow-2xl overflow-hidden bg-[#efebe1] dark:bg-card dark:border-t dark:border-border"
         style={{ maxHeight: "85vh" }}
       >
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
@@ -64,7 +64,7 @@ function AchievementsPanel({
 
         <div className="px-6 pb-2 pt-4 relative z-10 flex justify-between items-start">
           <div>
-            <p className="text-xl font-black text-primary tracking-tight">{tGlobal('Dine Præstationer')}</p>
+            <p className="text-xl font-black text-primary dark:text-emerald-400 tracking-tight">{tGlobal('Dine Præstationer')}</p>
             <p className="text-[11px] uppercase font-bold tracking-widest text-primary/40 mt-1">{tGlobal('Hifdh Journey Achievements')}</p>
           </div>
           <button onClick={onClose} className="p-2 bg-primary/5 rounded-full"><X className="h-5 w-5 text-primary" /></button>
@@ -83,11 +83,11 @@ function AchievementsPanel({
                   const desc = language === 'ar' ? s.achievement.descAr : language === 'en' ? s.achievement.descEn : language === 'so' ? s.achievement.descSo : s.achievement.descDa;
                   return (
                     <div key={s.achievement.id} className="flex items-center gap-4 py-2" style={{ opacity: s.earned ? 1 : 0.4 }}>
-                      <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center text-3xl", s.earned ? "bg-accent/10" : "bg-neutral-200")}>
+                      <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center text-3xl", s.earned ? "bg-accent/10" : "bg-neutral-200 dark:bg-muted")}>
                         {s.achievement.icon}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-black text-primary">{title}</p>
+                        <p className="text-sm font-black text-primary dark:text-emerald-400">{title}</p>
                         <p className="text-xs text-primary/60 font-medium">{desc}</p>
                         {!s.earned && s.progress > 0 && (
                           <div className="mt-2.5">

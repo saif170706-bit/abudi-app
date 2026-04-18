@@ -353,7 +353,7 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
                   control={control}
                   render={({ field }) => (
                     <Select onValueChange={field.onChange} value={field.value || ''}>
-                      <SelectTrigger className="h-14 rounded-2xl border-white/40 bg-white/60 dark:bg-white/5 shadow-inner text-lg px-6 font-display">
+                      <SelectTrigger className="h-14 rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner text-lg px-6 font-display">
                         <SelectValue placeholder={tGlobal("Vælg...")} />
                       </SelectTrigger>
                       <SelectContent>
@@ -419,7 +419,7 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
                   control={control}
                   render={({ field }) => (
                     <Select onValueChange={field.onChange} value={field.value || ''}>
-                      <SelectTrigger className="h-14 rounded-2xl border-white/40 bg-white/60 dark:bg-white/5 shadow-inner text-lg px-6 font-display">
+                      <SelectTrigger className="h-14 rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner text-lg px-6 font-display">
                         <SelectValue placeholder={tGlobal("Vælg...")} />
                       </SelectTrigger>
                       <SelectContent>
@@ -454,7 +454,7 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
                   {...field}
                   value={field.value || ''}
                   placeholder={tGlobal("Skriv feedback, rettelse eller hvad eleven skal arbejde på...")}
-                  className="min-h-[120px] rounded-2xl border-white/40 bg-white/60 dark:bg-white/5 shadow-inner text-lg p-6 font-display placeholder:text-primary/20 dark:placeholder:text-white/20"
+                  className="min-h-[120px] rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner text-lg p-6 font-display placeholder:text-primary/20 dark:placeholder:text-emerald-400/40"
                 />
               )}
             />

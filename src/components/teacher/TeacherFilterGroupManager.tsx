@@ -146,8 +146,8 @@ export default function TeacherFilterGroupManager({
                     className={cn(
                         "h-12 w-12 rounded-2xl flex items-center justify-center transition-all border shadow-sm relative",
                         activeFilterId 
-                            ? "bg-accent text-white border-accent shadow-accent/20" 
-                            : "bg-white/60 text-primary border-white/40"
+                            ? "bg-primary text-white shadow-xl shadow-primary/20 scale-105"
+                            : "bg-card/60 dark:bg-card/20 text-primary dark:text-emerald-400 border-border"
                     )}
                 >
                     <Filter className="h-5 w-5" />
@@ -217,13 +217,13 @@ export default function TeacherFilterGroupManager({
                                 <div className="space-y-5">
                                     <div className="space-y-2">
                                         <Label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-2">Gruppenavn</Label>
-                                        <Input value={tempName} onChange={(e) => setTempName(e.target.value)} placeholder="F.eks. Hold 1" className="h-14 rounded-2xl bg-white/60 border-white shadow-inner font-bold" />
+                                        <Input value={tempName} onChange={(e) => setTempName(e.target.value)} placeholder="F.eks. Hold 1" className="h-14 rounded-2xl bg-card border-border shadow-inner font-bold" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-2">Søg efter elev</Label>
                                         <div className="relative">
                                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/30" />
-                                            <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Søg..." className="h-14 rounded-2xl bg-white/60 border-white shadow-inner pl-11 font-bold" />
+                                            <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Søg..." className="h-14 rounded-2xl bg-card border-border shadow-inner pl-11 font-bold" />
                                         </div>
                                     </div>
                                     <div className="rounded-3xl border border-black/5 bg-white overflow-hidden shadow-sm">
@@ -287,7 +287,7 @@ export default function TeacherFilterGroupManager({
                 value={activeFilterId || 'all'} 
                 onValueChange={(v) => onFilterChange(v === 'all' ? null : v)}
             >
-                <SelectTrigger className="flex-1 h-16 rounded-2xl border-white bg-white/60 shadow-inner text-lg px-6 font-display">
+                <SelectTrigger className="flex-1 h-16 rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner text-lg px-6 font-display text-primary dark:text-emerald-400">
                     <SelectValue placeholder="Vælg gruppe..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -300,7 +300,7 @@ export default function TeacherFilterGroupManager({
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
-                    <Button onClick={handleOpenDialog} variant="outline" className="h-16 w-16 rounded-2xl border-white bg-white/60 shadow-inner">
+                    <Button onClick={handleOpenDialog} variant="outline" className="h-16 w-16 rounded-2xl border-border bg-card/60 dark:bg-card/20 text-primary dark:text-emerald-400 shadow-inner">
                         <Edit className="h-5 w-5 text-primary" />
                     </Button>
                 </DialogTrigger>

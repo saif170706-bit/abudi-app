@@ -46,6 +46,9 @@
     --card: 165 30% 6%; /* Slightly lighter than background */
     --card-foreground: 0 0% 100%;
 
+    --popover: 165 30% 6%;
+    --popover-foreground: 0 0% 100%;
+
     --primary: 165 90% 40%; /* Very vibrant, glowing Emerald */
     --primary-foreground: 0 0% 100%;
 

@@ -172,7 +172,7 @@ export function AyahRangeFields({
             value={internalFrom ?? ''}
             onChange={handleFromChange}
             onBlur={handleFromBlur}
-            className="h-14 rounded-2xl border-white/40 bg-white/60 dark:bg-white/5 shadow-inner text-lg px-6 font-display"
+            className="h-14 rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner text-lg px-6 font-display"
           />
         </div>
 
@@ -194,7 +194,7 @@ export function AyahRangeFields({
               value={internalTo ?? ''}
               onChange={handleToChange}
               onBlur={handleToBlur}
-              className="h-14 rounded-2xl border-white/40 bg-white/60 dark:bg-white/5 shadow-inner text-lg pl-6 pr-14 font-display"
+              className="h-14 rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner text-lg pl-6 pr-14 font-display"
             />
             <Button
                 type="button"

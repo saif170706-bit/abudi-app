@@ -530,7 +530,7 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                       value={room}
                       onChange={(e) => setRoom(e.target.value)}
                       placeholder={t('roomPlaceholder')}
-                      className="h-16 rounded-2xl border-white bg-white/60 shadow-inner text-xl px-6 font-display focus-visible:ring-primary outline-none"
+                      className="h-16 rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner text-xl px-6 font-display focus-visible:ring-primary outline-none"
                     />
                   </motion.div>
                 )}

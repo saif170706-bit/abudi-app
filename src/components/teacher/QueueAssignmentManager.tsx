@@ -348,10 +348,10 @@ export default function QueueAssignmentManager({ studentId, studentName, onCycle
                                             control={control}
                                             render={({ field }) => (
                                             <Select onValueChange={field.onChange} value={field.value || ''}>
-                                                <SelectTrigger className="h-14 rounded-2xl border-white bg-white/60 shadow-inner font-bold text-primary">
+                                                <SelectTrigger className="h-14 rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner font-bold text-primary dark:text-emerald-400">
                                                     <SelectValue placeholder={t('selectGrade')} />
                                                 </SelectTrigger>
-                                                <SelectContent className="rounded-2xl border-white/40 backdrop-blur-xl">
+                                                <SelectContent className="rounded-2xl border-border backdrop-blur-xl">
                                                     {gradeOptions.map(grade => (<SelectItem key={grade} value={grade} className="py-3 font-bold">{grade}</SelectItem>))}
                                                 </SelectContent>
                                             </Select>
@@ -372,10 +372,10 @@ export default function QueueAssignmentManager({ studentId, studentName, onCycle
                                             control={control}
                                             render={({ field }) => (
                                             <Select onValueChange={field.onChange} value={field.value || ''}>
-                                                <SelectTrigger className="h-14 rounded-2xl border-white bg-white/60 shadow-inner font-bold text-primary">
+                                                <SelectTrigger className="h-14 rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner font-bold text-primary dark:text-emerald-400">
                                                     <SelectValue placeholder={t('selectGrade')} />
                                                 </SelectTrigger>
-                                                <SelectContent className="rounded-2xl border-white/40 backdrop-blur-xl">
+                                                <SelectContent className="rounded-2xl border-border backdrop-blur-xl">
                                                     {gradeOptions.map(grade => (<SelectItem key={grade} value={grade} className="py-3 font-bold">{grade}</SelectItem>))}
                                                 </SelectContent>
                                             </Select>
@@ -482,7 +482,7 @@ export default function QueueAssignmentManager({ studentId, studentName, onCycle
                                             {...field}
                                             value={field.value || ''}
                                             placeholder={t('notesPlaceholder')}
-                                            className="min-h-[140px] rounded-2xl border-white bg-white/60 shadow-inner text-[16px] p-5 font-medium leading-relaxed outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                                            className="min-h-[140px] rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner text-[16px] p-5 font-medium leading-relaxed outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-primary/40 dark:placeholder:text-emerald-400/40"
                                         />
                                     )}
                                 />

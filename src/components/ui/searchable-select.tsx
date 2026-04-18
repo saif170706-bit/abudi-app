@@ -80,7 +80,7 @@ export function SearchableSelect({
             return hay.includes(s) ? 1 : 0;
           }}
         >
-          <div className="p-2 border-b sticky top-0 bg-background z-10">
+          <div className="p-2 border-b sticky top-0 bg-popover z-10">
             <CommandInput
               autoFocus={false}
               placeholder={tGlobal("Søg...")}
