@@ -53,7 +53,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-import { doc, writeBatch, getDoc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, writeBatch, getDoc, deleteDoc, updateDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { FullscreenSheet } from '@/components/ui/fullscreen-sheet';
@@ -532,10 +532,34 @@ export default function ChatView() {
     type: 'video' | 'audio' | null;
   }>({ open: false, callId: null, recipientId: null, type: null });
 
+  const [activeChannelCall, setActiveChannelCall] = useState<{ id: string, type: 'video'|'audio'} | null>(null);
+
+  useEffect(() => {
+    if (!channel || !firestore) {
+      setActiveChannelCall(null);
+      return;
+    }
+    const callId = `call-${channel.id}`;
+    const callDocRef = doc(firestore, 'activeCalls', callId);
+    const unsubscribe = onSnapshot(callDocRef, (snap) => {
+      if (snap.exists()) {
+        setActiveChannelCall({ id: callId, type: snap.data()?.type || 'video' });
+      } else {
+        setActiveChannelCall(null);
+      }
+    });
+    return () => unsubscribe();
+  }, [channel?.id, firestore]);
+
   const handleCall = async (type: 'video' | 'audio') => {
     if (!channel || !user?.uid || !firestore) return;
 
-    const callId = `call-${channel.id}-${Date.now()}`;
+    if (activeChannelCall) {
+       router.push(`/${activeChannelCall.type}/${activeChannelCall.id}`);
+       return;
+    }
+
+    const callId = `call-${channel.id}`;
     const members = Object.keys(channel.state.members || {});
     const otherUserIds = members.filter((id) => id !== user.uid);
     const isGroupCall = members.length > 2;
@@ -976,7 +1000,12 @@ export default function ChatView() {
                     variant="ghost"
                     size="icon"
                     onClick={() => handleCall('audio')}
-                    className="text-primary hover:text-primary/80 rounded-full h-10 w-10 hover:bg-black/5 dark:hover:bg-white/5"
+                    className={cn(
+                      "rounded-full h-10 w-10 transition-colors",
+                      activeChannelCall?.type === 'audio' 
+                        ? "bg-[#E24B4B] text-white hover:bg-red-600 animate-pulse shadow-lg shadow-red-500/30" 
+                        : "text-primary hover:text-primary/80 hover:bg-black/5 dark:hover:bg-white/5"
+                    )}
                   >
                     <Phone className="h-5 w-5" />
                   </Button>
@@ -984,7 +1013,12 @@ export default function ChatView() {
                     variant="ghost"
                     size="icon"
                     onClick={() => handleCall('video')}
-                    className="text-primary hover:text-primary/80 rounded-full h-10 w-10 hover:bg-black/5 dark:hover:bg-white/5"
+                    className={cn(
+                      "rounded-full h-10 w-10 transition-colors",
+                      activeChannelCall?.type === 'video' 
+                        ? "bg-[#E24B4B] text-white hover:bg-red-600 animate-pulse shadow-lg shadow-red-500/30" 
+                        : "text-primary hover:text-primary/80 hover:bg-black/5 dark:hover:bg-white/5"
+                    )}
                   >
                     <VideoIcon className="h-6 w-6 relative top-[1px]" />
                   </Button>

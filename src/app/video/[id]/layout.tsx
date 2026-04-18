@@ -34,7 +34,7 @@ export default function VideoLayout({
     const initCall = async () => {
       try {
         // VIDEO PAGE:
-        // Force both devices OFF before join, otherwise Stream may apply backend defaults on join
+        // Initialize streams in a disabled state to defer hardware permissions until explicitly triggered by the user
         await Promise.allSettled([
           c.camera.disable(),
           c.microphone.disable(),

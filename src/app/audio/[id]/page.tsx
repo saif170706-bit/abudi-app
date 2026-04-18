@@ -14,7 +14,7 @@ import { useFirebase, useUser } from "@/firebase";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { useView } from "@/context/ViewContext";
 import { useWakeLock } from "@/hooks/use-wake-lock";
-import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 import { cn, getInitials } from "@/lib/utils";
 import QueueAssignmentManager from "@/components/teacher/QueueAssignmentManager";
 import { 
@@ -82,7 +82,7 @@ export default function AudioCallPage() {
   const { firestore } = useFirebase();
   const { user } = useUser();
   const { profile } = useUserProfile();
-  const { setServingStudent } = useView();
+  const { servingStudent, setServingStudent } = useView();
   const call = useCall();
   const { useParticipants, useMicrophoneState, useCallCallingState } = useCallStateHooks();
   const participants = useParticipants();
@@ -90,6 +90,18 @@ export default function AudioCallPage() {
   const callingState = useCallCallingState();
   const [isLeaving, setIsLeaving] = useState(false);
   const [showAssignment, setShowAssignment] = useState(false);
+
+  useEffect(() => {
+    if (!firestore || !params.id) return;
+    const callDocRef = doc(firestore, 'activeCalls', params.id as string);
+    const unsubscribe = onSnapshot(callDocRef, snap => {
+      // If the active call document is intentionally deleted (e.g., by the host leaving a 1-on-1), kick everyone else out
+      if (!snap.exists()) {
+        router.replace('/');
+      }
+    });
+    return () => unsubscribe();
+  }, [firestore, params.id, router]);
 
   // Keep screen awake during active calls
   useWakeLock(!isLeaving);
@@ -102,17 +114,24 @@ export default function AudioCallPage() {
       // Cleanup Firestore active call entry if possible
       if (firestore && user?.uid && params.id) {
         const callDocRef = doc(firestore, 'activeCalls', params.id as string);
-        const callSnap = await getDoc(callDocRef).catch(() => null);
-        if (callSnap && callSnap.exists()) {
-          const currentMembers = callSnap.data().members || [];
-          const updatedMembers = currentMembers.filter((m: string) => m !== user.uid);
-          
-          if (updatedMembers.length === 0) {
-            await deleteDoc(callDocRef).catch(() => {});
-          } else {
-            await updateDoc(callDocRef, { 
-              members: updatedMembers 
-            }).catch(() => {});
+        
+        if (participants.length <= 2) {
+          // If we are hard-ending the call, destroy the session from Firestore so ChatView stops pulsing immediately
+          await deleteDoc(callDocRef).catch(() => {});
+        } else {
+          // If it's a larger group call, gently remove ourselves
+          const callSnap = await getDoc(callDocRef).catch(() => null);
+          if (callSnap && callSnap.exists()) {
+            const currentMembers = callSnap.data().members || [];
+            const updatedMembers = currentMembers.filter((m: string) => m !== user.uid);
+            
+            if (updatedMembers.length === 0) {
+              await deleteDoc(callDocRef).catch(() => {});
+            } else {
+              await updateDoc(callDocRef, { 
+                members: updatedMembers 
+              }).catch(() => {});
+            }
           }
         }
       }
@@ -187,7 +206,7 @@ export default function AudioCallPage() {
 
   return (
     <div className="relative flex h-[100dvh] w-full flex-col bg-background overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ backgroundImage: 'url("https://i.postimg.cc/xC74tT1V/flat-arabic-pattern-background-79603-1826.avif")', backgroundSize: '400px' }} />
+      <div className="absolute inset-0 opacity-[0.12] dark:opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'url("https://i.postimg.cc/xC74tT1V/flat-arabic-pattern-background-79603-1826.avif")', backgroundSize: '400px' }} />
 
       <ParticipantsAudio participants={participants} />
 
@@ -211,7 +230,7 @@ export default function AudioCallPage() {
 
       <div className="z-20 px-6 pb-[max(2.5rem,env(safe-area-inset-bottom,2.5rem))] flex justify-center">
         <div className="flex items-center gap-6 p-5 rounded-[40px] bg-card border border-border shadow-[0_25px_60px_rgba(0,0,0,0.12)]">
-          {profile?.role === 'teacher' && (
+          {profile?.role === 'teacher' && servingStudent && (
             <Sheet open={showAssignment} onOpenChange={setShowAssignment}>
               <SheetTrigger asChild>
                 <button

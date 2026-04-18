@@ -3,20 +3,20 @@
 import {
   CallControls,
   CallingState,
-  SpeakerLayout,
+  ParticipantView,
   useCallStateHooks,
   useCall,
   StreamTheme,
 } from "@stream-io/video-react-sdk";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
-import { Loader2, Users, BookOpenText, ChevronUp } from "lucide-react";
+import { Loader2, Users, BookOpenText, ChevronUp, Mic, MicOff, Video as VideoIcon, VideoOff, PhoneOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFirebase, useUser } from "@/firebase";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { useView } from "@/context/ViewContext";
 import { useWakeLock } from "@/hooks/use-wake-lock";
-import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 import QueueAssignmentManager from "@/components/teacher/QueueAssignmentManager";
 import {
   Sheet,
@@ -32,13 +32,27 @@ export default function VideoCallPage() {
   const { firestore } = useFirebase();
   const { user } = useUser();
   const { profile } = useUserProfile();
-  const { setServingStudent } = useView();
+  const { servingStudent, setServingStudent } = useView();
   const call = useCall();
-  const { useCallCallingState, useParticipants } = useCallStateHooks();
+  const { useCallCallingState, useParticipants, useMicrophoneState, useCameraState } = useCallStateHooks();
   const callingState = useCallCallingState();
   const participants = useParticipants();
+  const { microphone, isMute: isMicMuted } = useMicrophoneState();
+  const { camera, isMute: isCamMuted } = useCameraState();
   const [isLeaving, setIsLeaving] = useState(false);
   const [showAssignment, setShowAssignment] = useState(false);
+
+  useEffect(() => {
+    if (!firestore || !params.id) return;
+    const callDocRef = doc(firestore, 'activeCalls', params.id as string);
+    const unsubscribe = onSnapshot(callDocRef, snap => {
+      // If the active call document is intentionally deleted (e.g., by the host leaving a 1-on-1), kick everyone else out
+      if (!snap.exists()) {
+        router.replace('/');
+      }
+    });
+    return () => unsubscribe();
+  }, [firestore, params.id, router]);
 
   // Keep screen awake during active calls
   useWakeLock(!isLeaving);
@@ -56,17 +70,24 @@ export default function VideoCallPage() {
       // Cleanup Firestore active call entry if possible
       if (firestore && user?.uid && params.id) {
         const callDocRef = doc(firestore, 'activeCalls', params.id as string);
-        const callSnap = await getDoc(callDocRef).catch(() => null);
-        if (callSnap && callSnap.exists()) {
-          const currentMembers = callSnap.data().members || [];
-          const updatedMembers = currentMembers.filter((m: string) => m !== user.uid);
-          
-          if (updatedMembers.length === 0) {
-            await deleteDoc(callDocRef).catch(() => {});
-          } else {
-            await updateDoc(callDocRef, { 
-              members: updatedMembers 
-            }).catch(() => {});
+        
+        if (participants.length <= 2) {
+          // If we are hard-ending the call, destroy the session from Firestore so ChatView stops pulsing immediately
+          await deleteDoc(callDocRef).catch(() => {});
+        } else {
+          // If it's a larger group call, gently remove ourselves
+          const callSnap = await getDoc(callDocRef).catch(() => null);
+          if (callSnap && callSnap.exists()) {
+            const currentMembers = callSnap.data().members || [];
+            const updatedMembers = currentMembers.filter((m: string) => m !== user.uid);
+            
+            if (updatedMembers.length === 0) {
+              await deleteDoc(callDocRef).catch(() => {});
+            } else {
+              await updateDoc(callDocRef, { 
+                members: updatedMembers 
+              }).catch(() => {});
+            }
           }
         }
       }
@@ -119,14 +140,14 @@ export default function VideoCallPage() {
   }
 
   return (
-    <StreamTheme className="h-[100dvh] w-full bg-[#111214]">
+    <StreamTheme className="h-[100dvh] w-full bg-background transition-colors duration-300">
       <div className="relative h-full w-full flex flex-col overflow-hidden">
         {/* Header Overlay */}
         <div className="absolute top-0 left-0 right-0 z-20 p-6 flex justify-between items-start pointer-events-none">
-          <div className="bg-black/40 backdrop-blur-md border border-white/10 px-4 py-2 rounded-2xl pointer-events-auto">
+          <div className="bg-card/80 backdrop-blur-md border border-border shadow-sm px-4 py-2 rounded-2xl pointer-events-auto">
             <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-white/70" />
-              <span className="text-white text-sm font-bold">
+              <Users className="h-4 w-4 text-muted-foreground" />
+              <span className="text-foreground text-sm font-bold">
                 {participants.length} {participants.length === 1 ? 'deltager' : 'deltagere'}
               </span>
             </div>
@@ -134,19 +155,39 @@ export default function VideoCallPage() {
         </div>
 
         {/* Video Content */}
-        <div className="flex-1 relative bg-black">
-          <SpeakerLayout participantsBarPosition='bottom' />
+        <div className="flex-1 relative z-10 w-full overflow-hidden flex items-center justify-center p-4 pt-[100px] pb-[130px]">
+          <div className={cn(
+            "w-full h-full max-w-5xl mx-auto grid gap-4",
+             participants.length === 1 ? "grid-cols-1" :
+             participants.length === 2 ? "grid-rows-2 sm:grid-rows-1 sm:grid-cols-2" :
+             "grid-cols-2 grid-rows-2"
+          )}>
+            {participants.slice(0, 4).map((p) => (
+              <div 
+                key={p.sessionId} 
+                className={cn(
+                  "relative rounded-[32px] overflow-hidden bg-muted/40 shadow-xl border-2 transition-all duration-300",
+                  p.isSpeaking ? "border-primary shadow-primary/20" : "border-border/40"
+                )}
+              >
+                  <ParticipantView
+                    participant={p}
+                    className="w-full h-full max-h-full"
+                  />
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Controls Overlay */}
         <div className="absolute bottom-8 left-0 right-0 z-20 px-6 flex justify-center pointer-events-none">
-          <div className="bg-card/10 backdrop-blur-xl border border-white/10 p-4 rounded-[40px] shadow-2xl pointer-events-auto flex items-center gap-4">
-            {profile?.role === 'teacher' && (
+          <div className="bg-card border border-border p-4 rounded-[40px] shadow-2xl pointer-events-auto flex items-center gap-4">
+            {profile?.role === 'teacher' && servingStudent && (
               <Sheet open={showAssignment} onOpenChange={setShowAssignment}>
                 <SheetTrigger asChild>
                   <button
                     className={cn(
-                      "grid h-12 w-12 place-items-center rounded-2xl transition-all active:scale-95 shadow-sm bg-white/10 text-white hover:bg-white/20",
+                      "grid h-12 w-12 place-items-center rounded-2xl transition-all active:scale-95 shadow-sm bg-muted text-foreground hover:bg-muted/80",
                       showAssignment && "bg-[#DEA93E] text-white"
                     )}
                   >
@@ -182,12 +223,47 @@ export default function VideoCallPage() {
                 </SheetContent>
               </Sheet>
             )}
-            <CallControls onLeave={handleLeave} />
+            <button
+              onClick={async () => {
+                try {
+                  if (isMicMuted) await call?.microphone.enable();
+                  else await call?.microphone.disable();
+                } catch (err) { console.error(err); }
+              }}
+              className={cn(
+                "grid h-12 w-12 place-items-center rounded-2xl transition-all active:scale-95 shadow-sm",
+                isMicMuted ? "bg-red-50 text-red-500" : "bg-muted text-foreground hover:bg-muted/80"
+              )}
+            >
+              {isMicMuted ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
+            </button>
+
+            <button
+              onClick={async () => {
+                try {
+                  if (isCamMuted) await call?.camera.enable();
+                  else await call?.camera.disable();
+                } catch (err) { console.error(err); }
+              }}
+              className={cn(
+                "grid h-12 w-12 place-items-center rounded-2xl transition-all active:scale-95 shadow-sm",
+                isCamMuted ? "bg-red-50 text-red-500" : "bg-muted text-foreground hover:bg-muted/80"
+              )}
+            >
+              {isCamMuted ? <VideoOff className="h-6 w-6" /> : <VideoIcon className="h-6 w-6" />}
+            </button>
+
+            <button
+              onClick={handleLeave}
+              className="grid h-12 w-16 place-items-center rounded-2xl bg-[#E24B4B] text-white shadow-lg shadow-red-500/20 active:scale-95 transition-all ml-2"
+            >
+              <PhoneOff className="h-6 w-6" />
+            </button>
           </div>
         </div>
 
         {/* Subtle Background Pattern (only visible in empty spaces) */}
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-0" 
+        <div className="absolute inset-0 opacity-[0.12] dark:opacity-[0.05] pointer-events-none z-0" 
              style={{ 
                backgroundImage: 'url("https://i.postimg.cc/xC74tT1V/flat-arabic-pattern-background-79603-1826.avif")', 
                backgroundSize: '400px' 
