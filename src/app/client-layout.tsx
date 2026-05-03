@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useAuth } from '@/hooks/use-auth';
 import { AuthProvider } from "@/context/auth-context";
 import { Navbar } from '@/components/Navbar';
-import React, { useEffect, useState, useRef, Suspense } from 'react';
+import React, { useEffect, useState, useRef, Suspense, useCallback } from 'react';
 import { ViewProvider, useView } from '@/context/ViewContext';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { SWRConfig } from "swr";
@@ -23,6 +23,61 @@ import { ensureWebPushToken, bindForegroundMessaging } from "@/lib/fcm";
 import AppWarmer from "@/components/AppWarmer";
 import { OfflineIndicator } from "@/components/ui/OfflineIndicator";
 import MandatoryPhotoSetup from "@/components/profile/MandatoryPhotoSetup";
+
+/**
+ * AndroidBackHandler
+ *
+ * Fixes two Android-specific PWA issues:
+ * 1. The hardware back button closes the app instead of navigating back.
+ * 2. Swiping from the left edge always jumps to the home page instead of going back one step.
+ *
+ * How it works:
+ * - When the PWA launches we push a synthetic `history.pushState` entry so there is
+ *   always a real browser-history entry on top of the stack.
+ * - Whenever the pathname changes (i.e. the user navigates forward) we push another
+ *   synthetic entry, keeping the stack depth in sync.
+ * - When the Android back button or left-edge swipe fires `popstate`, we call
+ *   `router.back()` (Next.js in-app navigation) instead of letting the browser handle
+ *   it (which would close the standalone PWA or jump to the OS home screen).
+ */
+function AndroidBackHandler() {
+  const router = useRouter();
+  const pathname = usePathname();
+  // Tracks whether we are handling a popstate event ourselves
+  const handlingRef = useRef(false);
+
+  // Push a sentinel history entry whenever the pathname changes so there is
+  // always something for the Android back button to "pop" without leaving the app.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    // Use the current pathname as the state key so we can identify our entries
+    window.history.pushState({ _pwaBackGuard: pathname }, '', window.location.href);
+  }, [pathname]);
+
+  // Intercept popstate (back button / left-edge swipe) and route within the app.
+  const handlePopState = useCallback((e: PopStateEvent) => {
+    if (handlingRef.current) return;
+    handlingRef.current = true;
+
+    // Prevent the default browser "go back" that would either close the PWA
+    // or jump unexpectedly in the history stack.
+    // We re-push the entry we just popped so the browser stack stays intact,
+    // then we let Next.js navigate back in the app's own history.
+    window.history.pushState({ _pwaBackGuard: pathname }, '', window.location.href);
+    router.back();
+
+    // Release the lock on the next tick so rapid presses are handled correctly.
+    setTimeout(() => { handlingRef.current = false; }, 300);
+  }, [router, pathname]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [handlePopState]);
+
+  return null;
+}
 
 /**
  * Initial synkronisering af ulæste beskeder ved opstart og ved events.
@@ -322,6 +377,8 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
                 <UnreadProvider>
                   <ViewProvider>
                     <Suspense fallback={null}>
+                      {/* Android back button / left-edge swipe fix */}
+                      <AndroidBackHandler />
                       <AppContent>{children}</AppContent>
                     </Suspense>
                   </ViewProvider>

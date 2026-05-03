@@ -35,14 +35,17 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=0" />
         
         {/* PWA / Mobile Meta Tags */}
-        <meta name="theme-color" content="#efebe1" />
+        <meta name="theme-color" content="#1a6b3a" />
         <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Ibn Amer" />
         <meta name="application-name" content="Ibn Amer" />
         <meta name="format-detection" content="telephone=no" />
+        {/* Android: allow install prompt */}
         <meta name="mobile-web-app-capable" content="yes" />
 
+        {/* Apple touch icons with proper padding */}
         <link rel="apple-touch-icon" href="/pwa/icon-192x192.png" />
         <link rel="apple-touch-icon" sizes="152x152" href="/pwa/icon-192x192.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/pwa/icon-192x192.png" />
