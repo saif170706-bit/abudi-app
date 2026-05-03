@@ -794,7 +794,14 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(
     }, [handlePlaybackSync]);
 
     const onTimeUpdateEv = useCallback(() => {
-        // This is called by the audio element itself, ensuring it runs in the background
+        // On Android, both RAF (60fps) and timeupdate fire simultaneously,
+        // which doubles the JS work on the main thread and causes audio buffer
+        // underruns that sound like micro-pauses between ayahs.
+        //
+        // Rule: timeupdate only drives handlePlaybackSync when RAF is NOT running
+        // (e.g. screen locked, tab backgrounded). When RAF is active it already
+        // handles everything — the timeupdate path is only a background fallback.
+        if (rafRef.current !== null) return;
         handlePlaybackSync();
     }, [handlePlaybackSync]);
 
