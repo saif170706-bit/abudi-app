@@ -241,7 +241,7 @@ export default function TerminalTV() {
           className="text-center mb-16"
         >
           <img 
-            src="https://i.postimg.cc/RVPTkLJN/frontepagelogo-5282001fe8581541590a.png" 
+            src="/pwa/ibn-amer-logo.png" 
             alt="Logo" 
             className="h-32 w-32 bg-white rounded-full p-4 mx-auto mb-8 shadow-2xl"
           />
@@ -325,7 +325,7 @@ export default function TerminalTV() {
       {/* Header */}
       <div className="flex items-center gap-6 mb-12 bg-white/5 rounded-full py-4 px-10 backdrop-blur-md border border-white/10 relative z-10 w-fit">
          <img 
-            src="https://i.postimg.cc/RVPTkLJN/frontepagelogo-5282001fe8581541590a.png" 
+            src="/pwa/ibn-amer-logo.png" 
             alt="Logo" 
             onClick={handleLogoClick}
             className="h-14 w-14 bg-white rounded-full p-2 object-cover cursor-pointer hover:scale-105 transition-transform" 

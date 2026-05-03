@@ -290,7 +290,7 @@ export default function LivestreamBroadcastSheet({ livestream, isOpen, onClose }
           user: { 
             id: user.uid, 
             name: 'Ibn Amer Instituttet',
-            image: 'https://i.postimg.cc/RVPTkLJN/frontepagelogo-5282001fe8581541590a.png'
+            image: '/pwa/ibn-amer-logo.png'
           }, 
           token 
         });

@@ -15,7 +15,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 
-const LOGO_URL = "https://i.postimg.cc/RVPTkLJN/frontepagelogo-5282001fe8581541590a.png";
+const LOGO_URL = "/pwa/ibn-amer-logo.png";
 
 export default function PrivacyPage() {
   const [date, setDate] = useState("");

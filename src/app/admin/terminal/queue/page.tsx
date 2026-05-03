@@ -183,7 +183,7 @@ export default function TerminalQueue() {
               >
                 <div className="h-40 w-40 md:h-52 md:w-52 bg-white rounded-full p-6 shadow-2xl mb-12 flex items-center justify-center border-4 border-white">
                   <img
-                    src="https://i.postimg.cc/RVPTkLJN/frontepagelogo-5282001fe8581541590a.png"
+                    src="/pwa/ibn-amer-logo.png"
                     alt="Ibn Amer Logo"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -265,7 +265,7 @@ export default function TerminalQueue() {
               <div className="flex items-center justify-between mb-12">
                 <div className="flex items-center gap-6">
                   <img
-                    src="https://i.postimg.cc/RVPTkLJN/frontepagelogo-5282001fe8581541590a.png"
+                    src="/pwa/ibn-amer-logo.png"
                     alt="Logo"
                     onClick={handleLogoClick}
                     className="h-16 w-16 md:h-24 md:w-24 bg-white rounded-full p-2 md:p-4 cursor-pointer active:scale-90 transition-transform shadow-xl"

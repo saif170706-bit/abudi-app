@@ -139,7 +139,7 @@ export default function WaitingListRegisterPage() {
         <div className="text-center space-y-4">
           <div className="relative h-20 w-20 mx-auto rounded-[24px] overflow-hidden shadow-lg">
             <Image 
-              src="https://i.postimg.cc/RVPTkLJN/frontepagelogo-5282001fe8581541590a.png" 
+              src="/pwa/ibn-amer-logo.png" 
               alt="Logo" 
               fill 
               className="object-cover" 

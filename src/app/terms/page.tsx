@@ -17,7 +17,7 @@ import { ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useGlobalTranslation } from "@/hooks/useGlobalTranslation";
 
-const LOGO_URL = "https://i.postimg.cc/RVPTkLJN/frontepagelogo-5282001fe8581541590a.png";
+const LOGO_URL = "/pwa/ibn-amer-logo.png";
 
 export default function TermsPage() {
   const [date, setDate] = useState("");

@@ -1006,7 +1006,7 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(
         artist: selectedReciter?.name || 'Quran',
         album: 'Ibn Amer Quran',
         artwork: [
-          { src: 'https://i.postimg.cc/RVPTkLJN/frontepagelogo-5282001fe8581541590a.png', sizes: '512x512', type: 'image/png' },
+          { src: '/pwa/ibn-amer-logo.png', sizes: '512x512', type: 'image/png' },
         ],
       });
     }, [currentKey, selectedReciter, getAyahByKey, sessionActive]);

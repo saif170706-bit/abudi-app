@@ -33,7 +33,7 @@ import { Loader2, Mail, CheckCircle } from "lucide-react";
 import { useLanguage, type Language } from "@/context/LanguageContext";
 import { useHaptic } from "use-haptic";
 
-const LOGO_URL = "https://i.postimg.cc/RVPTkLJN/frontepagelogo-5282001fe8581541590a.png";
+const LOGO_URL = "/pwa/ibn-amer-logo.png";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Indtast venligst en gyldig email." }),

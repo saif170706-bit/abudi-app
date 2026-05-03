@@ -155,8 +155,8 @@ export function bindForegroundMessaging() {
             body: body,
             tag: tag, // Ensures unique notification per message (collapses duplicates)
             data: { link },
-            icon: 'https://i.postimg.cc/RVPTkLJN/frontepagelogo-5282001fe8581541590a.png',
-            badge: 'https://i.postimg.cc/RVPTkLJN/frontepagelogo-5282001fe8581541590a.png'
+            icon: '/pwa/ibn-amer-logo.png',
+            badge: '/pwa/ibn-amer-logo.png'
           });
 
           n.onclick = (e) => {

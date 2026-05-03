@@ -318,7 +318,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-screen items-center justify-center bg-transparent p-6">
         <div className="flex flex-col items-center gap-4">
           <Image
-            src="https://i.postimg.cc/RVPTkLJN/frontepagelogo-5282001fe8581541590a.png"
+            src="/pwa/ibn-amer-logo.png"
             alt="Ibn Amer"
             width={64}
             height={64}
