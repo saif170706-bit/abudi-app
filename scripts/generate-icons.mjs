@@ -32,7 +32,9 @@ for (const size of SIZES) {
   const bgBuffer = await sharp(BG_SRC)
     .resize(size, size, { fit: 'cover', position: 'centre', kernel: 'lanczos3' })
     .composite([{
-      input: { create: { width: size, height: size, channels: 4, background: { r: 255, g: 255, b: 255, alpha: 0.65 } } },
+      // Use the app's beige color (#EFEBE1 -> rgb(239, 235, 225)) with 0.5 opacity
+      // so the engraving is more visible while still tinting it beige
+      input: { create: { width: size, height: size, channels: 4, background: { r: 239, g: 235, b: 225, alpha: 0.50 } } },
       blend: 'over'
     }])
     .png()
