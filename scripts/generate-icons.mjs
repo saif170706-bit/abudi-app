@@ -22,22 +22,28 @@ const OUT_DIR   = path.join(root, 'public', 'pwa');
 // Icon sizes to generate
 const SIZES = [192, 512];
 // Logo occupies this fraction of the icon (centered, equal padding all sides)
-const LOGO_FRACTION = 0.65;
+const LOGO_FRACTION = 0.85;
 
 for (const size of SIZES) {
   const logoSize = Math.round(size * LOGO_FRACTION);
   const offset   = Math.round((size - logoSize) / 2);
 
-  // 1. Resize + tile the background to fill the target square
+  // 1. Resize + tile the background to fill the target square, and fade it
   const bgBuffer = await sharp(BG_SRC)
-    .resize(size, size, { fit: 'cover', position: 'centre' })
+    .resize(size, size, { fit: 'cover', position: 'centre', kernel: 'lanczos3' })
+    .composite([{
+      input: { create: { width: size, height: size, channels: 4, background: { r: 255, g: 255, b: 255, alpha: 0.65 } } },
+      blend: 'over'
+    }])
+    .png()
     .toBuffer();
 
-  // 2. Resize the EXACT original logo (preserve transparency)
+  // 2. Resize the EXACT original logo (preserve transparency, use high quality kernel)
   const logoBuffer = await sharp(LOGO_SRC)
     .resize(logoSize, logoSize, {
       fit: 'contain',
       background: { r: 0, g: 0, b: 0, alpha: 0 }, // transparent padding
+      kernel: 'lanczos3'
     })
     .toBuffer();
 
