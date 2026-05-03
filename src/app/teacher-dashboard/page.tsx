@@ -3,12 +3,13 @@
 // All data is fetched client-side. Force static = serve from CDN, no cold starts.
 export const dynamic = 'force-static';
 
-import { useUser } from '@/firebase';
+import { useUser, useFirebase } from '@/firebase';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { useRouter } from 'next/navigation';
-import { useEffect, Suspense, useMemo } from 'react';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookUp, Search, ArrowLeft, ChevronRight, MessageSquare, FileText, BookOpen, Users, Bell, Quote } from 'lucide-react';
+import { useEffect, Suspense, useMemo, useState, type FormEvent } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { BookUp, Search, ArrowLeft, ChevronRight, MessageSquare, FileText, BookOpen, Users, Bell, Quote, UserPlus, Loader2, PlusCircle } from 'lucide-react';
+import { doc, setDoc } from 'firebase/firestore';
 import TeacherHomeworkPage from './homework-reading/page';
 import FindStudentPage from './find-student/page';
 import { Button } from '@/components/ui/button';
@@ -22,9 +23,14 @@ import { QuranDataProvider } from '@/context/QuranDataContext';
 import QuranReader from '@/components/quran/QuranReader';
 import QuranIndex from '@/components/quran/QuranIndex';
 import ChatView from '@/components/chat/ChatView';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useAnnouncementsFeed } from '@/hooks/use-announcements-feed';
 import { useTeacherReadingData } from '@/hooks/use-teacher-reading-data';
 import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
+import { useToast } from '@/hooks/use-toast';
 import { useDashboardPreloader } from '@/hooks/use-dashboard-preloader';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SectionLabel, WavingHand, IslamicDivider, UpwardShootingStars } from '@/components/ui/primitives';
@@ -56,11 +62,51 @@ import QuranFontPreloader from '@/components/quran/QuranFontPreloader';
 function TeacherDashboard() {
   const { user, loading: isUserLoading } = useUser();
   const { profile } = useUserProfile();
+  const { firestore } = useFirebase();
   const router = useRouter();
   const { view, setView, goBack, quranPage, navigateToQuranPage, setIsSubView } = useView();
   const { language } = useLanguage();
   const { tGlobal } = useGlobalTranslation();
+  const { toast } = useToast();
   useDashboardPreloader();
+
+  // Pre-approval form state (student only)
+  const [paEmail, setPaEmail] = useState('');
+  const [paPhone, setPaPhone] = useState('');
+  const [paStudentNumber, setPaStudentNumber] = useState('');
+  const [paCourseDuration, setPaCourseDuration] = useState('3 year');
+  const [paGender, setPaGender] = useState<'man' | 'woman'>('man');
+  const [paSubAmount, setPaSubAmount] = useState(400);
+  const [paSubmitting, setPaSubmitting] = useState(false);
+
+  const handlePreApproveStudent = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!paEmail.trim() || !paEmail.includes('@')) {
+      return;
+    }
+    setPaSubmitting(true);
+    try {
+      const userEmail = paEmail.toLowerCase().trim();
+      await setDoc(doc(firestore, 'placeholders', userEmail), {
+        email: userEmail,
+        role: 'student',
+        gender: paGender,
+        phoneNumber: paPhone.trim() || null,
+        studentNumber: paStudentNumber.trim() || null,
+        courseDuration: paCourseDuration,
+        subscriptionAmount: paSubAmount,
+      });
+      setPaEmail('');
+      setPaPhone('');
+      setPaStudentNumber('');
+      setPaSubAmount(400);
+      setView('overview');
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: 'Fejl', description: err?.message || 'Kunne ikke gemme godkendelse.' });
+    } finally {
+      setPaSubmitting(false);
+    }
+  };
 
   // Start background pre-fetching
   useAnnouncementsFeed();
@@ -127,6 +173,86 @@ function TeacherDashboard() {
         return <MembershipSettings />;
       case 'announcements':
         return <Announcements BackButton={BackButton} />;
+      case 'tilfoej-elev':
+        return (
+          <div className="min-h-screen px-6 pt-16 pb-32 max-w-lg mx-auto">
+            <div className="flex items-center gap-4 mb-10">
+              <BackButton />
+              <div>
+                <h1 className="text-3xl font-display text-primary">{tGlobal('Tilføj elev')}</h1>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent">{tGlobal('Forhåndsgodkend ny elev')}</p>
+              </div>
+            </div>
+            <Card className="rounded-[32px] border border-border bg-card shadow-2xl overflow-hidden">
+              <CardContent className="p-8">
+                <form onSubmit={handlePreApproveStudent} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">{tGlobal('Email')}</Label>
+                    <Input type="email" value={paEmail} onChange={(e) => setPaEmail(e.target.value)}
+                      placeholder="bruger@eksempel.dk"
+                      className="h-14 rounded-2xl border-border bg-muted px-5 text-lg" required />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">{tGlobal('Telefonnummer')}</Label>
+                    <Input type="tel" value={paPhone} onChange={(e) => setPaPhone(e.target.value)}
+                      placeholder="+45"
+                      className="h-14 rounded-2xl border-border bg-muted px-5 text-lg" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">{tGlobal('Køn')}</Label>
+                    <div className="h-14 flex items-center px-5 rounded-2xl border border-border bg-muted">
+                      <RadioGroup value={paGender} onValueChange={(v) => setPaGender(v as 'man' | 'woman')} className="flex gap-6">
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="man" id="pa-man" />
+                          <Label htmlFor="pa-man" className="font-semibold cursor-pointer">{tGlobal('Mand')}</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="woman" id="pa-woman" />
+                          <Label htmlFor="pa-woman" className="font-semibold cursor-pointer">{tGlobal('Kvinde')}</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">{tGlobal('Elevnummer')}</Label>
+                    <Input value={paStudentNumber} onChange={(e) => setPaStudentNumber(e.target.value)}
+                      placeholder={tGlobal('Fx. 12345')}
+                      className="h-14 rounded-2xl border-border bg-muted px-5" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">{tGlobal('Kursusforløb')}</Label>
+                    <Select onValueChange={setPaCourseDuration} value={paCourseDuration}>
+                      <SelectTrigger className="h-14 rounded-2xl border-border bg-muted px-5">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1.5 year">{tGlobal('1,5 år')}</SelectItem>
+                        <SelectItem value="3 year">{tGlobal('3 år')}</SelectItem>
+                        <SelectItem value="5 year">{tGlobal('5 år')}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">{tGlobal('Abonnement (DKK)')}</Label>
+                    <Input type="number" value={paSubAmount} onChange={(e) => setPaSubAmount(Number(e.target.value))}
+                      className="h-14 rounded-2xl border-border bg-muted px-5" />
+                  </div>
+
+                  <Button type="submit" disabled={paSubmitting}
+                    className="w-full h-16 rounded-[20px] text-lg font-bold bg-primary hover:bg-primary/90 text-white shadow-[0_10px_30px_rgba(25,118,112,0.25)] transition-all active:scale-[0.98]">
+                    {paSubmitting ? <Loader2 className="mr-2 h-6 w-6 animate-spin" /> : <PlusCircle className="mr-2 h-6 w-6" />}
+                    {tGlobal('Godkend Bruger')}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        );
       case 'overview':
       default:
         return (
@@ -202,7 +328,7 @@ function TeacherDashboard() {
                             { id: 'find-student', title: tGlobal('Find Elev'), icon: <Search className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />, desc: tGlobal('Søg studerende') },
                             { id: 'chat', title: tGlobal('Beskeder'), icon: <MessageSquare className="h-6 w-6 text-orange-600 dark:text-orange-400" />, desc: tGlobal('Chat med elever') },
                             { id: 'announcements', title: tGlobal('Opslag'), icon: <Bell className="h-6 w-6 text-blue-600 dark:text-blue-400" />, desc: tGlobal('Fælles opslag') },
-                            { id: 'quran-index', title: tGlobal('Quran'), icon: <BookOpen className="h-6 w-6 text-accent" />, desc: tGlobal('Find Surah') }
+                            { id: 'tilfoej-elev', title: tGlobal('Tilføj elev'), icon: <UserPlus className="h-6 w-6 text-violet-600 dark:text-violet-400" />, desc: tGlobal('Forhåndsgodkend ny elev') }
                         ].map((feat, idx) => (
                             <motion.div 
                                 key={feat.id}

@@ -222,7 +222,7 @@ export default function TeacherFilterGroupManager({
                                     <div className="space-y-2">
                                         <Label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-2">Søg efter elev</Label>
                                         <div className="relative">
-                                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/30" />
+                                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/30 pointer-events-none" />
                                             <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Søg..." className="h-14 rounded-2xl bg-card border-border shadow-inner pl-11 font-bold" />
                                         </div>
                                     </div>

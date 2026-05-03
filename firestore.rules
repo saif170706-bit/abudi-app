@@ -115,7 +115,9 @@ service cloud.firestore {
     match /placeholders/{email} {
       allow get: if true;
       allow list: if isAdmin();
-      allow write: if isAdmin();
+      // Admin can write any role; teacher can only pre-approve students
+      allow write: if isAdmin() ||
+        (isTeacher() && request.resource.data.role == 'student');
       allow update: if isSignedIn()
                     && request.auth.token.email.lower() == email.lower()
                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fullName', 'phoneNumber', 'displayName', 'name', 'displayNameLower']);
@@ -125,5 +127,11 @@ service cloud.firestore {
     match /leaderboard/{uid}  { allow read: if isSignedIn(); allow write: if isTeacherOrAdmin(); }
     match /contactMessages/{id} { allow create: if isSignedIn(); allow read, write: if isAdmin(); }
     match /analytics/{id}     { allow create: if isSignedIn(); allow read, list: if isAdmin(); }
+    
+    // ── 7. Global Queue System ────────────────────────────────────────
+    match /globalQueues/{type} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
   }
 }

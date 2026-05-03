@@ -141,6 +141,15 @@ export const globalTranslations: Record<string, Record<Language, string>> = {
   "Flot start": { da: "Flot start", en: "Great start", ar: "بداية råe de", so: "Bilaaw fiican" },
   "Fuld Quran": { da: "Fuld Quran", en: "Full Quran", ar: "القرآن كاملاً", so: "Qur'aan dhan" },
   "Første badge": { da: "Første badge", en: "First badge", ar: "أول شارة", so: "Calaamaddii ugu horreysay" },
+  "Find hurtigste": { da: "Find hurtigste", en: "Find fastest", ar: "البحث عن الأسرع", so: "Raadi kan ugu degdegga badan" },
+  "Ingen lærere er tilgængelige lige nu.": { da: "Ingen lærere er tilgængelige lige nu.", en: "No teachers available right now.", ar: "لا يوجد معلمين متاحين حالياً.", so: "Macallimiin hadda ma diyaar aha." },
+  "Hurtig Tilmelding": { da: "Første Ledige", en: "First Available", ar: "أول معلم متاح", so: "Macalinka ugu horeeya ee diyaar noqda" },
+  "Venter på første ledige lærer": { da: "Venter på første ledige lærer", en: "Waiting for first available teacher", ar: "بانتظار أول معلم متاح", so: "Sugidda macalinka ugu horeeya ee diyaar noqda" },
+  "Allerede i kø": { da: "Allerede i kø", en: "Already in queue", ar: "بالفعل في الطابور", so: "Horay ayaad safka ugu jirtay" },
+  "Lokation påkrævet": { da: "Lokation påkrævet", en: "Location required", ar: "الموقع مطلوب", so: "Goobta waa loo baahan yahay" },
+  "For langt væk": { da: "For langt væk", en: "Too far away", ar: "بعيد جداً", so: "Aad u fog" },
+  "Du er ikke tæt nok på skolen.": { da: "Du er ikke tæt nok på skolen.", en: "You are not close enough to the school.", ar: "أنت لست قريباً بما يكفي من المدرسة.", so: "Uma dhawa dugsiga." },
+  "Fejl ved tilmelding": { da: "Fejl ved tilmelding", en: "Error joining", ar: "خطأ في الانضمام", so: "Khalad ku biirista" },
   "Halvvejs": { da: "Halvvejs", en: "Halfway", ar: "منتصف الطريق", so: "Bartamaha" },
   "Khatmah": { da: "Khatmah", en: "Khatmah", ar: "ختمة", so: "Khatmah" },
   "Kun ét skridt": { da: "Kun ét skridt", en: "Only one step", ar: "خطوة واحدة فقط", so: "Hal tallaabo un" },
@@ -184,7 +193,7 @@ export const globalTranslations: Record<string, Record<Language, string>> = {
   "Din plads i køen": { da: "Din plads i køen", en: "Your place in the queue", ar: "مكانك في الطابور", so: "Booskaaga safka ku jiro" },
   "Forlad kø": { da: "Forlad kø", en: "Leave Queue", ar: "مغادرة قائمة الانتظار", so: "Ka Bixid Safka" },
   "Tilbage til forside": { da: "Tilbage til forside", en: "Back to Frontpage", ar: "العودة إلى الصفحة الرئيسية", so: "Dib ugusonoqo Bogga Hore" },
-  "Dit Kø ID (TV system)": { da: "Dit Kø ID (TV system)", en: "Your Queue ID (TV system)", ar: "معرف الطابور الخاص بك", so: "Aqoonsiga Safkaaga" },
+  "Kø ID (TV system)": { da: "Kø ID (TV system)", en: "Queue ID (TV system)", ar: "معرف الطابور (نظام التلفزيون)", so: "Aqoonsiga Safka (TV-ga)" },
   "Vær klar!": { da: "Vær klar!", en: "Be ready!", ar: "كن جاهزاً!", so: "Diyaar ahow!" },
   "Din lærer ringer dig op virtuelt lige nu. Bliv på denne skærm.": { da: "Din lærer ringer dig op virtuelt lige nu. Bliv på denne skærm.", en: "Your teacher is calling you virtually right now. Stay on this screen.", ar: "معلمك يتصل بك الآن افتراضياً. ابق في هذه الصفحة.", so: "Macallinkaaga ayaa hadda kugu soo wacaya qadka. Joog boggan." },
   "Lokale": { da: "Lokale", en: "Room", ar: "الغرفة", so: "Qolka" },
@@ -251,6 +260,7 @@ export const globalTranslations: Record<string, Record<Language, string>> = {
   "Bruger Opdateret": { da: "Bruger Opdateret", en: "User Updated", ar: "تم تحديث المستخدم", so: "Isticmaalaha waa la cusboonaysiiyay" },
   "Bruger Slettet": { da: "Bruger Slettet", en: "User Deleted", ar: "تم حذف المستخدم", so: "Isticmaale ayaa la tirtiray" },
   "Elevnummer": { da: "Elevnummer", en: "Student Number", ar: "رقم الطالب", so: "Lambarka ardayga" },
+  "Telefonnummer": { da: "Telefonnummer", en: "Phone Number", ar: "رقم الهاتف", so: "Lambarka telefoonka" },
   "Godkend Bruger": { da: "Godkend Bruger", en: "Approve User", ar: "اعتماد المستخدم", so: "Ansixi Isticmaale" },
   "Godkend ny bruger": { da: "Godkend ny bruger", en: "Approve new user", ar: "اعتماد مستخدم جديد", so: "Ansixi isticmaale cusub" },
   "Ingen medlemmer fundet.": { da: "Ingen medlemmer fundet.", en: "No members found.", ar: "لم يتم العثور على أعضاء.", so: "Lama helo xubno." },
@@ -463,59 +473,59 @@ export const globalTranslations: Record<string, Record<Language, string>> = {
   "Din konto vil blive låst med det samme. Din anmodning vil blive behandlet af Ibn Amer inden for ca. 30 dage, hvorefter kontoen slettes permanent.": { da: "Din konto vil blive låst med det samme. Din anmodning vil blive behandlet af Ibn Amer inden for ca. 30 dage, hvorefter kontoen slettes permanent.", en: "Your account will be locked immediately. Your request will be processed by Ibn Amer within approx. 30 days, after which the account will be permanently deleted.", ar: "سيتم قفل حسابك على الفور. سيتم معالجة طلبك من قبل ابن عامر في غضون ٣٠ يوماً تقريباً، وبعد ذلك سيتم حذف الحساب بشكل دائم.", so: "Akoonkaaga isla markiiba waa la xiri doonaa. Codsigaaga waxa ka shaqayn doona Ibn Amer 30 maalmood gudahood, ka dibna akoonka si joogto ah ayaa loo tirtiri doonaa." },
 
   // Daily Verses
-  "Dig alene tilbeder vi, og Dig alene beder vi om hjælp.": { 
-    da: "Dig alene tilbeder vi, og Dig alene beder vi om hjælp.", 
-    en: "It is You we worship and You we ask for help.", 
-    ar: "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ", 
-    so: "Adiga kaliya ayaan ku caabudnaa, adiga kaliya ayaan gargaar ku weydiisanaa." 
+  "Dig alene tilbeder vi, og Dig alene beder vi om hjælp.": {
+    da: "Dig alene tilbeder vi, og Dig alene beder vi om hjælp.",
+    en: "It is You we worship and You we ask for help.",
+    ar: "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ",
+    so: "Adiga kaliya ayaan ku caabudnaa, adiga kaliya ayaan gargaar ku weydiisanaa."
   },
-  "For sandelig, med besvær kommer lettelse.": { 
-    da: "For sandelig, med besvær kommer lettelse.", 
-    en: "For indeed, with hardship [will be] ease.", 
-    ar: "فَإِنَّ مَعَ الْعُسْرِ يُسْرًا", 
-    so: "Xaqiiqdii, dhibka waxaa la socda fariid." 
+  "For sandelig, med besvær kommer lettelse.": {
+    da: "For sandelig, med besvær kommer lettelse.",
+    en: "For indeed, with hardship [will be] ease.",
+    ar: "فَإِنَّ مَعَ الْعُسْرِ يُسْرًا",
+    so: "Xaqiiqdii, dhibka waxaa la socda fariid."
   },
-  "Sandelig, i ihukommelsen af Allah finder hjerterne ro.": { 
-    da: "Sandelig, i ihukommelsen af Allah finder hjerterne ro.", 
-    en: "Verily, in the remembrance of Allah do hearts find rest.", 
-    ar: "أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ", 
-    so: "Xaqiiqdii, xusuusta Alle ayay qalbiyadu ku degaan." 
+  "Sandelig, i ihukommelsen af Allah finder hjerterne ro.": {
+    da: "Sandelig, i ihukommelsen af Allah finder hjerterne ro.",
+    en: "Verily, in the remembrance of Allah do hearts find rest.",
+    ar: "أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ",
+    so: "Xaqiiqdii, xusuusta Alle ayay qalbiyadu ku degaan."
   },
-  "Allah pålægger ikke en sjæl mere, end den kan bære.": { 
-    da: "Allah pålægger ikke en sjæl mere, end den kan bære.", 
-    en: "Allah does not charge a soul except [with that within] its capacity.", 
-    ar: "لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا", 
-    so: "Alle ma bado qof wax uusan qaadi karin." 
+  "Allah pålægger ikke en sjæl mere, end den kan bære.": {
+    da: "Allah pålægger ikke en sjæl mere, end den kan bære.",
+    en: "Allah does not charge a soul except [with that within] its capacity.",
+    ar: "لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا",
+    so: "Alle ma bado qof wax uusan qaadi karin."
   },
-  "Sig: O mine tjenere, som har syndet mod jer selv, fortvivl ikke over Allahs barmhjertighed.": { 
-    da: "Sig: O mine tjenere, som har syndet mod jer selv, fortvivl ikke over Allahs barmhjertighed.", 
-    en: "Say, 'O My servants who have transgressed against themselves, do not despair of the mercy of Allah.'", 
-    ar: "قُلْ يَا عِبَادِيَ الَّذِينَ أَسْرَفُوا عَلَىٰ أَنْفُسِهِمْ لَا تَقْنَطُوا مِنْ رَحْمَةِ اللَّهِ", 
-    so: "Dheh: 'Addoomadayda iska gardarraystayow, ha ka quustina naxariista Alle.'" 
+  "Sig: O mine tjenere, som har syndet mod jer selv, fortvivl ikke over Allahs barmhjertighed.": {
+    da: "Sig: O mine tjenere, som har syndet mod jer selv, fortvivl ikke over Allahs barmhjertighed.",
+    en: "Say, 'O My servants who have transgressed against themselves, do not despair of the mercy of Allah.'",
+    ar: "قُلْ يَا عِبَادِيَ الَّذِينَ أَسْرَفُوا عَلَىٰ أَنْفُسِهِمْ لَا تَقْنَطُوا مِنْ رَحْمَةِ اللَّهِ",
+    so: "Dheh: 'Addoomadayda iska gardarraystayow, ha ka quustina naxariista Alle.'"
   },
-  "Tab ikke modet, og vær ikke triste; I vil få overtaget, hvis I er troende.": { 
-    da: "Tab ikke modet, og vær ikke triste; I vil få overtaget, hvis I er troende.", 
-    en: "So do not weaken and do not grieve, and you will be superior if you are [true] believers.", 
-    ar: "وَلَا تَهِنُوا وَلَا تَحْزَنُوا وَأَنْتُمُ الْأَعْلَوْنَ إِنْ كُنْتُمْ مُؤْمِنِينَ", 
-    so: "Ha daciifina, hana murugoonina; adinkaa sarreeya haddaad mu'miniin tihiin." 
+  "Tab ikke modet, og vær ikke triste; I vil få overtaget, hvis I er troende.": {
+    da: "Tab ikke modet, og vær ikke triste; I vil få overtaget, hvis I er troende.",
+    en: "So do not weaken and do not grieve, and you will be superior if you are [true] believers.",
+    ar: "وَلَا تَهِنُوا وَلَا تَحْزَنُوا وَأَنْتُمُ الْأَعْلَوْنَ إِنْ كُنْتُمْ مُؤْمِنِينَ",
+    so: "Ha daciifina, hana murugoonina; adinkaa sarreeya haddaad mu'miniin tihiin."
   },
-  "Din Herre har hverken forladt dig eller lagt dig for had.": { 
-    da: "Din Herre har hverken forladt dig eller lagt dig for had.", 
-    en: "Your Lord has not taken leave of you, [O Muhammad], nor has He detested [you].", 
-    ar: "مَا وَدَّعَكَ رَبُّكَ وَمَا قَلَىٰ", 
-    so: "Rabbigaa kaama tagin, kumana nicin." 
+  "Din Herre har hverken forladt dig eller lagt dig for had.": {
+    da: "Din Herre har hverken forladt dig eller lagt dig for had.",
+    en: "Your Lord has not taken leave of you, [O Muhammad], nor has He detested [you].",
+    ar: "مَا وَدَّعَكَ رَبُّكَ وَمَا قَلَىٰ",
+    so: "Rabbigaa kaama tagin, kumana nicin."
   },
-  "Min Herre, udpas mit bryst for mig, og gør min opgave let for mig.": { 
-    da: "Min Herre, udpas mit bryst for mig, og gør min opgave let for mig.", 
-    en: "My Lord, expand for me my breast [with assurance] and ease for me my task.", 
-    ar: "رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي", 
-    so: "Rabbiyow, xabadka ii balaari, hawshaydana ii fududeey." 
+  "Min Herre, udpas mit bryst for mig, og gør min opgave let for mig.": {
+    da: "Min Herre, udpas mit bryst for mig, og gør min opgave let for mig.",
+    en: "My Lord, expand for me my breast [with assurance] and ease for me my task.",
+    ar: "رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي",
+    so: "Rabbiyow, xabadka ii balaari, hawshaydana ii fududeey."
   },
-  "Vær tålmodig med din Herres beslutning, for du er visselig under Vores opsyn.": { 
-    da: "Vær tålmodig med din Herres beslutning, for du er visselig under Vores opsyn.", 
-    en: "And be patient, [O Muhammad], for the decision of your Lord, for indeed, you are in Our eyes.", 
-    ar: "وَاصْبِرْ لِحُكْمِ رَبِّكَ فَإِنَّكَ بِأَعْيُنِنَا", 
-    so: "U samir xukunka Rabbigaa, waayo waxaad ku jirtaa indhahayaga (ilaalintayada)." 
+  "Vær tålmodig med din Herres beslutning, for du er visselig under Vores opsyn.": {
+    da: "Vær tålmodig med din Herres beslutning, for du er visselig under Vores opsyn.",
+    en: "And be patient, [O Muhammad], for the decision of your Lord, for indeed, you are in Our eyes.",
+    ar: "وَاصْبِرْ لِحُكْمِ رَبِّكَ فَإِنَّكَ بِأَعْيُنِنَا",
+    so: "U samir xukunka Rabbigaa, waayo waxaad ku jirtaa indhahayaga (ilaalintayada)."
   },
   "Og recitér Koranen langsomt og tydeligt.": {
     da: "Og recitér Koranen langsomt og tydeligt.",
@@ -571,4 +581,51 @@ export const globalTranslations: Record<string, Record<Language, string>> = {
     ar: "وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ",
     so: "Markay addoomadaydu wax iga weydiiyaan, anigu waan dhowahay."
   },
+  "Valgt lærer": { da: "Valgt lærer", en: "Selected teacher", ar: "المعلم المختار", so: "Macallinka la doortay" },
+  "Din plads i": { da: "Din plads i", en: "Your place in", ar: "مكانك في", so: "Booskaaga" },
+  "kø": { da: "kø", en: "queue", ar: "طابور", so: "safka" },
+  "Lærer præference opdateret": { da: "Lærer præference opdateret", en: "Teacher preference updated", ar: "تم تحديث المعلم المفضل", so: "Dookha macallinka waa la cusubaysiiyay" },
+  "Kunne ikke opdatere lærer": { da: "Kunne ikke opdatere lærer", en: "Could not update teacher", ar: "تعذر تحديث المعلم", so: "Ma awoodin inaan cusubaysiiyo macallinka" },
+  "har lukket sin kø. Du vil nu blive kaldt af de andre lærere i systemet.": { 
+    da: "har lukket sin kø. Du vil nu blive kaldt af de andre lærere i systemet.", 
+    en: "has closed their queue. You will now be called by the other teachers in the system.", 
+    ar: "أغلق طابوره. سيتم استدعاؤك الآن من قبل المعلمين الآخرين في النظام.", 
+    so: "ayaa xiray safkiisa. Hadda waxaa kuu yeeri doona macallimiinta kale ee nidaamka ku jira." 
+  },
+  "Vælg en anden lærer?": { da: "Vælg en anden lærer?", en: "Choose another teacher?", ar: "هل تريد اختيار معلم آخر؟", so: "Ma doonaysaa inaad doorato macallin kale?" },
+  "Vælg ny lærer": { da: "Vælg ny lærer", en: "Select new teacher", ar: "اختر معلماً جديداً", so: "Dooro macallin cusub" },
+  "Din position i køen bevares": { da: "Din position i køen bevares", en: "Your position in the queue is preserved", ar: "سيتم الحفاظ على موقعك في الطابور", so: "Booskaaga safka waa la ilaalin doonaa" },
+  "Fortsæt uden specifik lærer": { da: "Fortsæt uden specifik lærer", en: "Continue without specific teacher", ar: "المتابعة بدون معلم محدد", so: "Sii wad adoon macallin gaar ah dooran" },
+  "{count} aktive lærere": { da: "{count} aktive lærere", en: "{count} active teachers", ar: "{count} معلمين نشطين", so: "{count} macallin oo firfircoon" },
+  "Din plads i {teacherName}'s kø": { da: "Din plads i {teacherName}'s kø", en: "Your place in {teacherName}'s queue", ar: "مكانك في طابور المعلم {teacherName}", so: "Booskaaga safka macallin {teacherName}" },
+
+  // Queue redirect notification (new)
+  "Kø viderestillet": { da: "Kø viderestillet", en: "Queue redirected", ar: "تم تحويل الطابور", so: "Safka waa la wareejiyay" },
+  "har lukket sin kø. Du er nu i fælleskøen.": {
+    da: "har lukket sin kø. Du er nu i fælleskøen.",
+    en: "has closed their queue. You are now in the shared queue.",
+    ar: "أغلق طابوره. أنت الآن في الطابور المشترك.",
+    so: "ayaa xiray safkiisa. Hadda waxaad ku jirtaa safka wadaagga ah."
+  },
+  "Vælg lærer": { da: "Vælg lærer", en: "Select teacher", ar: "اختر معلماً", so: "Dooro macallin" },
+  "Hurtig Kø — alle lærere": { da: "Hurtig Kø — alle lærere", en: "Fast Queue — all teachers", ar: "طابور سريع — جميع المعلمين", so: "Saf Degdeg ah — macallimiinta oo dhan" },
+  "Kunne ikke forlade køen": { da: "Kunne ikke forlade køen", en: "Could not leave the queue", ar: "تعذر مغادرة الطابور", so: "Ma awoodin inaan ka baxo safka" },
+  "Tilføj elev": { da: "Tilføj elev", en: "Add student", ar: "إضافة طالب", so: "Ku dar arday" },
+  "Forhåndsgodkend ny elev": { da: "Forhåndsgodkend ny elev", en: "Pre-approve new student", ar: "الموافقة المسبقة على طالب جديد", so: "Hore u ogaysii arday cusub" },
+  "Tilføj profilbillede": { da: "Tilføj profilbillede", en: "Add Profile Picture", ar: "إضافة صورة ملف شخصي", so: "Ku dar sawirka profile-ka" },
+  "Hjælp os med at genkende dig": { da: "Hjælp os med at genkende dig", en: "Help us recognize you", ar: "ساعدنا في التعرف عليك", so: "Naga caawi inaan ku aqoonsanno" },
+  "Et profilbillede gør det lettere for dine lærere og medstuderende at identificere dig. Dette trin er påkrævet for at fortsætte.": { 
+    da: "Et profilbillede gør det lettere for dine lærere og medstuderende at identificere dig. Dette trin er påkrævet for at fortsætte.", 
+    en: "A profile picture makes it easier for your teachers and fellow students to identify you. This step is required to continue.", 
+    ar: "صورة الملف الشخصي تسهل على معلميك وزملائك الطلاب التعرف عليك. هذه الخطوة مطلوبة للمتابعة.", 
+    so: "Sawirka profile-ka ayaa u fududeynaya macallimiintaada iyo ardayda kale inay ku aqoonsadaan. Tallaabadan waa lagama maarmaan in la sii wado." 
+  },
+  "Venter på billede": { da: "Venter på billede", en: "Waiting for picture", ar: "بانتظار الصورة", so: "Sugaya sawirka" },
+  "Vælg Billede": { da: "Vælg Billede", en: "Choose Picture", ar: "اختر صورة", so: "Dooro Sawir" },
+  "Vælg gruppebillede": { da: "Vælg gruppebillede", en: "Choose group picture", ar: "اختر صورة المجموعة", so: "Dooro sawirka kooxda" },
+  "Gruppebillede": { da: "Gruppebillede", en: "Group picture", ar: "صورة المجموعة", so: "Sawirka kooxda" },
+  "Skift gruppebillede": { da: "Skift gruppebillede", en: "Change group picture", ar: "تغيير صورة المجموعة", so: "Bedel sawirka kooxda" },
+  "Gem ændringer": { da: "Gem ændringer", en: "Save changes", ar: "حفظ التغييرات", so: "Kaydi isbedelada" },
+  "Bruger tilføjet": { da: "Bruger tilføjet", en: "User added", ar: "تم إضافة العضو", so: "Xubin ayaa lagu daray" },
+  "medlemmer": { da: "medlemmer", en: "members", ar: "أعضاء", so: "xubnood" },
 };

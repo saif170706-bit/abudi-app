@@ -33,11 +33,13 @@ export const useCreateNewChat = () => {
     members,
     createdBy,
     groupName,
+    groupImage,
     memberProfiles,
   }: {
     members: string[];
     createdBy: string;
     groupName?: string;
+    groupImage?: string;
     memberProfiles: { id: string; name?: string; image?: string }[];
   }) => {
     // Ensure all users exist in Stream before creating the channel
@@ -69,13 +71,16 @@ export const useCreateNewChat = () => {
 
     const channelId = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
 
-    const channelData: { members: string[]; created_by_id: string; name?: string } = {
+    const channelData: { members: string[]; created_by_id: string; name?: string; image?: string } = {
       members,
       created_by_id: createdBy,
     };
 
     if (isGroupChat) {
       channelData.name = groupName || `Group chat (${members.length} members)`;
+      if (groupImage) {
+        channelData.image = groupImage;
+      }
     }
 
     const channel = streamClient.channel(isGroupChat ? "team" : "messaging", channelId, channelData);

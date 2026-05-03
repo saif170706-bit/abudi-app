@@ -9,10 +9,11 @@ import { useUserProfile } from "@/hooks/use-user-profile";
 import UserSearch from "@/components/chat/UserSearch";
 import { type PublicUser } from "@/hooks/useUserSearchFirestore";
 import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
+import AvatarUploader from "@/components/profile/AvatarUploader";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { XIcon } from "lucide-react";
+import { XIcon, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 
@@ -34,6 +35,8 @@ export default function NewChatDialog({ children }: { children: React.ReactNode 
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<ExtendedPublicUser[]>([]);
   const [groupName, setGroupName] = useState("");
+  const [groupImage, setGroupImage] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
 
   const { tGlobal } = useGlobalTranslation();
   const { user } = useUser();
@@ -92,7 +95,8 @@ export default function NewChatDialog({ children }: { children: React.ReactNode 
   const removeUser = (uid: string) => setSelected((p) => p.filter((u) => u.uid !== uid));
 
   const handleCreate = async () => {
-    if (!user?.uid || !profile) return;
+    if (!user?.uid || !profile || isCreating) return;
+    setIsCreating(true);
 
     const members = [user.uid, ...selected.map((u) => u.uid)];
     const isGroup = members.length > 2;
@@ -102,6 +106,7 @@ export default function NewChatDialog({ children }: { children: React.ReactNode 
             members,
             createdBy: user.uid,
             groupName: isGroup ? groupName.trim() || undefined : undefined,
+            groupImage: isGroup ? groupImage || undefined : undefined,
             memberProfiles: [
                 { id: profile.id, name: profile.displayName || "Unknown", image: profile.photoURL || "" },
                 ...selected.map((u) => ({ id: u.uid, name: u.displayName, image: u.photoURL || "" })),
@@ -112,8 +117,11 @@ export default function NewChatDialog({ children }: { children: React.ReactNode 
         setOpen(false);
         setSelected([]);
         setGroupName("");
+        setGroupImage("");
     } catch (e: any) {
         console.error("Failed to create chat:", e);
+    } finally {
+        setIsCreating(false);
     }
   };
 
@@ -156,15 +164,27 @@ export default function NewChatDialog({ children }: { children: React.ReactNode 
           )}
 
           {selected.length > 1 && (
-            <div className="space-y-2">
-              <div className="text-sm font-medium">{tGlobal("Gruppenavn (valgfrit)")}</div>
-              <Input value={groupName} onChange={(e) => setGroupName(e.target.value)} placeholder={tGlobal("Fx: Lektiegruppe")} />
+            <div className="space-y-4">
+              <div className="flex flex-col items-center py-2">
+                <AvatarUploader 
+                  label={tGlobal("Vælg gruppebillede")} 
+                  isUserAvatar={false} 
+                  currentImage={groupImage}
+                  displayName={groupName || "Group"}
+                  onUploadSuccess={(url) => setGroupImage(url)}
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="text-sm font-medium">{tGlobal("Gruppenavn (valgfrit)")}</div>
+                <Input value={groupName} onChange={(e) => setGroupName(e.target.value)} placeholder={tGlobal("Fx: Lektiegruppe")} />
+              </div>
             </div>
           )}
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={() => setOpen(false)}>{tGlobal("Annuller")}</Button>
-            <Button disabled={selected.length === 0} onClick={handleCreate}>
+            <Button variant="outline" onClick={() => setOpen(false)} disabled={isCreating}>{tGlobal("Annuller")}</Button>
+            <Button disabled={selected.length === 0 || isCreating} onClick={handleCreate}>
+              {isCreating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {selected.length > 1 ? tGlobal("Opret gruppechat") : tGlobal("Start chat")}
             </Button>
           </div>

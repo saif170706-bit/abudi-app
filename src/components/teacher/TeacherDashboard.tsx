@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useFirebase, useUser } from '@/firebase';
 import {
   doc,
@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Bell, Users, Check, LogOut, Phone, ArrowLeft, X, Lock, Unlock, MapPin, UserPlus, Maximize2 } from 'lucide-react';
+import { Loader2, Bell, Users, Check, LogOut, Phone, ArrowLeft, X, Lock, Unlock, MapPin, UserPlus, Maximize2, Forward } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Switch } from '@/components/ui/switch';
@@ -39,6 +39,7 @@ import {
 } from '@/components/ui/dialog';
 import Image from 'next/image';
 import { sendTeacherCall } from '@/lib/send-teacher-call';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useLanguage, type Language } from '@/context/LanguageContext';
 import { useHaptic } from 'use-haptic';
 import { getInitials, cn } from '@/lib/utils';
@@ -127,6 +128,13 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
     recipientId: string | null;
     type: 'video' | 'audio' | null;
   }>({ open: false, callId: null, recipientId: null, type: null });
+
+  const filteredQueue = useMemo(() => {
+    if (!activeFilterId || !teacher?.savedFilters) return queue;
+    const activeGroup = teacher.savedFilters.find(f => f.id === activeFilterId);
+    if (!activeGroup) return queue;
+    return queue.filter(s => activeGroup.studentIds.includes(s.id));
+  }, [queue, activeFilterId, teacher?.savedFilters]);
 
   // Sync internal state with fetched teacher object once when data arrives
   useEffect(() => {
@@ -267,94 +275,65 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
 
   const callStudent = async (student: QueueStudent) => {
     if (!user || !firestore || !teacher) return;
+    triggerHaptic();
 
-    const isVirtual = student.type === 'virtual';
-    const batch = writeBatch(firestore);
-    const studentDocRef = doc(firestore, 'students', student.id);
-    batch.update(studentDocRef, { 
-        calledBy: {
-            teacherId: user.uid,
-            calledAt: serverTimestamp(),
-            type: isVirtual ? 'virtual' : 'physical'
-        } 
-    });
+    try {
+      const functions = getFunctions();
+      const callFn = httpsCallable(functions, 'callQueueStudent');
+      
+      const result = await callFn({
+        callType: student.type
+      });
 
-    const queueDocRef = doc(firestore, 'queues', user.uid);
-    batch.update(queueDocRef, {
-      [`studentsById.${student.id}`]: deleteField()
-    });
+      const data = result.data as any;
+      if (data.success && data.student) {
+        const nextStudent = data.student;
+        const callId = `q-${user.uid.slice(0, 12)}-${nextStudent.id.slice(0, 12)}-${Date.now()}`;
 
-    // Safety: If student doesn't have a ticket number, assign them one now
-    let ticketToUse = student.ticketNumber;
-    
-    if (!isVirtual && !ticketToUse) {
-      const queueDoc = await getDoc(queueDocRef);
-      const nextTicket = (queueDoc.data()?.lastTicketNumber || 0) + 1;
-      ticketToUse = nextTicket;
-      // Update the counter so the next join doesn't overlap
-      batch.update(queueDocRef, { lastTicketNumber: nextTicket });
-    }
-
-    const teacherDocRef = doc(firestore, 'teachers', user.uid);
-    
-    const currentlyCallingData: any = {
-      studentId: student.id,
-      studentName: student.name,
-      studentNumber: student.studentNumber || null,
-      studentType: isVirtual ? 'virtual' : ((student as any).source === 'ipad' ? 'physical' : 'phone'),
-      calledAt: serverTimestamp()
-    };
-
-    if (!isVirtual) {
-      currentlyCallingData.ticketNumber = ticketToUse;
-      currentlyCallingData.announcementId = crypto.randomUUID();
-    }
-
-    const updates: any = {
-      currentlyCalling: currentlyCallingData
-    };
-
-    if (!isVirtual) {
-      updates.lastCalledTicket = {
-        ticketNumber: ticketToUse,
-        queueLetter: teacher?.queueLetter || 'A',
-        studentNumber: student.studentNumber || null
-      };
-    }
-
-    batch.update(teacherDocRef, updates);
-
-    if (student.type === 'virtual') {
-        const callId = `q-${user.uid.slice(0, 12)}-${student.id.slice(0, 12)}-${Date.now()}`;
-        const inviteRef = doc(firestore, 'callInvites', student.id);
-        batch.set(inviteRef, {
+        if (student.type === 'virtual') {
+          setCallingState({ open: true, callId, recipientId: nextStudent.id, type: 'audio' });
+          
+          // Re-trigger the invite doc (Cloud function handles most, but video call ID needs frontend sync)
+          const inviteRef = doc(firestore, 'callInvites', nextStudent.id);
+          const callDocRef = doc(firestore, 'activeCalls', callId);
+          const batch = writeBatch(firestore);
+          batch.set(inviteRef, {
             callId,
             from: user.uid,
             fromName: teacher.displayName || user.displayName || 'En lærer',
             fromPhoto: teacher.photoURL || user.photoURL || '',
             type: 'audio',
-        });
-        const callDocRef = doc(firestore, 'activeCalls', callId);
-        batch.set(callDocRef, { members: [user.uid], type: 'audio' });
+          });
+          batch.set(callDocRef, { members: [user.uid], type: 'audio' });
+          await batch.commit();
+        }
 
-        setCallingState({ open: true, callId, recipientId: student.id, type: 'audio' });
-    }
-
-    try {
-        await batch.commit();
-        await sendTeacherCall({
-            studentId: student.id,
-            fcmToken: student.fcmToken,
-            type: student.type,
-            teacherName: teacher.displayName || user.displayName || 'En lærer',
-            room: teacher.room,
-            callId: `call-${Date.now()}`
+        // 🔔 Send push notification to student's device
+        sendTeacherCall({
+          studentId: nextStudent.id,
+          callId,
+          type: student.type,
+          teacherName: teacher.displayName || user.displayName || 'En lærer',
+          room: student.type === 'physical' ? (teacher.room || '') : undefined,
+        }).catch((err) => {
+          // Non-blocking — call continues even if push fails
+          console.warn('[TeacherDashboard] Push notification failed (non-fatal):', err.message);
         });
-    } catch (error) {
-        console.error("Call operation failed:", error);
+
+        setServingStudent({
+          id: nextStudent.id,
+          name: nextStudent.name,
+          type: student.type,
+          photoURL: nextStudent.photoURL,
+          ticketNumber: nextStudent.ticketNumber
+        } as any);
+
+        toast({ title: 'Elev kaldt', description: `${nextStudent.name} er blevet kaldt.` });
+      }
+    } catch (error: any) {
+      console.error("Call operation failed:", error);
+      toast({ variant: 'destructive', title: 'Fejl', description: error?.message || 'Kunne ikke kalde elev.' });
     }
-    
-    setServingStudent(student);
   };
   
   const cancelCall = async (reason: 'cancelled' | 'timeout') => {
@@ -384,6 +363,21 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
         await batch.commit();
     } catch (error) {}
     setServingStudent(null);
+  };
+
+  const handleRedirectQueue = async () => {
+    if (!firestore || !user) return;
+    const confirm = window.confirm("Er du sikker på, at du vil sende dine elever videre til de andre lærere? Dette vil fjerne din lærer-præference fra deres plads i køen, men de beholder deres nuværende position.");
+    if (!confirm) return;
+
+    try {
+      const functions = getFunctions();
+      const redirectFn = httpsCallable(functions, 'sendStudentsToOthers');
+      await redirectFn();
+      toast({ title: 'Elever viderestillet til andre lærere' });
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: 'Kunne ikke viderestille elever', description: err.message });
+    }
   };
 
   const toggleNameExpansion = (id: string) => {
@@ -551,6 +545,27 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
     );
   }
 
+
+  const handleFilterChange = async (filterId: string | null) => {
+    setActiveFilterId(filterId);
+    if (!user || !firestore || !isAnythingAvailable) return;
+
+    try {
+      const teacherDocRef = doc(firestore, 'teachers', user.uid);
+      let allowedStudentIds: string[] | null = null;
+      if (filterId) {
+        const group = savedFilters.find(f => f.id === filterId);
+        if (group) allowedStudentIds = group.studentIds;
+      }
+      await updateDoc(teacherDocRef, { 
+        activeFilterId: filterId,
+        allowedStudentIds 
+      });
+    } catch (err) {
+      console.error("Failed to sync filter change to Firestore:", err);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-transparent px-6 pt-16 pb-28 sm:px-8 w-full max-w-lg mx-auto">
       <motion.div 
@@ -558,36 +573,60 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
         animate={{ opacity: 1, y: 0 }}
         className="w-full"
       >
-        <div className="flex items-center justify-between mb-10">
-          <div className="flex items-center gap-4">
-            <BackButton />
-            <div>
-                <h1 className="text-3xl font-display text-primary">{t('dashboardTitle')}</h1>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent">Administrer din session</p>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={toggleQueueLock} 
-                className={cn(
-                    "grid h-12 w-12 place-items-center rounded-2xl shadow-lg transition-all border",
-                    teacher.queueLocked 
-                        ? 'bg-rose-500 text-white border-rose-400' 
-                        : 'bg-white/80 backdrop-blur-md text-primary border-white'
-                )}
-            >
-              {teacher.queueLocked ? <Lock className="h-5 w-5" /> : <Unlock className="h-5 w-5" />}
-            </motion.button>
-            <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleMakeUnavailable} 
-                className="grid h-12 w-12 place-items-center rounded-2xl bg-white/80 backdrop-blur-md text-rose-500 shadow-lg border border-white"
-            >
-              <LogOut className="h-5 w-5" />
-            </motion.button>
+        {/* Action Row - Top Right */}
+        <div className="flex justify-end items-center gap-3 mb-6">
+           <TeacherFilterGroupManager 
+              teacherId={user?.uid || ''}
+              teacherGender={profile?.gender || 'man'}
+              savedFilters={savedFilters}
+              activeFilterId={activeFilterId}
+              onFilterChange={handleFilterChange}
+              onSaveFilters={async (fs: any[]) => {
+                  setSavedFilters(fs);
+                  if (firestore && user) {
+                  await updateDoc(doc(firestore, 'teachers', user.uid), { savedFilters: fs });
+                  }
+              }}
+              iconOnly
+          />
+          <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleRedirectQueue} 
+              className="grid h-12 w-12 place-items-center rounded-2xl bg-white/80 backdrop-blur-md text-primary shadow-lg border border-white"
+              title="Send elever videre"
+          >
+            <Forward className="h-5 w-5" />
+          </motion.button>
+          <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={toggleQueueLock} 
+              className={cn(
+                  "grid h-12 w-12 place-items-center rounded-2xl shadow-lg transition-all border",
+                  teacher.queueLocked 
+                      ? 'bg-rose-500 text-white border-rose-400' 
+                      : 'bg-white/80 backdrop-blur-md text-primary border-white'
+              )}
+          >
+            {teacher.queueLocked ? <Lock className="h-5 w-5" /> : <Unlock className="h-5 w-5" />}
+          </motion.button>
+          <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleMakeUnavailable} 
+              className="grid h-12 w-12 place-items-center rounded-2xl bg-white/80 backdrop-blur-md text-rose-500 shadow-lg border border-white"
+          >
+            <LogOut className="h-5 w-5" />
+          </motion.button>
+        </div>
+
+        {/* Title Row */}
+        <div className="flex items-center gap-4 mb-10">
+          <BackButton />
+          <div>
+              <h1 className="text-3xl font-display text-primary">{t('dashboardTitle')}</h1>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent">Administrer din session</p>
           </div>
         </div>
 
@@ -595,7 +634,7 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
           <div className="px-4 py-2 rounded-2xl bg-accent/10 border border-accent/20 flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
             <span className="text-[11px] font-black uppercase tracking-widest text-[#B4841F]">
-                {t('queueDescription', {count: queue.length})}
+                {t('queueDescription', {count: filteredQueue.length})}
             </span>
           </div>
           
@@ -621,9 +660,9 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
         <div className="space-y-6">
           <SectionLabel>Studerende i kø</SectionLabel>
           <AnimatePresence>
-            {queue.length > 0 ? (
+            {filteredQueue.length > 0 ? (
                 <div className="space-y-4">
-                    {queue.map((student, index) => {
+                    {filteredQueue.map((student, index) => {
                     const isNext = index === 0;
                     const isVirtual = student.type === 'virtual';
                     const isExpanded = expandedIds.has(student.id);
@@ -642,19 +681,19 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                                 "glass-card transition-all duration-300 shadow-2xl",
                                 isNext ? "ring-2 ring-accent shadow-accent/10" : "hover:border-primary/20"
                             )}>
-                                <div className="glass-card-inner !p-6 flex items-center justify-between gap-4">
-                                    <div className="flex items-center gap-5 min-w-0">
+                                <div className="glass-card-inner !p-4 flex items-center justify-between gap-3">
+                                    <div className="flex items-center gap-3 min-w-0 flex-1">
                                         <div 
                                             className="relative shrink-0 cursor-pointer" 
                                             onClick={() => student.photoURL && setViewingPhoto(student.photoURL)}
                                         >
                                             <div className={cn(
-                                                "p-1 rounded-[24px] border-2 transition-all duration-500 scale-110",
+                                                "p-0.5 rounded-[18px] border-2 transition-all duration-500 scale-110",
                                                 isNext ? "border-accent rotate-6" : "border-white/40"
                                             )}>
-                                                <Avatar className="h-16 w-16 rounded-[20px] shadow-2xl">
-                                                    <AvatarImage src={student.photoURL ?? undefined} alt={student.name} className="object-cover" />
-                                                    <AvatarFallback className="bg-muted text-xl font-headline">{getInitials(student.name)}</AvatarFallback>
+                                                <Avatar className="h-12 w-12 rounded-[16px] shadow-2xl">
+                                                    <AvatarImage src={student.photoURL || undefined} alt={student.name} className="object-cover" />
+                                                    <AvatarFallback className="bg-muted text-lg font-headline">{getInitials(student.name)}</AvatarFallback>
                                                 </Avatar>
                                             </div>
                                             {isNext && (
@@ -670,10 +709,10 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                                         
                                         <div className="min-w-0 flex-1 ml-2">
                                             <h3 
-                                                className={cn("text-xl font-display text-primary leading-none mb-1.5 cursor-pointer", !isExpanded && "truncate")} 
+                                                className={cn("text-lg font-display text-primary leading-none mb-1 cursor-pointer", !isExpanded && "truncate")} 
                                                 onClick={() => toggleNameExpansion(student.id)}
                                             >
-                                                {student.name} {student.ticketNumber && <span className="text-accent">{(teacher?.queueLetter || 'A')}{student.ticketNumber}</span>}
+                                                {student.name} {student.ticketNumber && <span className="text-accent ml-1">{(teacher?.queueLetter || 'A')}{student.ticketNumber}</span>}
                                             </h3>
                                             <div className="flex items-center gap-3">
                                                 {isVirtual ? (
@@ -697,12 +736,12 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={() => callStudent(student)} 
-                                            className="h-14 px-8 rounded-2xl bg-primary text-white font-black text-xs uppercase tracking-[0.15em] shadow-xl shadow-[#004D40]/20 flex items-center gap-3"
+                                            className="h-10 px-5 rounded-xl bg-primary text-white font-bold text-[10px] uppercase tracking-[0.1em] shadow-lg shadow-[#004D40]/10 flex items-center gap-2"
                                         >
                                             {isVirtual ? (
-                                                <><Phone className="h-4 w-4" />{t('ring')}</>
+                                                <><Phone className="h-3.5 w-3.5" />{t('ring')}</>
                                             ) : (
-                                                <><Bell className="h-4 w-4" />{t('call')}</>
+                                                <><Bell className="h-3.5 w-3.5" />{t('call')}</>
                                             )}
                                         </motion.button>
                                     ) : (

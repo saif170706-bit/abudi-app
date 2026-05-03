@@ -1,5 +1,6 @@
-const { onDocumentCreated } = require("firebase-functions/v2/firestore");
+const { onDocumentCreated, onDocumentWritten } = require("firebase-functions/v2/firestore");
 const { onCall, HttpsError, onRequest } = require("firebase-functions/v2/https");
+const { onSchedule } = require("firebase-functions/v2/scheduler");
 const functions = require("firebase-functions/v1");
 const admin = require("firebase-admin");
 
@@ -10,44 +11,48 @@ if (admin.apps.length === 0) {
 const db = admin.firestore();
 const messaging = admin.messaging();
 
-// NEW: Initialize Stream Chat for Presence Checks
-const { StreamChat } = require("stream-chat");
-const streamApiKey = process.env.STREAM_API_KEY || "y6fwhwm7qv3y";
-const streamSecret = process.env.STREAM_SECRET_KEY;
-if (!streamSecret) {
-  console.warn("[StreamChat] STREAM_SECRET_KEY not set. Webhook signature verification will be skipped.");
-}
 let serverClient = null;
-try {
-  serverClient = StreamChat.getInstance(streamApiKey, streamSecret || 'placeholder');
-} catch (e) {
-  console.error("[StreamChat] Failed to initialize client:", e.message);
+function getStreamClient() {
+  if (serverClient) return serverClient;
+  const { StreamChat } = require("stream-chat");
+  const streamApiKey = process.env.STREAM_API_KEY || "y6fwhwm7qv3y";
+  const streamSecret = process.env.STREAM_SECRET_KEY;
+  try {
+    serverClient = StreamChat.getInstance(streamApiKey, streamSecret || 'placeholder');
+    return serverClient;
+  } catch (e) {
+    console.error("[StreamChat] Failed to initialize client:", e.message);
+    return null;
+  }
 }
 
 /**
  * STREAM WEBHOOK: The most robust way to handle push notifications.
  * Listens for new messages directly from Stream's servers.
  */
-exports.streamWebhook = onRequest({ 
+exports.streamWebhook = onRequest({
   cors: false,          // Server-to-server only — no browser origin needed
   rawBody: true,        // Required for signature verification
 }, async (req, res) => {
   // ── Signature Verification ─────────────────────────────────────────
   // Reject any request that doesn't come from Stream's servers.
-  if (streamSecret) {
-    const signature = req.headers['x-signature'] || '';
-    const rawBody = req.rawBody || Buffer.from(JSON.stringify(req.body));
-    try {
-      const isValid = serverClient.verifyWebhook(rawBody, signature);
-      if (!isValid) {
-        console.warn('[StreamWebhook] REJECTED: Invalid signature. Possible spoofed request.');
-        return res.status(401).send('Invalid webhook signature');
-      }
-    } catch (verifyErr) {
-      console.error('[StreamWebhook] Signature verification error:', verifyErr.message);
-      return res.status(401).send('Signature verification failed');
+    const streamSecret = process.env.STREAM_SECRET_KEY;
+    if (streamSecret) {
+        const signature = req.headers['x-signature'] || '';
+        const rawBody = req.rawBody || Buffer.from(JSON.stringify(req.body));
+        try {
+            const client = getStreamClient();
+            if (!client) throw new Error("Stream client unavailable");
+            const isValid = client.verifyWebhook(rawBody, signature);
+            if (!isValid) {
+                console.warn('[StreamWebhook] REJECTED: Invalid signature. Possible spoofed request.');
+                return res.status(401).send('Invalid webhook signature');
+            }
+        } catch (verifyErr) {
+            console.error('[StreamWebhook] Signature verification error:', verifyErr.message);
+            return res.status(401).send('Signature verification failed');
+        }
     }
-  }
 
   const event = req.body;
   console.log('[StreamWebhook] Received event:', event?.type, 'Channel:', event?.channel?.id);
@@ -101,7 +106,7 @@ exports.streamWebhook = onRequest({
               // Ask Stream: "Are they actually connected right now?"
               const { users } = await serverClient.queryUsers({ id: { $in: [uid] } });
               const streamUser = users[0];
-              
+
               const isTrulyOnline = streamUser && streamUser.online;
               if (isTrulyOnline) {
                 console.log(`[StreamWebhook] SKIP: User ${uid} is actively online in ${channelCid}`);
@@ -122,7 +127,7 @@ exports.streamWebhook = onRequest({
     }
 
     const isGroup = members.length > 2 || (channel.name && channel.name !== '');
-    
+
     const localizedMessageWord = {
       'ar': 'رسالة',
       'so': 'Fariin',
@@ -691,7 +696,6 @@ exports.updateEventRegistrationCount = onDocumentCreated("events/{eventId}/regis
  * 
  * Called from: src/app/student/homework-reading/page.tsx
  */
-const { onSchedule } = require("firebase-functions/v2/scheduler");
 
 const DESIGNATED_LOCATIONS = [
   { lat: 55.777020517702425, lon: 12.522056199450153, radius: 100 },
@@ -710,22 +714,22 @@ function getDistanceInMeters(lat1, lon1, lat2, lon2) {
   return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+/**
+ * UNIVERSAL QUEUE JOIN:
+ * All students join the same global pool (based on GENDER and TYPE).
+ * If they choose a specific teacher, it's stored as a preference hint.
+ */
 exports.joinQueue = onCall(async (request) => {
   if (!request.auth) throw new HttpsError('unauthenticated', 'Sign in required.');
 
   const { teacherId, type, lat, lon, displayName, photoURL, fcmToken, phoneNumber } = request.data;
+  const uid = request.auth.uid;
 
-  // ── Input validation ─────────────────────────────────────────────────
-  if (!teacherId || typeof teacherId !== 'string') {
-    throw new HttpsError('invalid-argument', 'teacherId is required.');
-  }
   if (type !== 'physical' && type !== 'virtual') {
     throw new HttpsError('invalid-argument', 'type must be physical or virtual.');
   }
 
-  const uid = request.auth.uid;
-
-  // ── Server-side geolocation check for physical queues ────────────────
+  // ── Geolocation check for physical ────────────────
   if (type === 'physical') {
     if (typeof lat !== 'number' || typeof lon !== 'number') {
       throw new HttpsError('invalid-argument', 'Koordinater er påkrævet for fysisk kø.');
@@ -738,107 +742,452 @@ exports.joinQueue = onCall(async (request) => {
     }
   }
 
-  const queueRef = db.collection('queues').doc(teacherId);
+  // 1. Get Student Gender and ID
+  const studentDoc = await db.collection('students').doc(uid).get();
+  if (!studentDoc.exists) throw new HttpsError('not-found', 'Elev ikke fundet.');
+  const sData = studentDoc.data();
+  const gender = sData.gender === 'woman' ? 'woman' : 'man';
+  const studentNumber = sData.studentNumber || '-';
 
-  // ── Check teacher exists and is available ─────────────────────────────
-  const teacherDoc = await db.collection('teachers').doc(teacherId).get();
-  if (!teacherDoc.exists) throw new HttpsError('not-found', 'Lærer ikke fundet.');
+  const globalRef = db.collection('globalQueues').doc(type);
+  const teacherRef = teacherId ? db.collection('teachers').doc(teacherId) : null;
 
-  // ── Atomic transaction: join queue safely ─────────────────────────────
   try {
     const result = await db.runTransaction(async (t) => {
-      const queueSnap = await t.get(queueRef);
-      if (!queueSnap.exists) {
-        throw new HttpsError('not-found', 'Kø ikke fundet for denne lærer.');
-      }
+      const gSnap = await t.get(globalRef);
+      const tSnap = teacherRef ? await t.get(teacherRef) : null;
+      
+      const genderKey = `${gender}StudentsById`;
+      const gData = gSnap.data() || {};
+      const globalStudents = gData[genderKey] || {};
 
-      const qData = queueSnap.data() || {};
-      const currentStudents = qData.studentsById || {};
+      // ── UNIVERSAL TICKET SYSTEM ────────────────
+      // Every join increments the global counter, ensuring all students (dedicated/universal)
+      // have a unique, consistent ticket number for the TV and calling systems.
+      const nextTicket = (gData.lastTicketNumber || 0) + 1;
 
-      // Virtual students do not take a physical ticket number
-      const isVirtual = type === 'virtual';
-      const nextTicket = isVirtual ? undefined : (qData.lastTicketNumber || 0) + 1;
+      // ── Hybrid Routing Decision ────────────────
+      const isTeacherFiltered = tSnap?.exists && (tSnap.data().filteredStudents?.length > 0);
+      const shouldUseDedicated = teacherId && isTeacherFiltered;
 
-      // Prevent duplicate join
-      if (currentStudents[uid]) {
-        throw new HttpsError('already-exists', 'Du er allerede i køen.');
-      }
+      if (shouldUseDedicated) {
+        // 1. ADD TO DEDICATED QUEUE (queues/{teacherId})
+        const qRef = db.collection('queues').doc(teacherId);
+        const qSnap = await t.get(qRef);
+        const qData = qSnap.exists ? qSnap.data() : {};
+        const qStudents = qData.studentsById || {};
+        
+        if (qStudents[uid]) throw new HttpsError('already-exists', 'Du er allerede i denne lærers kø.');
 
-      const updates = {
-        [`studentsById.${uid}`]: {
-          name: displayName || 'Elev',
+        const studentEntry = {
+          id: uid,
+          name: displayName || sData.displayName || 'Elev',
+          studentNumber: studentNumber,
           joinedAt: admin.firestore.FieldValue.serverTimestamp(),
           type,
-          photoURL: photoURL || null,
+          photoURL: photoURL || sData.photoURL || null,
+          gender,
+          source: 'dedicated',
+          teacherName: tSnap.data().displayName || '...',
+          ticketNumber: nextTicket // Assign the ticket number even here
+        };
+
+        t.set(qRef, { 
+          studentsById: { ...qStudents, [uid]: studentEntry },
+          lastUpdate: admin.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        // IMPORTANT: Still update the global ticket counter
+        t.set(globalRef, { lastTicketNumber: nextTicket }, { merge: true });
+
+        // Clear any old redirection notifications when joining fresh (Dedicated)
+        t.update(db.collection('students').doc(uid), { redirectNotification: admin.firestore.FieldValue.delete() });
+
+        return { success: true, source: 'dedicated', teacherName: studentEntry.teacherName, ticketNumber: nextTicket };
+      } else {
+        // 2. ADD TO UNIVERSAL QUEUE (globalQueues)
+        if (globalStudents[uid]) throw new HttpsError('already-exists', 'Du er allerede i køen.');
+
+        const studentEntry = {
+          id: uid,
+          name: displayName || sData.displayName || 'Elev',
+          studentNumber: studentNumber,
+          joinedAt: admin.firestore.FieldValue.serverTimestamp(),
+          type,
+          photoURL: photoURL || sData.photoURL || null,
           fcmToken: fcmToken || null,
           phoneNumber: phoneNumber || null,
-          ...(isVirtual ? {} : { ticketNumber: nextTicket })
+          gender,
+          ticketNumber: nextTicket,
+          preferredTeacherId: teacherId || null,
+          preferredTeacherName: tSnap?.exists ? (tSnap.data().displayName || '...') : null,
+          source: 'universal'
+        };
+
+        if (!gSnap.exists) {
+          t.set(globalRef, { [genderKey]: { [uid]: studentEntry }, lastTicketNumber: nextTicket });
+        } else {
+          t.update(globalRef, { 
+            [`${genderKey}.${uid}`]: studentEntry,
+            lastTicketNumber: nextTicket
+          });
         }
-      };
 
-      if (!isVirtual) {
-        updates.lastTicketNumber = nextTicket;
+        // Clear any old redirection notifications when joining fresh
+        t.update(db.collection('students').doc(uid), { redirectNotification: admin.firestore.FieldValue.delete() });
+
+        return { success: true, ticketNumber: nextTicket, type, source: 'universal' };
       }
-
-      t.update(queueRef, updates);
-
-      // Calculate position for the return object
-      const sortedStudents = Object.entries({ ...currentStudents, [uid]: updates[`studentsById.${uid}`] })
-        .map(([id, data]) => ({ id, joinedAt: data.joinedAt?.toMillis?.() || Date.now() }))
-        .sort((a, b) => a.joinedAt - b.joinedAt);
-      
-      const position = sortedStudents.findIndex(s => s.id === uid) + 1;
-
-      return { 
-        success: true, 
-        ticketNumber: nextTicket,
-        position: position,
-        queueLength: sortedStudents.length
-      };
     });
-
     return result;
   } catch (error) {
     if (error instanceof HttpsError) throw error;
-    console.error('joinQueue transaction failed:', error);
-    throw new HttpsError('internal', 'Kunne ikke tilmelde køen. Prøv igen.');
+    console.error('joinQueue failed:', error);
+    throw new HttpsError('internal', 'Fejl ved tilmelding.');
+  }
+});
+
+// Alias for client compatibility
+exports.joinGlobalQueue = exports.joinQueue;
+
+/**
+ * Redirects all of this teacher's students (dedicated queue + global preferred)
+ * into the universal pool so any available teacher can call them.
+ */
+exports.sendStudentsToOthers = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Sign in required.');
+  const teacherUid = request.auth.uid;
+  
+  const teacherDoc = await db.collection('teachers').doc(teacherUid).get();
+  if (!teacherDoc.exists) throw new HttpsError('not-found', 'Lærer ikke fundet.');
+  const tName = teacherDoc.data().displayName || '...';
+
+  try {
+    const tNow = admin.firestore.Timestamp.now();
+
+    await db.runTransaction(async (t) => {
+      // 1. ALL READS FIRST
+      const gRefs = {
+        physical: db.collection('globalQueues').doc('physical'),
+        virtual: db.collection('globalQueues').doc('virtual')
+      };
+      const qRef = db.collection('queues').doc(teacherUid);
+
+      const [gSnapPhys, gSnapVirt, qSnap] = await Promise.all([
+        t.get(gRefs.physical),
+        t.get(gRefs.virtual),
+        t.get(qRef)
+      ]);
+
+      const gSnaps = { physical: gSnapPhys, virtual: gSnapVirt };
+      const qData = qSnap.exists ? qSnap.data() : { studentsById: {} };
+      const dedicatedStudentsById = qData.studentsById || {};
+
+      // Container for all updates for this transaction
+      const updates = {
+        physical: {},
+        virtual: {}
+      };
+      const studentDocUpdates = new Set(); // Track which student docs we've already queued for update
+
+      // Step A: Process Global Queues (Migrate 'preferred' students to 'universal')
+      for (const type of ['physical', 'virtual']) {
+        const snap = gSnaps[type];
+        if (snap.exists) {
+          const data = snap.data();
+          ['manStudentsById', 'womanStudentsById'].forEach(genderKey => {
+            const map = data[genderKey] || {};
+            Object.entries(map).forEach(([sid, entry]) => {
+              // Safety check: ensure entry exists and has preferredTeacherId
+              if (entry && entry.preferredTeacherId === teacherUid) {
+                updates[type][`${genderKey}.${sid}`] = {
+                  ...entry,
+                  preferredTeacherId: null,
+                  preferredTeacherName: null,
+                  redirectNotification: { teacherName: tName, timestamp: tNow }
+                };
+                
+                if (!studentDocUpdates.has(sid)) {
+                  t.set(db.collection('students').doc(sid), {
+                    redirectNotification: { teacherName: tName, timestamp: tNow }
+                  }, { merge: true });
+                  studentDocUpdates.add(sid);
+                }
+              }
+            });
+          });
+        }
+      }
+
+      // Step B: Handle Dedicated Queue (Move students to Global Pool)
+      // These students get a NEW ticket number in the global pool
+      for (const type of ['physical', 'virtual']) {
+        let lastTicket = gSnaps[type].exists ? (gSnaps[type].data().lastTicketNumber || 0) : 0;
+        
+        // Find dedicated students of THIS type
+        const studentsToMove = Object.entries(dedicatedStudentsById)
+          .filter(([_, entry]) => {
+            const studentType = entry.type === 'virtual' ? 'virtual' : 'physical';
+            return studentType === type;
+          });
+
+        if (studentsToMove.length > 0) {
+          studentsToMove.forEach(([sid, entry]) => {
+            if (!entry) return;
+            const genderKey = entry.gender === 'woman' ? 'womanStudentsById' : 'manStudentsById';
+            
+            // If the student already has a ticket number (from the new unified join logic), keep it.
+            // Otherwise, assign a new one.
+            const studentTicket = entry.ticketNumber || (lastTicket + 1);
+            if (!entry.ticketNumber) lastTicket += 1;
+
+            updates[type][`${genderKey}.${sid}`] = {
+              ...entry,
+              preferredTeacherId: null,
+              preferredTeacherName: null,
+              source: 'universal',
+              ticketNumber: studentTicket,
+              redirectNotification: { teacherName: tName, timestamp: tNow }
+            };
+
+            if (!studentDocUpdates.has(sid)) {
+              t.set(db.collection('students').doc(sid), {
+                redirectNotification: { teacherName: tName, timestamp: tNow }
+              }, { merge: true });
+              studentDocUpdates.add(sid);
+            }
+          });
+          
+          // Update the global ticket counter
+          updates[type]['lastTicketNumber'] = lastTicket;
+        }
+      }
+
+      // 3. APPLY UPDATES
+      // CRITICAL: t.update() is required here — dot-notation keys like "manStudentsById.uid"
+      // are interpreted as NESTED field paths only by update(), NOT by set()+merge.
+      // Using set()+merge would write a literal field named "manStudentsById.uid" at the
+      // top level, making students completely invisible to the teacher's queue listeners.
+      for (const type of ['physical', 'virtual']) {
+        if (Object.keys(updates[type]).length > 0) {
+          if (gSnaps[type].exists) {
+            // Document exists — use update() so dots are treated as nested paths
+            t.update(gRefs[type], updates[type]);
+          } else {
+            // Document doesn't exist yet — build a proper nested object for set()
+            // (rare: can only happen if the global queue was never initialised)
+            const nested = {};
+            for (const [key, value] of Object.entries(updates[type])) {
+              const parts = key.split('.');
+              let obj = nested;
+              for (let i = 0; i < parts.length - 1; i++) {
+                if (!obj[parts[i]]) obj[parts[i]] = {};
+                obj = obj[parts[i]];
+              }
+              obj[parts[parts.length - 1]] = value;
+            }
+            t.set(gRefs[type], nested, { merge: true });
+          }
+        }
+      }
+
+      if (qSnap.exists) {
+        t.delete(qRef);
+      }
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('sendStudentsToOthers failed:', error);
+    throw new HttpsError('internal', 'Fejl ved viderestilling: ' + error.message);
+  }
+});
+
+/**
+ * Allows a student to update their preferred teacher while already in queue.
+ */
+exports.updateQueuePreference = onCall(async (request) => {
+    if (!request.auth) throw new HttpsError('unauthenticated', 'Sign in required.');
+    const { teacherId, type } = request.data;
+    const uid = request.auth.uid;
+    if (!type) throw new HttpsError('invalid-argument', 'Type is required.');
+
+    const tSnap = teacherId ? await db.collection('teachers').doc(teacherId).get() : null;
+    const tName = tSnap?.exists ? tSnap.data().displayName : null;
+
+    try {
+        await db.runTransaction(async (t) => {
+            const studentRef = db.collection('students').doc(uid);
+            const sSnap = await t.get(studentRef);
+            if (!sSnap.exists) throw new HttpsError('not-found', 'Student not found.');
+            const sData = sSnap.data();
+            const gender = sData.gender === 'woman' ? 'woman' : 'man';
+
+            const gRef = db.collection('globalQueues').doc(type);
+            const gSnap = await t.get(gRef);
+            if (!gSnap.exists) throw new HttpsError('not-found', 'Queue not found.');
+
+            const genderKey = `${gender}StudentsById`;
+            const map = gSnap.data()[genderKey] || {};
+            if (!map[uid]) throw new HttpsError('not-found', 'Not in queue.');
+
+            t.update(gRef, {
+                [`${genderKey}.${uid}.preferredTeacherId`]: teacherId || null,
+                [`${genderKey}.${uid}.preferredTeacherName`]: tName
+            });
+
+            // Clear the notification if it was there
+            t.update(studentRef, { redirectNotification: admin.firestore.FieldValue.delete() });
+        });
+        return { success: true };
+    } catch (error) {
+        console.error('updateQueuePreference failed:', error);
+        throw new HttpsError('internal', 'Kunne ikke opdatere lærer.');
+    }
+});
+
+/**
+ * NEW: Precise calling logic for teachers.
+ * Replaces frontend batching. Atomically picks either the next student 
+ * from the teacher's specific queue OR the global queue (whichever is older).
+ */
+exports.callQueueStudent = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Sign in required.');
+  const teacherUid = request.auth.uid;
+
+  const teacherDoc = await db.collection('teachers').doc(teacherUid).get();
+  if (!teacherDoc.exists) throw new HttpsError('not-found', 'Lærer ikke fundet.');
+  const tData = teacherDoc.data();
+  const gender = tData.gender === 'woman' ? 'woman' : 'man';
+
+  const { callType } = request.data;
+  if (!callType) throw new HttpsError('invalid-argument', 'callType is required.');
+
+  const globalRef = db.collection('globalQueues').doc(callType);
+
+  try {
+    const result = await db.runTransaction(async (t) => {
+      // 1. Check Dedicated Queue FIRST (Highest Priority)
+      const qRef = db.collection('queues').doc(teacherUid);
+      const qSnap = await t.get(qRef);
+      const qData = qSnap.exists ? qSnap.data() : {};
+      const dStudents = Object.values(qData.studentsById || {}).sort((a, b) => 
+        (a.joinedAt?.toMillis() || 0) - (b.joinedAt?.toMillis() || 0)
+      );
+
+      if (dStudents.length > 0) {
+        const nextStudent = dStudents[0];
+        // Remove from dedicated queue
+        t.update(qRef, { [`studentsById.${nextStudent.id}`]: admin.firestore.FieldValue.delete() });
+        
+        const teacherUpdate = {
+          currentlyCalling: {
+            studentId: nextStudent.id,
+            studentName: nextStudent.name,
+            studentType: callType,
+            calledAt: admin.firestore.FieldValue.serverTimestamp(),
+            announcementId: String(Date.now())
+          }
+        };
+        t.update(db.collection('teachers').doc(teacherUid), teacherUpdate);
+        t.update(db.collection('students').doc(nextStudent.id), {
+          calledBy: { teacherId: teacherUid, calledAt: admin.firestore.FieldValue.serverTimestamp(), type: callType },
+          redirectNotification: admin.firestore.FieldValue.delete()
+        });
+        return { success: true, student: nextStudent };
+      }
+
+      // 2. Check Global Pool SECOND
+      const gSnap = await t.get(globalRef);
+      if (!gSnap.exists) throw new HttpsError('not-found', 'Kø er tom.');
+
+      const globalKey = `${gender}StudentsById`;
+      const studentsMap = gSnap.data()[globalKey] || {};
+      const studentsList = Object.entries(studentsMap)
+        .map(([id, s]) => ({ id, ...s }))
+        .filter(s => !s.preferredTeacherId || s.preferredTeacherId === teacherUid)
+        .sort((a, b) => {
+          const aTime = a.joinedAt?.toMillis?.() || 0;
+          const bTime = b.joinedAt?.toMillis?.() || 0;
+          return aTime - bTime;
+        });
+
+      if (studentsList.length === 0) throw new HttpsError('not-found', 'Køen er tom.');
+
+      const nextStudent = studentsList[0];
+
+      // Remove from global pool
+      t.update(globalRef, { [`${globalKey}.${nextStudent.id}`]: admin.firestore.FieldValue.delete() });
+
+      const ticketToUse = nextStudent.ticketNumber;
+
+      // Update Teacher
+      const teacherUpdates = {
+        currentlyCalling: {
+          studentId: nextStudent.id,
+          studentName: nextStudent.name,
+          studentType: callType,
+          calledAt: admin.firestore.FieldValue.serverTimestamp(),
+          ...(ticketToUse ? { ticketNumber: ticketToUse, announcementId: String(Date.now()) } : {})
+        }
+      };
+      if (ticketToUse) {
+        teacherUpdates.lastCalledTicket = {
+          ticketNumber: ticketToUse,
+          queueLetter: tData.queueLetter || 'A',
+          studentNumber: nextStudent.studentNumber || null
+        };
+      }
+      t.update(db.collection('teachers').doc(teacherUid), teacherUpdates);
+
+      // Update Student
+      t.update(db.collection('students').doc(nextStudent.id), {
+        calledBy: {
+          teacherId: teacherUid,
+          calledAt: admin.firestore.FieldValue.serverTimestamp(),
+          type: callType
+        },
+        redirectNotification: admin.firestore.FieldValue.delete()
+      });
+
+      return { success: true, student: { ...nextStudent, ticketNumber: ticketToUse } };
+    });
+    return result;
+  } catch (error) {
+    if (error instanceof HttpsError) throw error;
+    console.error('callQueueStudent error:', error);
+    throw new HttpsError('internal', 'Kunne ikke kalde elev.');
   }
 });
 
 exports.leaveQueue = onCall(async (request) => {
   if (!request.auth) throw new HttpsError('unauthenticated', 'Sign in required.');
 
-  const { teacherId } = request.data;
-  if (!teacherId || typeof teacherId !== 'string') {
-    throw new HttpsError('invalid-argument', 'teacherId is required.');
-  }
-
+  const { type } = request.data;
   const uid = request.auth.uid;
-  const queueRef = db.collection('queues').doc(teacherId);
 
   try {
     await db.runTransaction(async (t) => {
-      const queueSnap = await t.get(queueRef);
-      if (!queueSnap.exists) {
-        return; // nothing to do
+      const actualType = type || 'physical'; 
+      const globalRef = db.collection('globalQueues').doc(actualType);
+      const gSnap = await t.get(globalRef);
+      
+      const studentDoc = await t.get(db.collection('students').doc(uid));
+      const gender = studentDoc.data()?.gender === 'woman' ? 'woman' : 'man';
+      const genderKey = `${gender}StudentsById`;
+
+      if (gSnap.exists && gSnap.data()[genderKey]?.[uid]) {
+        t.update(globalRef, { [`${genderKey}.${uid}`]: admin.firestore.FieldValue.delete() });
       }
-
-      const qData = queueSnap.data() || {};
-      const currentStudents = qData.studentsById || {};
-
-      if (!currentStudents[uid]) {
-        return; // already gone
-      }
-
-      t.update(queueRef, {
-        [`studentsById.${uid}`]: admin.firestore.FieldValue.delete()
-      });
+      
+      // Clear redirection notification when leaving
+      t.update(db.collection('students').doc(uid), { redirectNotification: admin.firestore.FieldValue.delete() });
     });
 
     return { success: true };
   } catch (error) {
     console.error('leaveQueue failed:', error);
-    throw new HttpsError('internal', 'Kunne ikke forlade køen. Prøv igen.');
+    throw new HttpsError('internal', 'Kunne ikke forlade køen.');
   }
 });
 
@@ -1188,7 +1537,6 @@ exports.cleanupStaleCallInvites = onSchedule("0 * * * *", async () => {
 // during grading. Now the server does all of this work automatically.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const { onDocumentWritten } = require("firebase-functions/v2/firestore");
 
 // Simplified server-side clone of calculateLeaderboardScore from student-logic.ts
 function calculateServerLeaderboardScore(assignments, plan, timeframe) {
@@ -1199,8 +1547,8 @@ function calculateServerLeaderboardScore(assignments, plan, timeframe) {
   const filtered = assignments.filter(a => {
     if (timeframe === 'all') return true;
     if (!a.gradeHifz || a.gradeHifz === 'Ikke læst') return false;
-    const d = a.gradedAt ? (a.gradedAt.toDate ? a.gradedAt.toDate() : new Date(a.gradedAt)) 
-                         : (a.assignedAt ? (a.assignedAt.toDate ? a.assignedAt.toDate() : new Date(a.assignedAt)) : null);
+    const d = a.gradedAt ? (a.gradedAt.toDate ? a.gradedAt.toDate() : new Date(a.gradedAt))
+      : (a.assignedAt ? (a.assignedAt.toDate ? a.assignedAt.toDate() : new Date(a.assignedAt)) : null);
     return d && d >= startOfMonth;
   });
 
@@ -1216,7 +1564,7 @@ function calculateServerLeaderboardScore(assignments, plan, timeframe) {
   const weekMap = {};
   graded.forEach(a => {
     const d = a.gradedAt ? (a.gradedAt.toDate ? a.gradedAt.toDate() : new Date(a.gradedAt))
-                         : (a.assignedAt.toDate ? a.assignedAt.toDate() : new Date(a.assignedAt));
+      : (a.assignedAt.toDate ? a.assignedAt.toDate() : new Date(a.assignedAt));
     const oneJan = new Date(d.getFullYear(), 0, 1);
     const dayOfYear = Math.floor((d - oneJan) / 86400000);
     const weekNum = Math.ceil((d.getDay() + 1 + dayOfYear) / 7);
@@ -1246,7 +1594,7 @@ function calculateServerLeaderboardScore(assignments, plan, timeframe) {
 
 // Server-side streak calculation
 function calculateServerStreakPoints(assignments) {
-  const graded = assignments.filter(a => 
+  const graded = assignments.filter(a =>
     a.gradeHifz && a.gradeHifz !== 'Ikke læst' && (a.gradedAt || a.assignedAt)
   );
   if (graded.length === 0) return 0;
@@ -1254,7 +1602,7 @@ function calculateServerStreakPoints(assignments) {
   const weeks = {};
   graded.forEach(a => {
     const d = a.gradedAt ? (a.gradedAt.toDate ? a.gradedAt.toDate() : new Date(a.gradedAt))
-                         : (a.assignedAt.toDate ? a.assignedAt.toDate() : new Date(a.assignedAt));
+      : (a.assignedAt.toDate ? a.assignedAt.toDate() : new Date(a.assignedAt));
     const oneJan = new Date(d.getFullYear(), 0, 1);
     const dayOfYear = Math.floor((d - oneJan) / 86400000);
     const weekNum = Math.ceil((d.getDay() + 1 + dayOfYear) / 7);

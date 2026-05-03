@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFirebase } from '@/firebase';
-import { collection, query, where, onSnapshot, getDocs, writeBatch, doc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, getDocs, writeBatch, doc, serverTimestamp } from 'firebase/firestore';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { getInitials } from '@/lib/utils';
 import { MapPin, Users, Megaphone, ArrowLeft, RotateCcw, Volume2, VolumeX } from 'lucide-react';
@@ -194,6 +194,15 @@ export default function TerminalTV() {
           studentsById: updatedStudents
         });
       });
+
+      // NEW: Also clear the Global Physical Queue (where neutral students live)
+      const globalPhysicalRef = doc(firestore, 'globalQueues', 'physical');
+      batch.update(globalPhysicalRef, {
+        manStudentsById: {},
+        womanStudentsById: {},
+        lastTicketNumber: 0,
+        lastResetAt: serverTimestamp()
+      });
       
       // Update teachers
       const tSnap = await getDocs(collection(firestore, 'teachers'));
@@ -207,6 +216,7 @@ export default function TerminalTV() {
         // If current student was physical, clear it
         if (data.activeSessionType === 'physical' || !data.availableVirtual) {
           updates.currentlyCalling = null;
+          updates.lastCalledTicket = null;
         }
         
         batch.update(tDoc.ref, updates);

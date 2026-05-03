@@ -21,11 +21,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getInitials, cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
-import { useUser, useFirebase } from '@/firebase';
+import { useUser, useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { useView } from '@/context/ViewContext';
 import { useUserProfile } from '@/hooks/use-user-profile';
 
 import NewChatDialog from '@/components/chat/NewChatDialog';
+import UserSearch from '@/components/chat/UserSearch';
+import AvatarUploader from '@/components/profile/AvatarUploader';
 import CallingDialog from '@/components/calls/CallingDialog';
 
 import {
@@ -53,7 +55,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-import { doc, writeBatch, getDoc, deleteDoc, updateDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
+import { doc, writeBatch, getDoc, deleteDoc, updateDoc, serverTimestamp, onSnapshot, collection } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { FullscreenSheet } from '@/components/ui/fullscreen-sheet';
@@ -405,6 +407,11 @@ export default function ChatView() {
   const [isMediaOpen, setIsMediaOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLeavingChat, setIsLeavingChat] = useState(false);
+  const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
+  const [editGroupName, setEditGroupName] = useState('');
+  const [isEditingGroup, setIsEditingGroup] = useState(false);
+  const [isUpdatingGroup, setIsUpdatingGroup] = useState(false);
+  const [isAddingMember, setIsAddingMember] = useState(false);
 
   const { channel, setActiveChannel, client } = useChatContext();
 
@@ -412,6 +419,8 @@ export default function ChatView() {
     setIsLeaveAlertOpen(false);
     setIsInfoOpen(false);
     setIsMediaOpen(false);
+    setIsAddMemberOpen(false);
+    setIsEditingGroup(false);
   };
 
   const safelyExitChatView = async () => {
@@ -524,6 +533,47 @@ export default function ChatView() {
 
   const sort = useMemo(() => ({ last_message_at: -1 as const }), []);
   const options = useMemo(() => ({ presence: true, state: true }), []);
+
+  // Searchable users logic for "Add Member"
+  const [searchableUsers, setSearchableUsers] = useState<any[]>([]);
+  const teachersQuery = useMemoFirebase(() => (firestore ? collection(firestore, 'teachers') : null), [firestore]);
+  const studentsQuery = useMemoFirebase(() => (firestore ? collection(firestore, 'students') : null), [firestore]);
+  const adminsQuery = useMemoFirebase(() => (firestore ? collection(firestore, 'admins') : null), [firestore]);
+
+  const { data: teacherData } = useCollection<any>(teachersQuery);
+  const { data: studentData } = useCollection<any>(
+    (profile?.role === 'teacher' || profile?.role === 'admin') ? studentsQuery : null
+  );
+  const { data: adminData } = useCollection<any>(
+    (profile?.role === 'admin') ? adminsQuery : null
+  );
+
+  useEffect(() => {
+    const all = [
+        ...(teacherData || []),
+        ...(studentData || []),
+        ...(adminData || [])
+    ];
+    const uniqueUsersMap = new Map<string, any>();
+    all.forEach(u => {
+      const userWithUid = { ...u, uid: u.id };
+      if (!uniqueUsersMap.has(userWithUid.id)) {
+        uniqueUsersMap.set(userWithUid.id, userWithUid);
+      }
+    });
+
+    const uniqueUsers = Array.from(uniqueUsersMap.values());
+    
+    // Filter by same gender and exclude self and existing members
+    const existingMemberIds = Object.keys(channel?.state?.members || {});
+    const filteredUsers = uniqueUsers.filter(u => 
+      u.uid !== user?.uid && 
+      (!profile || u.gender === profile.gender) &&
+      !existingMemberIds.includes(u.uid)
+    );
+    
+    setSearchableUsers(filteredUsers);
+  }, [teacherData, studentData, adminData, user?.uid, profile, channel?.state?.members]);
 
   const [callingState, setCallingState] = useState<{
     open: boolean;
@@ -667,6 +717,39 @@ export default function ChatView() {
     } finally {
       setIsLeavingChat(false);
       forceUnlockUi();
+    }
+  };
+  
+  const handleUpdateGroup = async (newName: string, newImage?: string) => {
+    if (!channel || isUpdatingGroup) return;
+    setIsUpdatingGroup(true);
+    try {
+      const update: any = {};
+      if (newName) update.name = newName;
+      if (newImage) update.image = newImage;
+      
+      await channel.updatePartial({ set: update });
+      toast({ title: tGlobal('Profil opdateret') });
+      setIsEditingGroup(false);
+    } catch (err) {
+      console.error("Failed to update group:", err);
+      toast({ variant: 'destructive', title: tGlobal('Fejl'), description: tGlobal('Kunne ikke opdatere gruppe') });
+    } finally {
+      setIsUpdatingGroup(false);
+    }
+  };
+
+  const handleAddMember = async (userId: string) => {
+    if (!channel || isAddingMember) return;
+    setIsAddingMember(true);
+    try {
+      await channel.addMembers([userId]);
+      toast({ title: tGlobal('Bruger tilføjet') });
+    } catch (err) {
+      console.error("Failed to add member:", err);
+      toast({ variant: 'destructive', title: tGlobal('Fejl'), description: tGlobal('Kunne ikke tilføje medlem') });
+    } finally {
+      setIsAddingMember(false);
     }
   };
 
@@ -885,14 +968,73 @@ export default function ChatView() {
               <AvatarImage src={channelPhoto} className="object-cover" />
               <AvatarFallback className="text-5xl bg-muted font-headline">{getInitials(title)}</AvatarFallback>
             </Avatar>
-            <div className="space-y-1">
-              <h2 className="text-3xl font-extrabold text-foreground font-headline">{title}</h2>
-              {isDM && other?.email && <p className="text-muted-foreground font-medium">{other.email}</p>}
-              {!isDM && <p className="text-muted-foreground font-bold">{memberCount} {tGlobal('medlemmer')}</p>}
+            <div className="space-y-2 w-full px-4">
+              {isEditingGroup ? (
+                <div className="space-y-4 w-full">
+                  <AvatarUploader 
+                    label={tGlobal("Skift gruppebillede")} 
+                    isUserAvatar={false} 
+                    currentImage={channelPhoto}
+                    displayName={title}
+                    onUploadSuccess={(url) => handleUpdateGroup(editGroupName, url)}
+                  />
+                  <Input 
+                    value={editGroupName} 
+                    onChange={(e) => setEditGroupName(e.target.value)}
+                    className="h-12 rounded-2xl text-center font-bold"
+                    placeholder={tGlobal("Gruppenavn")}
+                  />
+                  <div className="flex gap-2">
+                    <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setIsEditingGroup(false)}>
+                      {tGlobal("Annuller")}
+                    </Button>
+                    <Button className="flex-1 rounded-xl" onClick={() => handleUpdateGroup(editGroupName)} disabled={isUpdatingGroup}>
+                      {isUpdatingGroup ? <Loader2 className="h-4 w-4 animate-spin" /> : tGlobal("Gem")}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <h2 className="text-3xl font-extrabold text-foreground font-headline">{title}</h2>
+                  {isDM && other?.email && <p className="text-muted-foreground font-medium">{other.email}</p>}
+                  {!isDM && (
+                    <div className="flex flex-col items-center gap-2">
+                      <p className="text-muted-foreground font-bold">{memberCount} {tGlobal('medlemmer')}</p>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-accent font-bold hover:bg-accent/5 rounded-full"
+                        onClick={() => {
+                          setEditGroupName(title);
+                          setIsEditingGroup(true);
+                        }}
+                      >
+                        {tGlobal("Rediger")}
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
 
           <div className="w-full space-y-3">
+            {!isDM && (
+              <button
+                onClick={() => setIsAddMemberOpen(true)}
+                disabled={isAddingMember}
+                className="flex w-full items-center justify-between p-5 rounded-3xl bg-card border border-border shadow-sm active:scale-[0.98] transition-all group hover:border-primary/20 disabled:opacity-50"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="grid h-12 w-12 place-items-center rounded-2xl bg-accent/10 text-accent">
+                    {isAddingMember ? <Loader2 className="h-6 w-6 animate-spin" /> : <Plus className="h-6 w-6" />}
+                  </div>
+                  <span className="font-bold text-[16px]">{tGlobal('Tilføj medlem')}</span>
+                </div>
+                <ChevronRight className="h-5 w-5 opacity-20 group-hover:opacity-40" />
+              </button>
+            )}
+
             <button
               onClick={() => setIsMediaOpen(true)}
               className="flex w-full items-center justify-between p-5 rounded-3xl bg-card border border-border shadow-sm active:scale-[0.98] transition-all group hover:border-primary/20"
@@ -919,6 +1061,28 @@ export default function ChatView() {
               <ChevronRight className="h-5 w-5 opacity-20 group-hover:opacity-40" />
             </button>
           </div>
+        </div>
+      </FullscreenSheet>
+
+      <FullscreenSheet
+        open={isAddMemberOpen}
+        onOpenChange={setIsAddMemberOpen}
+        title={tGlobal('Tilføj medlem')}
+        rightSlot={
+          <button onClick={() => setIsAddMemberOpen(false)} className="p-2 hover:bg-black/5 rounded-full transition-colors">
+            <X className="h-6 w-6 opacity-40" />
+          </button>
+        }
+      >
+        <div className="p-6 pb-24 space-y-6">
+          <div className="section-label">{tGlobal('Søg brugere...')}</div>
+          <UserSearch 
+            users={searchableUsers}
+            onSelectUser={(u) => {
+              handleAddMember(u.uid);
+              setIsAddMemberOpen(false);
+            }} 
+          />
         </div>
       </FullscreenSheet>
 

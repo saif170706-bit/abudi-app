@@ -43,6 +43,7 @@ export default function AdminHome() {
   const [subAmount, setSubAmount] = useState(400);
   const [studentNumber, setStudentNumber] = useState('');
   const [courseDuration, setCourseDuration] = useState('3 year');
+  const [phoneNumber, setPhoneNumber] = useState('');
 
   const handleLogout = async () => {
     triggerHaptic();
@@ -66,6 +67,7 @@ export default function AdminHome() {
         role,
         subscriptionAmount: subAmount,
         gender,
+        phoneNumber: phoneNumber.trim() || null,
         studentNumber: role === 'student' ? studentNumber.trim() : null,
         courseDuration: role === 'student' ? courseDuration : null,
       });
@@ -77,6 +79,7 @@ export default function AdminHome() {
       });
       
       setEmail('');
+      setPhoneNumber('');
       setStudentNumber('');
       setSubAmount(400);
     } catch (error) {
@@ -176,6 +179,17 @@ export default function AdminHome() {
                   placeholder={tGlobal("bruger@eksempel.dk")} 
                   className="h-14 rounded-2xl border-border bg-muted px-5 text-lg"
                   required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">{tGlobal('Telefonnummer')}</Label>
+                <Input 
+                  type="tel" 
+                  value={phoneNumber} 
+                  onChange={(e) => setPhoneNumber(e.target.value)} 
+                  placeholder="+45"
+                  className="h-14 rounded-2xl border-border bg-muted px-5 text-lg"
                 />
               </div>
 

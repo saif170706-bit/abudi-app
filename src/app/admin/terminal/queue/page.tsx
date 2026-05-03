@@ -7,18 +7,19 @@ import { collection, query, where, getDocs, doc, onSnapshot, serverTimestamp, ru
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { getInitials } from '@/lib/utils';
-import { ChevronRight, Users, Loader2 } from 'lucide-react';
+import { ChevronRight, Users, Loader2, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 export default function TerminalQueue() {
   const [view, setView] = useState<'rest' | 'input' | 'teachers' | 'success'>('rest');
   const [studentNumber, setStudentNumber] = useState('');
   const [student, setStudent] = useState<any>(null);
   const [teachers, setTeachers] = useState<any[]>([]);
-  const [queueData, setQueueData] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [successInfo, setSuccessInfo] = useState<{ position: number; teacherName: string; letter: string } | null>(null);
+  const [successInfo, setSuccessInfo] = useState<{ ticketNumber: number; studentNumber: string; teacherName: string | null } | null>(null);
+  const [globalCount, setGlobalCount] = useState(0);
 
   const { firestore } = useFirebase();
   const router = useRouter();
@@ -69,22 +70,27 @@ export default function TerminalQueue() {
     const q1 = query(collection(firestore, 'teachers'), where('availablePhysical', '==', true), where('queueLocked', '==', false));
     const unsub1 = onSnapshot(q1, (s) => setTeachers(s.docs.map((d) => ({ id: d.id, ...d.data() }))));
 
-    // Listen for queues to get count
+    // Listen for queues to get specific count (legacy/hint)
     const unsubQueues = onSnapshot(collection(firestore, 'queues'), (queues) => {
-      const qd: Record<string, number> = {};
-      for (const qDoc of queues.docs) {
-        const data = qDoc.data() as any;
-        const sById = data.studentsById || {};
-        qd[data.teacherId] = Object.keys(sById).length;
-      }
-      setQueueData(qd);
+      // We'll use this to hint at specific queues if needed, but primary is global
+    });
+
+    // Listen to Global Queue for absolute count
+    const unsubGlobal = onSnapshot(doc(firestore, 'globalQueues', 'physical'), (snap) => {
+       if (snap.exists() && student) {
+         const data = snap.data();
+         const key = student.gender === 'woman' ? 'womanStudentsById' : 'manStudentsById';
+         const count = Object.keys(data[key] || {}).length;
+         setGlobalCount(count);
+       }
     });
 
     return () => {
       unsub1();
       unsubQueues();
+      unsubGlobal();
     };
-  }, [firestore]);
+  }, [firestore, student]);
 
   const handleLookupStudent = async () => {
     if (!studentNumber) return;
@@ -107,47 +113,29 @@ export default function TerminalQueue() {
       setLoading(false);
     }
   };
-   const handleJoinQueue = async (teacher: any) => {
+   const handleJoinQueue = async (teacher: any | null) => {
     if (!student || !firestore) return;
     setLoading(true);
     try {
-      const queueDocRef = doc(firestore, 'queues', teacher.id);
+      const functions = getFunctions();
+      const joinQueueFn = httpsCallable(functions, 'joinQueue');
       
-      const ticketNumber = await runTransaction(firestore, async (transaction) => {
-        const queueSnap = await transaction.get(queueDocRef);
-        let nextTicket = 1;
-        
-        if (queueSnap.exists()) {
-          nextTicket = (queueSnap.data().lastTicketNumber || 0) + 1;
-        }
-        
-        const updateData = {
-          teacherId: teacher.id,
-          lastTicketNumber: nextTicket,
-          [`studentsById.${student.id}`]: {
-            name: student.displayName || 'Ukendt',
-            type: 'physical',
-            source: 'ipad',
-            joinedAt: serverTimestamp(),
-            photoURL: student.photoURL || null,
-            ticketNumber: nextTicket,
-            studentNumber: student.studentNumber || null
-          }
-        };
-
-        if (queueSnap.exists()) {
-          transaction.update(queueDocRef, updateData as any);
-        } else {
-          transaction.set(queueDocRef, updateData, { merge: true });
-        }
-        
-        return nextTicket;
+      const res = await joinQueueFn({
+        teacherId: teacher?.id || null,
+        type: 'physical',
+        displayName: student.displayName,
+        phoneNumber: student.phoneNumber,
+        studentNumber: student.studentNumber,
+        // iPad is stationary at the school, so we can mock coords or leave them to server if trusted
+        lat: 55.72, 
+        lon: 12.44
       });
 
+      const data = res.data as any;
       setSuccessInfo({ 
-        position: ticketNumber, 
-        teacherName: teacher.displayName || 'Lærer', 
-        letter: teacher.queueLetter || 'A' 
+        ticketNumber: data.ticketNumber,
+        studentNumber: student.studentNumber,
+        teacherName: teacher?.displayName || null
       });
       setView('success');
 
@@ -157,9 +145,9 @@ export default function TerminalQueue() {
         setStudent(null);
       }, 7000);
 
-    } catch (e) {
+    } catch (e: any) {
       console.error("Queue join error:", e);
-      setErrorMsg('Kunne ikke tilføje til køen.');
+      setErrorMsg(e.message || 'Kunne ikke tilføje til køen.');
     } finally {
       setLoading(false);
     }
@@ -283,7 +271,7 @@ export default function TerminalQueue() {
                     className="h-16 w-16 md:h-24 md:w-24 bg-white rounded-full p-2 md:p-4 cursor-pointer active:scale-90 transition-transform shadow-xl" 
                   />
                   <div>
-                    <h2 className="text-4xl md:text-6xl font-display text-primary">Vælg Lærer</h2>
+                    <h2 className="text-4xl md:text-6xl font-display text-primary">Kø System</h2>
                     <p className="text-lg md:text-2xl font-bold uppercase tracking-widest text-accent mt-2">Elev: {student?.displayName || 'Ukendt'}</p>
                   </div>
                 </div>
@@ -302,6 +290,24 @@ export default function TerminalQueue() {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 overflow-y-auto pb-20 scrollbar-hide">
+                <motion.div 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleJoinQueue(null)}
+                  className="lg:col-span-2 bg-primary rounded-[40px] md:rounded-[60px] p-8 md:p-12 shadow-2xl cursor-pointer flex items-center gap-8 md:gap-10 relative overflow-hidden group"
+                >
+                  <div className="absolute inset-0 bg-white/5 opacity-10 group-hover:opacity-20 transition-opacity" />
+                  <div className="h-24 w-24 md:h-32 md:w-32 bg-accent rounded-[32px] md:rounded-[48px] flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform">
+                    <Sparkles className="h-12 w-12 md:h-16 md:w-16 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-3xl md:text-6xl font-display text-white">Hurtig Tilmelding</h3>
+                    <p className="text-xl md:text-2xl font-bold uppercase tracking-widest text-white/50 mt-2">Find den første ledige lærer</p>
+                  </div>
+                  <div className="h-20 w-20 rounded-full bg-white/10 flex items-center justify-center">
+                    <ChevronRight className="h-10 w-10 text-white" />
+                  </div>
+                </motion.div>
                 {teachers.filter(t => t.gender === student?.gender).length === 0 ? (
                   <div className="col-span-full text-center py-20 bg-white rounded-[40px] shadow-sm">
                     <p className="text-3xl text-primary/50 font-bold">Ingen lærere er fysisk tilgængelige lige nu.</p>
@@ -321,11 +327,7 @@ export default function TerminalQueue() {
                       </Avatar>
                       <div className="flex-1">
                         <h3 className="text-3xl md:text-5xl font-display text-primary">{t.displayName}</h3>
-                        <div className="mt-4 flex flex-wrap items-center gap-6">
                           <span className="px-4 py-2 rounded-xl bg-accent/10 text-[14px] font-black uppercase tracking-widest text-accent">Lokale {t.room}</span>
-                          <div className="flex items-center gap-3 text-xl md:text-2xl font-bold text-primary/30">
-                            <Users className="h-6 w-6 md:h-8 md:w-8" /> {queueData[t.id] || 0} i kø
-                          </div>
                         </div>
                       </div>
                       <ChevronRight className="h-12 w-12 text-gray-200" />
@@ -351,8 +353,8 @@ export default function TerminalQueue() {
             >
               <div className="text-center text-white space-y-8 p-10">
                 <div className="text-[16px] md:text-[20px] font-black uppercase tracking-[0.6em] text-accent mb-12">Du Er Tilmeldt Køen</div>
-                <div className="text-[12rem] md:text-[20rem] font-display font-light leading-none mb-8">{successInfo?.letter}{successInfo?.position}</div>
-                <h2 className="text-5xl md:text-7xl font-display mt-8">Lærer {successInfo?.teacherName}</h2>
+                <div className="text-[12rem] md:text-[20rem] font-display font-light leading-none mb-8">A{successInfo?.ticketNumber} - <span className="opacity-40">(#{successInfo?.studentNumber})</span></div>
+                {successInfo?.teacherName && <h2 className="text-5xl md:text-7xl font-display mt-8">Lærer {successInfo?.teacherName}</h2>}
                 <p className="text-2xl md:text-3xl font-medium opacity-70 mt-8 max-w-2xl mx-auto">Sæt dig og vent på, at dit nummer eller navn bliver kaldt på skærmen.</p>
                 
                 <div className="mt-24">

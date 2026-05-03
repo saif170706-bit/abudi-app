@@ -27,6 +27,8 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogPortal,
+  DialogOverlay,
 } from '@/components/ui/dialog';
 import {
   Loader2,
@@ -399,37 +401,40 @@ export default function ProfileSettings() {
       </FullscreenSheet>
 
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <DialogContent className="rounded-[40px] sm:max-w-md bg-white border-none shadow-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-3 text-red-600 font-display text-2xl">
-              <AlertTriangle className="h-6 w-6" />
-              {tGlobal('Er du helt sikker?')}
-            </DialogTitle>
-            <DialogDescription className="pt-2 text-primary/60 font-medium">
-              {tGlobal('Din konto vil blive låst med det samme. Din anmodning vil blive behandlet af Ibn Amer inden for ca. 30 dage, hvorefter kontoen slettes permanent.')}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Hvorfor ønsker du at slette din konto?')}</Label>
-              <Textarea placeholder={tGlobal("Hvorfor forlader du os?")} value={deletionReason} onChange={(e) => setDeletionReason(e.target.value)} className="rounded-2xl min-h-[100px] border-primary/10 bg-primary/5" />
+        <DialogPortal>
+          <DialogOverlay className="z-[300]" />
+          <DialogContent className="z-[300] rounded-[40px] sm:max-w-md bg-white border-none shadow-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-3 text-red-600 font-display text-2xl">
+                <AlertTriangle className="h-6 w-6" />
+                {tGlobal('Er du helt sikker?')}
+              </DialogTitle>
+              <DialogDescription className="pt-2 text-primary/60 font-medium">
+                {tGlobal('Din konto vil blive låst med det samme. Din anmodning vil blive behandlet af Ibn Amer inden for ca. 30 dage, hvorefter kontoen slettes permanent.')}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Hvorfor ønsker du at slette din konto?')}</Label>
+                <Textarea placeholder={tGlobal("Hvorfor forlader du os?")} value={deletionReason} onChange={(e) => setDeletionReason(e.target.value)} className="rounded-2xl min-h-[100px] border-primary/10 bg-primary/5" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Nuværende adgangskode')}</Label>
+                <Input type="password" autoComplete="off" placeholder={tGlobal('Bekræft med adgangskode')} value={reauthPassword} onChange={(e) => setReauthPassword(e.target.value)} className="h-14 rounded-2xl border-primary/10" />
+              </div>
+              <div className="flex items-start gap-4 p-5 rounded-3xl bg-red-50 border border-red-100">
+                <Checkbox id="confirm-del" checked={deleteConfirmation} onCheckedChange={(v) => setDeleteConfirmation(!!v)} className="mt-1" />
+                <label htmlFor="confirm-del" className="text-xs font-bold leading-tight text-red-900">{tGlobal('Jeg forstår at min konto låses i 30 dage.')}</label>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Nuværende adgangskode')}</Label>
-              <Input type="password" autoComplete="off" placeholder={tGlobal('Bekræft med adgangskode')} value={reauthPassword} onChange={(e) => setReauthPassword(e.target.value)} className="h-14 rounded-2xl border-primary/10" />
-            </div>
-            <div className="flex items-start gap-4 p-5 rounded-3xl bg-red-50 border border-red-100">
-              <Checkbox id="confirm-del" checked={deleteConfirmation} onCheckedChange={(v) => setDeleteConfirmation(!!v)} className="mt-1" />
-              <label htmlFor="confirm-del" className="text-xs font-bold leading-tight text-red-900">{tGlobal('Jeg forstår at min konto låses i 30 dage.')}</label>
-            </div>
-          </div>
-          <DialogFooter className="flex-col gap-3">
-            <Button variant="destructive" className="w-full h-14 rounded-2xl font-black uppercase text-[11px] tracking-widest" disabled={!deleteConfirmation || !reauthPassword || loadingDelete} onClick={handleRequestDeletion}>
-              {loadingDelete ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : tGlobal('Anmod om sletning')}
-            </Button>
-            <Button variant="ghost" className="w-full h-12 rounded-xl font-bold text-primary/40" onClick={() => setIsDeleteOpen(false)}>{tGlobal('Annuller')}</Button>
-          </DialogFooter>
-        </DialogContent>
+            <DialogFooter className="flex-col gap-3">
+              <Button variant="destructive" className="w-full h-14 rounded-2xl font-black uppercase text-[11px] tracking-widest" disabled={!deleteConfirmation || !reauthPassword || loadingDelete} onClick={handleRequestDeletion}>
+                {loadingDelete ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : tGlobal('Anmod om sletning')}
+              </Button>
+              <Button variant="ghost" className="w-full h-12 rounded-xl font-bold text-primary/40" onClick={() => setIsDeleteOpen(false)}>{tGlobal('Annuller')}</Button>
+            </DialogFooter>
+          </DialogContent>
+        </DialogPortal>
       </Dialog>
     </div>
   );

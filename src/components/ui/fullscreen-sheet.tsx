@@ -87,7 +87,6 @@ export function FullscreenSheet({
                 'bg-card outline-none',
                 'pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]',
                 'overflow-hidden flex flex-col',
-                'transition-transform duration-300 ease-out translate-y-0',
                 contentClassName
               )}
             >

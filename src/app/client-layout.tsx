@@ -22,6 +22,7 @@ import { useChatContext } from "stream-chat-react";
 import { ensureWebPushToken, bindForegroundMessaging } from "@/lib/fcm";
 import AppWarmer from "@/components/AppWarmer";
 import { OfflineIndicator } from "@/components/ui/OfflineIndicator";
+import MandatoryPhotoSetup from "@/components/profile/MandatoryPhotoSetup";
 
 /**
  * Initial synkronisering af ulæste beskeder ved opstart og ved events.
@@ -165,6 +166,20 @@ function AppContent({ children }: { children: React.ReactNode }) {
       hasModalBeenShown.current = true;
     }
 
+    // Register Service Worker for PWA
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then(
+          (registration) => {
+            console.log('SW registered:', registration.scope);
+          },
+          (err) => {
+            console.log('SW registration failed:', err);
+          }
+        );
+      });
+    }
+
     // Standardized intent handling
     if (viewIntent && user && !isUserLoading) {
       const allowedViews = ['announcements', 'chat', 'homework-reading'];
@@ -269,6 +284,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
       <AppWarmer />
       <UnreadSyncManager />
       <ProfilePrewarmer />
+      <MandatoryPhotoSetup />
       
       {showNavbar && <Navbar />}
 
