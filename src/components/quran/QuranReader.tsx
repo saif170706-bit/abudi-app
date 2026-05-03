@@ -56,6 +56,11 @@ function QuranReaderComponent({ initialPage, BackButton }: QuranReaderProps) {
 
 
   const [nowPlayingKey, setNowPlayingKey] = useState<string | null>(null);
+  const nowPlayingKeyRef = useRef<string | null>(null);
+  const setNowPlayingKeySynced = (key: string | null) => {
+    nowPlayingKeyRef.current = key;
+    setNowPlayingKey(key);
+  };
   const [activeWord, setActiveWord] = useState<number | null>(null);
 
   const {
@@ -200,8 +205,15 @@ function QuranReaderComponent({ initialPage, BackButton }: QuranReaderProps) {
       clearSelection();
 
       if (!wasAuto) {
+        // On Android, stop() is async-safe but the OS media session can still
+        // fire a 'play' resume between stop()'s internal pause and the session
+        // teardown. Calling pause() first ensures the audio element is silent
+        // before we tear down the session.
+        if (nowPlayingKeyRef.current) {
+          audioPlayerRef.current?.pause();
+        }
         audioPlayerRef.current?.stop();
-        setNowPlayingKey(null);
+        setNowPlayingKeySynced(null);
         // Save progress bookmark when user manually turns page
         saveProgress(newIndex + 1);
       }
@@ -323,7 +335,7 @@ function QuranReaderComponent({ initialPage, BackButton }: QuranReaderProps) {
         <AudioPlayer
           ref={audioPlayerRef}
           orderedKeys={orderedKeys}
-          onVersePlay={setNowPlayingKey}
+          onVersePlay={setNowPlayingKeySynced}
           onTimeUpdate={handleTimeUpdate}
           currentPageNumber={currentPage}
         />

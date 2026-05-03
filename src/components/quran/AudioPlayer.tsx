@@ -353,11 +353,20 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(
     // Important:
     // when the user manually changes page while NOT currently playing,
     // keep the player ready by updating the idle currentKey to that page start.
+    // NOTE: We deliberately use sessionActiveRef.current (the ref, not state)
+    // to avoid stale closure issues on Android where the state may lag the ref.
     useEffect(() => {
+      // Use the REF here, not the state variable. On Android, the state update
+      // from stop() can arrive asynchronously, so we trust the ref which is
+      // set synchronously.
       if (!audioReady || sessionActiveRef.current || isChangingReciter) return;
 
       const desired = PAGE_START_KEY[currentPageNumber] ?? fallbackKey;
       if (!desired) return;
+
+      // Extra safety: don't update if the session became active between the
+      // check above and now (unlikely but possible on slow Android devices)
+      if (sessionActiveRef.current) return;
 
       setCurrentKey(desired);
       currentKeyRef.current = desired;
@@ -511,29 +520,40 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(
 
     const stop = useCallback(() => {
       const audio = audioRef.current;
+
+      // 1. Kill the session state FIRST — this is critical on Android.
+      // Any async audio callbacks (onEnded, timeupdate) that fire AFTER this
+      // point will check sessionActiveRef.current and bail out early.
+      sessionActiveRef.current = false;
+      setSessionActiveState(false);
+
       stopRaf();
-      setSessionActive(false);
+      // Clear isSeekingRef so we don't block future seeks
+      isSeekingRef.current = false;
       setModeBoth("continuous");
       setSelectionBoth(null);
       setIsPlaying(false);
       onVersePlay(null);
       setAudioError(null);
 
-      // 1. CLEAR MEDIA SESSION (Lock screen / notification area)
+      // 2. CLEAR MEDIA SESSION (Lock screen / notification area)
       if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = null;
         navigator.mediaSession.playbackState = "none";
       }
 
-      // 2. KILL THE AUDIO ELEMENT
+      // 3. KILL THE AUDIO ELEMENT
+      // On Android, calling audio.load() after removing src fires spurious
+      // 'ended' and 'play' events. We only pause and clear currentTime.
+      // The src is left intact — it will be replaced on the next seekToAyah call.
       if (audio) {
         audio.pause();
         audio.currentTime = 0;
-        audio.removeAttribute("src"); 
-        audio.load(); // Force the browser to release the handle
+        // Do NOT call audio.load() here — it triggers Android's media session
+        // and can fire spurious 'ended' events causing unintended playback.
       }
 
-      // 3. FORCE RESYNC TO CURRENT PAGE
+      // 4. FORCE RESYNC TO CURRENT PAGE
       const idleStart = PAGE_START_KEY[currentPageNumber] || fallbackKey || "1:1";
       setCurrentKey(idleStart);
       currentKeyRef.current = idleStart;
@@ -554,8 +574,27 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(
         if (!audio) return false;
 
         const currentSrcAttr = audio.getAttribute("src") || "";
-        if (currentSrcAttr === url) return true;
+        if (currentSrcAttr === url) {
+          // Android: even if src matches, ensure it's truly ready
+          if (audio.readyState >= 1) return true;
+          // Wait for it to become ready
+          await new Promise<void>((resolve, reject) => {
+            const onReady = () => { cleanup(); resolve(); };
+            const onError = () => { cleanup(); reject(new Error(`Audio not ready: ${url}`)); };
+            const cleanup = () => {
+              audio.removeEventListener("loadedmetadata", onReady);
+              audio.removeEventListener("canplay", onReady);
+              audio.removeEventListener("error", onError);
+            };
+            audio.addEventListener("loadedmetadata", onReady, { once: true });
+            audio.addEventListener("canplay", onReady, { once: true });
+            audio.addEventListener("error", onError, { once: true });
+          });
+          return true;
+        }
 
+        // Android requires both src assignment + load(), then we wait for canplay
+        // (loadedmetadata alone is not enough to seek reliably on Android Chrome)
         await new Promise<void>((resolve, reject) => {
           const onLoaded = () => {
             cleanup();
@@ -566,12 +605,15 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(
             reject(new Error(`Failed to load audio URL: ${url}`));
           };
           const cleanup = () => {
+            audio.removeEventListener("canplay", onLoaded);
             audio.removeEventListener("loadedmetadata", onLoaded);
             audio.removeEventListener("error", onError);
           };
 
-          audio.addEventListener("loadedmetadata", onLoaded);
-          audio.addEventListener("error", onError);
+          // Listen for whichever fires first — canplay is more reliable on Android
+          audio.addEventListener("canplay", onLoaded, { once: true });
+          audio.addEventListener("loadedmetadata", onLoaded, { once: true });
+          audio.addEventListener("error", onError, { once: true });
           audio.src = url;
           audio.load();
         });
@@ -589,6 +631,10 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(
         const surahMap = surahMapRef.current;
 
         if (!parsed || !audio || !segmentMap || !surahMap) return;
+
+        // If the session has been killed while we were waiting (e.g. stop() was called),
+        // do not continue. This is the primary Android race-condition guard.
+        if (!sessionActiveRef.current && autoplay) return;
 
         isSeekingRef.current = true;
 
@@ -630,35 +676,51 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(
             isSeekingRef.current = false;
             return;
           }
-        } catch (err) {
-          setAudioError(err instanceof Error ? err.message : String(err));
-          isSeekingRef.current = false;
-          return;
-        }
 
-        setAyahTimings(timingsForSurah);
-        setSurahAudioUrl(getSurahAudioUrl(surahMap, parsed.surah));
-        ayahIndexRef.current = targetIndex >= 0 ? targetIndex : 0;
-        setCurrentKey(verseKey);
-        currentKeyRef.current = verseKey;
+          // Re-check session state after the async load — Android can take a while
+          if (!sessionActiveRef.current && autoplay) {
+            isSeekingRef.current = false;
+            return;
+          }
 
-        const onSeeked = () => {
-          isSeekingRef.current = false;
-          audio.removeEventListener("seeked", onSeeked);
-        };
-        audio.addEventListener("seeked", onSeeked);
+          setAyahTimings(timingsForSurah);
+          setSurahAudioUrl(getSurahAudioUrl(surahMap, parsed.surah));
+          ayahIndexRef.current = targetIndex >= 0 ? targetIndex : 0;
+          setCurrentKey(verseKey);
+          currentKeyRef.current = verseKey;
 
-        audio.currentTime = target.timestamp_from / 1000;
+          // Use a promise-based seeked wait so isSeekingRef is cleared reliably on Android
+          await new Promise<void>((resolve) => {
+            const onSeeked = () => {
+              isSeekingRef.current = false;
+              audio.removeEventListener("seeked", onSeeked);
+              resolve();
+            };
+            // Fallback: if seeked never fires (Android quirk), clear after 500ms
+            const fallback = setTimeout(() => {
+              isSeekingRef.current = false;
+              audio.removeEventListener("seeked", onSeeked);
+              resolve();
+            }, 500);
+            audio.addEventListener("seeked", onSeeked, { once: true });
+            audio.currentTime = target.timestamp_from / 1000;
+            // Clear fallback if seeked fired
+            audio.addEventListener("seeked", () => clearTimeout(fallback), { once: true });
+          });
 
-        if (autoplay) {
-          try {
-            await audio.play();
-          } catch (err: any) {
-            if (err.name !== "AbortError") {
-              console.error("Audio play error:", err);
+          if (autoplay) {
+            // Final session check before actually playing
+            if (!sessionActiveRef.current) return;
+            try {
+              await audio.play();
+            } catch (err: any) {
+              if (err.name !== "AbortError") {
+                console.error("Audio play error:", err);
+              }
             }
           }
-        } else {
+        } catch (err) {
+          setAudioError(err instanceof Error ? err.message : String(err));
           isSeekingRef.current = false;
         }
       },
@@ -833,6 +895,10 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(
 
     const onEnded = useCallback(async () => {
       if (loadingAudioData || !audioReady || isChangingReciter) return;
+
+      // Android fires 'ended' asynchronously — by the time it arrives, stop()
+      // may have already been called. Guard against this.
+      if (!sessionActiveRef.current) return;
 
       const mode = modeRef.current;
       const sel = selectionRef.current;
