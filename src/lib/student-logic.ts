@@ -504,7 +504,26 @@ export function calculateLeaderboardScore(assignments: Assignment[], plan: strin
         else if (sessions >= 3) attendancePointsEarned += 2;
     });
 
-    const weeksCount = timeframe === 'month' ? 4 : weeksList.length;
+    let weeksCount = 4; // Default for month
+    if (timeframe === 'all') {
+        // Find the earliest assignment date for this student
+        const firstAssignmentDate = assignments.reduce((earliest, a) => {
+            const d = (a.gradedAt || a.assignedAt).toDate ? (a.gradedAt || a.assignedAt).toDate() : new Date(a.gradedAt || a.assignedAt);
+            if (!earliest) return d;
+            return d < earliest ? d : earliest;
+        }, null as Date | null);
+
+        if (firstAssignmentDate) {
+            const now = new Date();
+            const diffTime = Math.abs(now.getTime() - firstAssignmentDate.getTime());
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            // Calculate calendar weeks passed since start
+            weeksCount = Math.max(1, Math.ceil(diffDays / 7));
+        } else {
+            weeksCount = weeksList.length || 1;
+        }
+    }
+
     const maxAttendancePoints = weeksCount * 2;
     const attendanceScore = maxAttendancePoints > 0 ? Math.min(100, (attendancePointsEarned / maxAttendancePoints) * 100) : 0;
 

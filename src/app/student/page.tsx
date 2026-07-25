@@ -195,7 +195,7 @@ function StudentDashboard() {
             <div className="flex items-center gap-4 mb-2">
                 <button 
                   onClick={() => setView('overview')}
-                  className="h-12 w-12 rounded-2xl bg-white/80 backdrop-blur-md flex items-center justify-center shadow-lg border border-white"
+                  className="h-12 w-12 rounded-2xl bg-card dark:bg-white/10 backdrop-blur-md flex items-center justify-center shadow-lg border border-border"
                 >
                     <ChevronRight className="h-6 w-6 text-primary rotate-180" />
                 </button>
@@ -272,7 +272,7 @@ function StudentDashboard() {
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={() => setView('profile')}
-                    className="h-14 w-14 lg:h-16 lg:w-16 rounded-[24px] border-4 border-white shadow-2xl overflow-hidden relative group cursor-pointer shrink-0"
+                  className="h-14 w-14 lg:h-16 lg:w-16 rounded-[24px] border-4 border-border dark:border-white/20 shadow-2xl overflow-hidden relative group cursor-pointer shrink-0"
                   >
                     <img src={profile?.photoURL || null} alt="" className="h-full w-full object-cover" />
                     <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
@@ -311,7 +311,7 @@ function StudentDashboard() {
                              
                              <motion.div className="mt-10 flex items-center gap-3 text-primary font-black text-[11px] uppercase tracking-widest">
                                 <span>{tGlobal('Tilmeld Kø')}</span>
-                               <ChevronRight className="h-4 w-4 bg-primary text-white rounded-full p-0.5" />
+                               <ChevronRight className="h-4 w-4 bg-foreground text-background rounded-full p-0.5" />
                             </motion.div>
                         </div>
                         
@@ -332,7 +332,7 @@ function StudentDashboard() {
                     <div className="grid grid-cols-2 gap-4">
                         {[
                             { id: 'view-homework', title: tGlobal('Lektie Liste'), icon: <FileText className="h-6 w-6 text-orange-600 dark:text-orange-400" />, desc: tGlobal('Alle opgaver') },
-                            { id: 'progress-journey', title: tGlobal('Hifz Rejse'), icon: <MapIcon className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />, desc: tGlobal('Se dit kort') },
+                            { id: 'progress-journey', title: tGlobal('Hifz Rejse'), icon: <MapIcon className="h-6 w-6 text-primary" />, desc: tGlobal('Se dit kort') },
                             { id: 'quran-index', title: tGlobal('quran'), icon: <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />, desc: tGlobal('Find Surah') },
                             { id: 'leaderboard', title: tGlobal('Leaderboard'), icon: <Trophy className="h-6 w-6 text-accent" />, desc: tGlobal('Vind over venner') }
                         ].map((feat, idx) => (

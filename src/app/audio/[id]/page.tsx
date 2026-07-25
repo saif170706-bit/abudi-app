@@ -24,6 +24,9 @@ import {
   SheetHeader, 
   SheetTitle 
 } from "@/components/ui/sheet";
+import { motion, AnimatePresence } from "framer-motion";
+import TeacherQuranPanel from "@/components/teacher/TeacherQuranPanel";
+import { QuranDataProvider } from "@/context/QuranDataContext";
 import { 
   ChevronUp, 
   BookOpenText, 
@@ -90,6 +93,9 @@ export default function AudioCallPage() {
   const callingState = useCallCallingState();
   const [isLeaving, setIsLeaving] = useState(false);
   const [showAssignment, setShowAssignment] = useState(false);
+  const [quranPanelMode, setQuranPanelMode] = useState<'hifz' | 'murajara' | null>(null);
+  const [externalResult, setExternalResult] = useState<any | null>(null);
+  const [currentStudentAssignment, setCurrentStudentAssignment] = useState<any | null>(null);
 
   useEffect(() => {
     if (!firestore || !params.id) return;
@@ -153,6 +159,8 @@ export default function AudioCallPage() {
     } catch (e) {
       console.error("Error leaving call:", e);
     } finally {
+      setShowAssignment(false);
+      setServingStudent(null);
       router.replace('/');
     }
   };
@@ -205,91 +213,122 @@ export default function AudioCallPage() {
   }
 
   return (
-    <div className="relative flex h-[100dvh] w-full flex-col bg-background overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.12] dark:opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'url("https://i.postimg.cc/xC74tT1V/flat-arabic-pattern-background-79603-1826.avif")', backgroundSize: '400px' }} />
+    <QuranDataProvider>
+      <div className="relative flex h-[100dvh] w-full flex-col bg-background overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.12] dark:opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'url("https://i.postimg.cc/xC74tT1V/flat-arabic-pattern-background-79603-1826.avif")', backgroundSize: '400px' }} />
 
-      <ParticipantsAudio participants={participants} />
+        <ParticipantsAudio participants={participants} />
 
-      <div className="z-10 px-6 pt-16 pb-8 text-center">
-        <h1 className="text-3xl font-extrabold tracking-tight text-foreground font-headline">
-          Lydopkald
-        </h1>
-        <div className="mt-3 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-card/80 border border-border shadow-sm text-muted-foreground">
-          <Users className="h-4 w-4" />
-          <span className="text-sm font-bold">{uniqueParticipants.length} {uniqueParticipants.length === 1 ? 'deltager' : 'deltagere'}</span>
+        <div className="z-10 px-6 pt-16 pb-8 text-center">
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground font-headline">
+            Lydopkald
+          </h1>
+          <p className="text-muted-foreground mt-2 text-sm font-medium">
+            {callingState === CallingState.CONNECTED ? 'Forbundet' : 'Forbinder...'}
+          </p>
         </div>
-      </div>
 
-      <div className="z-10 flex-1 px-6 overflow-y-auto flex items-center justify-center">
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-10 gap-y-14 max-w-2xl w-full py-10">
-          {uniqueParticipants.map((p) => (
-            <ParticipantCard key={p.sessionId} participant={p} />
-          ))}
+        {/* Focus on the active participant(s) */}
+        <div className="flex-1 flex items-center justify-center p-6 min-h-0">
+          <div className="flex flex-wrap gap-8 items-center justify-center max-w-xl">
+            {uniqueParticipants.map((p) => (
+              <ParticipantCard key={p.sessionId} participant={p} />
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div className="z-20 px-6 pb-[max(2.5rem,env(safe-area-inset-bottom,2.5rem))] flex justify-center">
-        <div className="flex items-center gap-6 p-5 rounded-[40px] bg-card border border-border shadow-[0_25px_60px_rgba(0,0,0,0.12)]">
-          {profile?.role === 'teacher' && servingStudent && (
-            <Sheet open={showAssignment} onOpenChange={setShowAssignment}>
-              <SheetTrigger asChild>
-                <button
-                  className={cn(
-                    "grid h-16 w-16 place-items-center rounded-3xl transition-all active:scale-95 shadow-sm",
-                    showAssignment ? "bg-[#DEA93E] text-white" : "bg-muted text-foreground"
-                  )}
-                >
-                  <BookOpenText className="h-7 w-7" />
-                </button>
-              </SheetTrigger>
-              <SheetContent side="bottom" className="h-[90vh] rounded-t-[48px] border-none bg-background p-0 overflow-hidden">
-                <SheetHeader className="p-8 pb-0">
-                  <SheetTitle className="text-3xl font-display text-[#004D40] flex items-center gap-3">
-                    <BookOpenText className="h-8 w-8 text-[#DEA93E]" />
-                    Lektie & Bedømmelse
-                  </SheetTitle>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/30 -mt-1 ml-11">
-                    {student ? `Elev: ${student.name}` : 'Ingen elev fundet'}
-                  </p>
-                </SheetHeader>
-                <div className="h-full overflow-y-auto px-8 pt-8 pb-20">
-                  {student ? (
-                    <QueueAssignmentManager 
-                      studentId={student.userId} 
-                      studentName={student.name}
-                      onCycleComplete={() => {
-                        setShowAssignment(false);
-                        setServingStudent(null);
-                      }}
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-                      <p>Venter på at eleven deltager i opkaldet...</p>
-                    </div>
-                  )}
-                </div>
-              </SheetContent>
-            </Sheet>
-          )}
-
-          <button
-            onClick={toggleMic}
-            className={cn(
-              "grid h-16 w-16 place-items-center rounded-3xl transition-all active:scale-95 shadow-sm",
-              isMute ? "bg-red-50 text-red-500" : "bg-muted text-foreground"
+        {/* Audio Controls & Drawer Trigger */}
+        <div className="z-10 px-6 pb-12 pt-6">
+          <div className="mx-auto flex w-fit items-center gap-4 rounded-3xl bg-card border border-border p-4 shadow-2xl">
+            {profile?.role === 'teacher' && servingStudent && (
+              <Sheet open={showAssignment} onOpenChange={setShowAssignment}>
+                <SheetTrigger asChild>
+                  <button
+                    className={cn(
+                      "grid h-16 w-16 place-items-center rounded-3xl transition-all active:scale-95 shadow-sm",
+                      showAssignment ? "bg-[#DEA93E] text-white" : "bg-muted text-foreground"
+                    )}
+                  >
+                    <BookOpenText className="h-7 w-7" />
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="h-[90vh] rounded-t-[48px] border-none bg-background p-0 overflow-hidden">
+                  <SheetHeader className="p-8 pb-0">
+                    <SheetTitle className="text-3xl font-display text-[#004D40] flex items-center gap-3">
+                      <BookOpenText className="h-8 w-8 text-[#DEA93E]" />
+                      Lektie & Bedømmelse
+                    </SheetTitle>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[#004D40]/30 -mt-1 ml-11">
+                      {student ? `Elev: ${student.name}` : 'Ingen elev fundet'}
+                    </p>
+                  </SheetHeader>
+                  <div className="h-full overflow-y-auto px-8 pt-8 pb-20">
+                    {student ? (
+                      <QueueAssignmentManager 
+                        studentId={student.userId} 
+                        studentName={student.name}
+                        onCycleComplete={() => {
+                          setQuranPanelMode(null);
+                          setShowAssignment(false);
+                          setServingStudent(null);
+                        }}
+                        onOpenQuran={(mode) => setQuranPanelMode(mode)}
+                        externalResult={externalResult}
+                        onExternalResultConsumed={() => setExternalResult(null)}
+                        onAssignmentLoaded={(a) => setCurrentStudentAssignment(a)}
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+                        <p>Venter på at eleven deltager i opkaldet...</p>
+                      </div>
+                    )}
+                  </div>
+                </SheetContent>
+              </Sheet>
             )}
-          >
-            {isMute ? <MicOff className="h-7 w-7" /> : <Mic className="h-7 w-7" />}
-          </button>
 
-          <button
-            onClick={handleLeave}
-            className="grid h-16 w-16 place-items-center rounded-3xl bg-[#E24B4B] text-white shadow-lg shadow-red-500/20 active:scale-95 transition-all"
-          >
-            <PhoneOff className="h-7 w-7" />
-          </button>
+            <button
+              onClick={toggleMic}
+              className={cn(
+                "grid h-16 w-16 place-items-center rounded-3xl transition-all active:scale-95 shadow-sm",
+                isMute ? "bg-red-50 text-red-500" : "bg-muted text-foreground"
+              )}
+            >
+              {isMute ? <MicOff className="h-7 w-7" /> : <Mic className="h-7 w-7" />}
+            </button>
+
+            <button
+              onClick={handleLeave}
+              className="grid h-16 w-16 place-items-center rounded-3xl bg-[#E24B4B] text-white shadow-lg shadow-red-500/20 active:scale-95 transition-all"
+            >
+              <PhoneOff className="h-7 w-7" />
+            </button>
+          </div>
         </div>
+
+        {/* Quran Panel overlay — same React tree so virtual call audio stays alive */}
+        <AnimatePresence>
+          {quranPanelMode && (
+            <motion.div
+              key="teacher-quran-panel"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', stiffness: 350, damping: 35 }}
+              className="fixed inset-0 z-[9999] pointer-events-auto"
+            >
+              <TeacherQuranPanel
+                assignment={currentStudentAssignment}
+                initialMode={quranPanelMode}
+                onBack={() => setQuranPanelMode(null)}
+                onComplete={(result) => {
+                  setExternalResult(result);
+                }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </div>
+    </QuranDataProvider>
   );
 }

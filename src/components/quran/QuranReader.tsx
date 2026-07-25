@@ -84,7 +84,7 @@ function QuranReaderComponent({ initialPage, BackButton }: QuranReaderProps) {
 
   const [currentPageIndex, setCurrentPageIndex] = useState(initialPage - 1);
   const [visiblePages, setVisiblePages] = useState<number[]>(getVisiblePages(initialPage - 1));
-  const [isUiVisible, setIsUiVisible] = useState(true);
+  const [isUiVisible, setIsUiVisible] = useState(false);
 
   const currentPage = useMemo(() => currentPageIndex + 1, [currentPageIndex]);
 

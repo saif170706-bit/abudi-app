@@ -100,11 +100,11 @@ export default function QuranIndex({ onNavigate, BackButton }: QuranIndexProps) 
       </motion.div>
 
       <Tabs defaultValue="surah" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 h-16 bg-primary/5 p-2 rounded-[28px] border border-primary/5">
-          <TabsTrigger value="surah" className="rounded-2xl font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-lg active:scale-95 transition-all">
+        <TabsList className="grid w-full grid-cols-2 h-16 bg-primary/5 dark:bg-white/5 p-2 rounded-[28px] border border-primary/5 dark:border-white/10">
+          <TabsTrigger value="surah" className="rounded-2xl font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-lg active:scale-95 transition-all text-muted-foreground">
             {tGlobal('surah')}
           </TabsTrigger>
-          <TabsTrigger value="page" className="rounded-2xl font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-lg active:scale-95 transition-all">
+          <TabsTrigger value="page" className="rounded-2xl font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-lg active:scale-95 transition-all text-muted-foreground">
             {tGlobal('Side')}
           </TabsTrigger>
         </TabsList>
@@ -161,7 +161,7 @@ export default function QuranIndex({ onNavigate, BackButton }: QuranIndexProps) 
                   className="glass-card group cursor-pointer"
                 >
                   <div className="glass-card-inner !py-5 !px-6 flex items-center gap-5">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center font-display text-lg text-primary group-hover:bg-accent group-hover:text-white transition-all">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-primary/5 dark:bg-white/5 flex items-center justify-center font-display text-lg text-primary dark:text-white group-hover:bg-accent group-hover:text-white dark:group-hover:text-black transition-all">
                       {surah.number}
                     </div>
                     <div className="flex-grow">
@@ -204,9 +204,9 @@ export default function QuranIndex({ onNavigate, BackButton }: QuranIndexProps) 
                 value={pageNumberInput}
                 onChange={(e) => setPageNumberInput(e.target.value)}
                 placeholder="1 - 604"
-                className="h-20 text-center text-4xl font-display rounded-[32px] border-white focus:shadow-2xl bg-white/60 backdrop-blur-md transition-all"
+                className="h-20 text-center text-4xl font-display rounded-[32px] border-border focus:shadow-2xl bg-card text-foreground backdrop-blur-md transition-all"
               />
-              <Button type="submit" className="w-full h-20 rounded-[32px] text-lg font-black uppercase tracking-[0.2em] bg-primary text-white shadow-2xl active:scale-95 transition-all">
+              <Button type="submit" className="w-full h-20 rounded-[32px] text-lg font-black uppercase tracking-[0.2em] bg-primary text-primary-foreground shadow-2xl active:scale-95 transition-all">
                 {tGlobal('go')}
               </Button>
             </form>

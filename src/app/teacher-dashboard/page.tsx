@@ -306,7 +306,7 @@ function TeacherDashboard() {
                                 
                                 <motion.div className="mt-6 flex items-center gap-3 text-primary dark:text-white font-black text-[11px] uppercase tracking-widest">
                                     <span>{tGlobal('Åbn Kø')}</span>
-                                    <div className="h-8 w-8 rounded-full bg-primary dark:bg-white/10 flex items-center justify-center transition-transform shadow-lg shadow-[#004D40]/20 group-hover:translate-x-1">
+                                    <div className="h-8 w-8 rounded-full bg-primary dark:bg-white/10 flex items-center justify-center transition-transform shadow-lg shadow-primary/10 group-hover:translate-x-1">
                                         <ChevronRight className="h-4 w-4 text-white" />
                                     </div>
                                 </motion.div>
@@ -325,7 +325,7 @@ function TeacherDashboard() {
                   <SectionLabel>{tGlobal('Hurtige handlinger')}</SectionLabel>
                     <div className="grid grid-cols-2 gap-4">
                         {[
-                            { id: 'find-student', title: tGlobal('Find Elev'), icon: <Search className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />, desc: tGlobal('Søg studerende') },
+                            { id: 'find-student', title: tGlobal('Find Elev'), icon: <Search className="h-6 w-6 text-primary" />, desc: tGlobal('Søg studerende') },
                             { id: 'chat', title: tGlobal('Beskeder'), icon: <MessageSquare className="h-6 w-6 text-orange-600 dark:text-orange-400" />, desc: tGlobal('Chat med elever') },
                             { id: 'announcements', title: tGlobal('Opslag'), icon: <Bell className="h-6 w-6 text-blue-600 dark:text-blue-400" />, desc: tGlobal('Fælles opslag') },
                             { id: 'tilfoej-elev', title: tGlobal('Tilføj elev'), icon: <UserPlus className="h-6 w-6 text-violet-600 dark:text-violet-400" />, desc: tGlobal('Forhåndsgodkend ny elev') }

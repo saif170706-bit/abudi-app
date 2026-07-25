@@ -30,6 +30,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Switch } from '@/components/ui/switch';
 import QueueAssignmentManager from './QueueAssignmentManager';
+import TeacherQuranPanel from './TeacherQuranPanel';
 import TeacherFilterGroupManager from './TeacherFilterGroupManager';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -128,6 +129,11 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
     recipientId: string | null;
     type: 'video' | 'audio' | null;
   }>({ open: false, callId: null, recipientId: null, type: null });
+
+  // Quran panel state (overlay on top of assignment form, same React tree)
+  const [quranPanelMode, setQuranPanelMode] = useState<'hifz' | 'murajara' | null>(null);
+  const [externalResult, setExternalResult] = useState<any | null>(null);
+  const [currentStudentAssignment, setCurrentStudentAssignment] = useState<any | null>(null);
 
   const filteredQueue = useMemo(() => {
     if (!activeFilterId || !teacher?.savedFilters) return queue;
@@ -429,10 +435,41 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                 <QueueAssignmentManager 
                     studentId={servingStudent.id} 
                     studentName={servingStudent.name}
-                    onCycleComplete={() => setServingStudent(null)}
+                    onCycleComplete={() => {
+                      setQuranPanelMode(null);
+                      setCurrentStudentAssignment(null);
+                      setServingStudent(null);
+                    }}
+                    onOpenQuran={(mode) => setQuranPanelMode(mode)}
+                    externalResult={externalResult}
+                    onExternalResultConsumed={() => setExternalResult(null)}
+                    onAssignmentLoaded={(a) => setCurrentStudentAssignment(a)}
                 />
             </motion.div>
         </div>
+
+        {/* Quran Panel overlay — same React tree so virtual call audio stays alive */}
+        <AnimatePresence>
+          {quranPanelMode && (
+            <motion.div
+              key="teacher-quran-panel"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', stiffness: 350, damping: 35 }}
+              className="fixed inset-0 z-[9999] pointer-events-auto"
+            >
+              <TeacherQuranPanel
+                assignment={currentStudentAssignment}
+                initialMode={quranPanelMode}
+                onBack={() => setQuranPanelMode(null)}
+                onComplete={(result) => {
+                  setExternalResult(result);
+                }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </>
     );
   }
@@ -531,7 +568,7 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
 
 
                 <Button
-                  className="w-full h-18 text-xl font-display rounded-3xl bg-primary hover:bg-[#00332B] text-white shadow-2xl shadow-[#004D40]/20 active:scale-[0.98] transition-all"
+                  className="w-full h-18 text-xl font-display rounded-3xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xl shadow-primary/10 active:scale-[0.98] transition-all"
                   onClick={handleAvailability}
                   disabled={isButtonDisabled}
                 >
@@ -736,7 +773,7 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={() => callStudent(student)} 
-                                            className="h-10 px-5 rounded-xl bg-primary text-white font-bold text-[10px] uppercase tracking-[0.1em] shadow-lg shadow-[#004D40]/10 flex items-center gap-2"
+                                            className="h-10 px-5 rounded-xl bg-primary text-primary-foreground font-bold text-[10px] uppercase tracking-[0.1em] shadow-lg shadow-primary/10 flex items-center gap-2"
                                         >
                                             {isVirtual ? (
                                                 <><Phone className="h-3.5 w-3.5" />{t('ring')}</>
@@ -745,7 +782,7 @@ export default function TeacherDashboard({ BackButton }: TeacherDashboardProps) 
                                             )}
                                         </motion.button>
                                     ) : (
-                                        <div className="h-10 w-10 rounded-xl bg-white/20 border border-white flex items-center justify-center text-primary/20">
+                                        <div className="h-10 w-10 rounded-xl bg-card border border-border flex items-center justify-center text-muted-foreground/30">
                                             <Lock className="h-4 w-4" />
                                         </div>
                                     )}

@@ -411,59 +411,62 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
     return () => { unsubQueues(); unsubGP(); unsubGV(); };
   }, [firestore, user]);
 
+  const findMyQueue = useCallback(async () => {
+    if (!firestore || !user || !profile) return;
+    const gender = profile.gender === 'woman' ? 'woman' : 'man';
+    const genderKey = `${gender}StudentsById`;
+    
+    // 1. Check Global Queues
+    const gTypes = ['physical', 'virtual'] as const;
+    for (const type of gTypes) {
+      const gDoc = await getDoc(doc(firestore, 'globalQueues', type));
+      if (gDoc.exists()) {
+         const gMap = gDoc.data()[genderKey] || {};
+         const myData = gMap[user.uid];
+         if (myData) {
+            setUserQueue({
+              teacherId: myData.preferredTeacherId || null,
+              position: 1, 
+              queueLength: Object.keys(gMap).length,
+              type: type,
+              source: 'universal',
+              ticketNumber: myData.ticketNumber,
+              preferredTeacherName: myData.preferredTeacherName
+            });
+            setView('in_queue');
+            return;
+         }
+      }
+    }
+
+    // 2. Check Specific/Dedicated Queues
+    const qSnap = await getDocs(collection(firestore, 'queues'));
+    for (const qDoc of qSnap.docs) {
+      const data = qDoc.data();
+      if (data.studentsById && data.studentsById[user.uid]) {
+        const s = data.studentsById[user.uid];
+        setUserQueue({
+          teacherId: qDoc.id,
+          position: 1,
+          queueLength: Object.keys(data.studentsById).length,
+          type: s.type || 'physical',
+          source: 'dedicated',
+          preferredTeacherName: s.teacherName || '...'
+        });
+        setView('in_queue');
+        return;
+      }
+    }
+  }, [firestore, user, profile?.gender]);
+
+  const hasBootedRef = useRef(false);
+  
   // BOOT CHECK: Find which queue this student is already in (runs once on load)
   useEffect(() => {
-    if (!firestore || !user || userQueue || !profile) return;
-
-    const findMyQueue = async () => {
-      const gender = profile.gender === 'woman' ? 'woman' : 'man';
-      const genderKey = `${gender}StudentsById`;
-      
-      // 1. Check Global Queues
-      const gTypes = ['physical', 'virtual'] as const;
-      for (const type of gTypes) {
-        const gDoc = await getDoc(doc(firestore, 'globalQueues', type));
-        if (gDoc.exists()) {
-           const gMap = gDoc.data()[genderKey] || {};
-           const myData = gMap[user.uid];
-           if (myData) {
-              setUserQueue({
-                teacherId: myData.preferredTeacherId || null,
-                position: 1, 
-                queueLength: Object.keys(gMap).length,
-                type: type,
-                source: 'universal',
-                ticketNumber: myData.ticketNumber,
-                preferredTeacherName: myData.preferredTeacherName
-              });
-              setView('in_queue');
-              return;
-           }
-        }
-      }
-
-      // 2. Check Specific/Dedicated Queues
-      const qSnap = await getDocs(collection(firestore, 'queues'));
-      for (const qDoc of qSnap.docs) {
-        const data = qDoc.data();
-        if (data.studentsById && data.studentsById[user.uid]) {
-          const s = data.studentsById[user.uid];
-          setUserQueue({
-            teacherId: qDoc.id,
-            position: 1,
-            queueLength: Object.keys(data.studentsById).length,
-            type: s.type || 'physical',
-            source: 'dedicated',
-            preferredTeacherName: s.teacherName || '...'
-          });
-          setView('in_queue');
-          return;
-        }
-      }
-    };
-
+    if (!firestore || !user || !profile || hasBootedRef.current) return;
+    hasBootedRef.current = true;
     findMyQueue();
-  }, [firestore, user, profile?.gender]);
+  }, [firestore, user, profile, findMyQueue]);
 
   // This effect ALWAYS listens to BOTH the global queue AND the dedicated queue
   // so there is never a gap when students are redirected from dedicated -> global.
@@ -584,6 +587,7 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
 
   const handleJoinQueue = async (teacherId: string, type: 'physical' | 'virtual') => {
     if (!user || !firestore || !profile) return;
+    if (isJoining) return;
     triggerHaptic();
     if (userQueue) { toast({ variant: 'destructive', title: 'Allerede i kø' }); return; }
 
@@ -597,7 +601,11 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
     if (type === 'physical') {
       try {
         const pos = await new Promise<GeolocationPosition>((res, rej) =>
-          navigator.geolocation.getCurrentPosition(res, rej)
+          navigator.geolocation.getCurrentPosition(res, rej, {
+            enableHighAccuracy: true,
+            timeout: 8000,
+            maximumAge: 60000 // 1 minute
+          })
         );
         lat = pos.coords.latitude;
         lon = pos.coords.longitude;
@@ -659,6 +667,7 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
         toast({ variant: 'destructive', title: 'For langt væk', description: 'Du er ikke tæt nok på skolen.' });
       } else if (code === 'functions/already-exists') {
         toast({ variant: 'destructive', title: 'Allerede i kø' });
+        findMyQueue();
       } else {
         toast({ variant: 'destructive', title: 'Fejl ved tilmelding', description: err?.message });
       }
@@ -711,6 +720,7 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
   // Reset suppress flag whenever the student successfully joins a new queue
   const handleJoinGlobalQueue = async (type: 'physical' | 'virtual') => {
     if (!user || !firestore || !profile) return;
+    if (isJoining) return;
     triggerHaptic();
     if (userQueue) { toast({ variant: 'destructive', title: tGlobal('Allerede i kø') }); return; }
 
@@ -723,7 +733,11 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
     if (type === 'physical') {
       try {
         const pos = await new Promise<GeolocationPosition>((res, rej) =>
-          navigator.geolocation.getCurrentPosition(res, rej)
+          navigator.geolocation.getCurrentPosition(res, rej, {
+            enableHighAccuracy: true,
+            timeout: 8000,
+            maximumAge: 60000 // 1 minute
+          })
         );
         lat = pos.coords.latitude;
         lon = pos.coords.longitude;
@@ -775,6 +789,9 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
       const code = err?.code;
       if (code === 'functions/permission-denied') {
         toast({ variant: 'destructive', title: tGlobal('For langt væk') });
+      } else if (code === 'functions/already-exists') {
+        toast({ variant: 'destructive', title: tGlobal('Allerede i kø') });
+        findMyQueue();
       } else {
         toast({ variant: 'destructive', title: tGlobal('Fejl ved tilmelding'), description: err?.message });
       }
@@ -953,7 +970,7 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
   const renderTeacherList = (teachers: Teacher[], isV: boolean) => (
     <div className="min-h-screen pt-12 pb-32 px-6 w-full max-w-lg mx-auto space-y-10">
       <div className="flex items-center gap-4">
-        <motion.button whileTap={{ scale: 0.9 }} onClick={() => setView('landing')} className="h-14 w-14 rounded-2xl bg-white/80 backdrop-blur-md flex items-center justify-center shadow-lg border border-white transition-all">
+        <motion.button whileTap={{ scale: 0.9 }} onClick={() => setView('landing')} className="h-14 w-14 rounded-2xl bg-card dark:bg-white/10 backdrop-blur-md flex items-center justify-center shadow-lg border border-border transition-all">
           <ChevronRight className="h-6 w-6 text-primary rotate-180" />
         </motion.button>
         <div className="section-label">{tGlobal('Vælg Lærer')}</div>
@@ -978,7 +995,7 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
                <h3 className="text-white font-display text-xl leading-tight">{tGlobal('Hurtig Tilmelding')}</h3>
                <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest">{tGlobal('Find hurtigste')}</p>
             </div>
-            <div className="h-10 w-10 rounded-xl bg-white/10 text-white flex items-center justify-center backdrop-blur-md">
+            <div className="h-10 w-10 rounded-xl bg-white/10 text-foreground dark:text-white flex items-center justify-center backdrop-blur-md border border-white/20">
                {isJoining === 'fastest' ? <Loader2 className="h-5 w-5 animate-spin" /> : <ChevronRight className="h-5 w-5" />}
             </div>
          </div>
@@ -995,9 +1012,9 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
             className="glass-card group cursor-pointer shadow-sm"
           >
             <div className="glass-card-inner !py-6 !px-6 flex items-center gap-5">
-              <Avatar className="h-16 w-16 border-4 border-white shadow-xl">
+              <Avatar className="h-16 w-16 border-4 border-border dark:border-white/20 shadow-xl">
                 <AvatarImage src={t.photoURL || ''} className="object-cover" />
-                <AvatarFallback className="bg-primary/5 font-display text-xl text-primary">{getInitials(t.displayName)}</AvatarFallback>
+                <AvatarFallback className="bg-primary/10 dark:bg-white/10 font-display text-xl text-primary dark:text-white">{getInitials(t.displayName)}</AvatarFallback>
               </Avatar>
               <div className="flex-grow">
                 <h3 className="font-bold text-lg text-primary">{t.displayName}</h3>
@@ -1012,7 +1029,7 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
                   </div>
                 </div>
               </div>
-              <div className="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-all">
+              <div className="h-12 w-12 rounded-2xl bg-foreground text-background flex items-center justify-center shadow-lg group-hover:scale-110 transition-all">
                 {isJoining === t.id ? <Loader2 className="h-5 w-5 animate-spin" /> : <ChevronRight className="h-5 w-5" />}
               </div>
             </div>
@@ -1028,7 +1045,7 @@ export default function HomeworkReadingPage({ BackButton }: HomeworkReadingPageP
   return (
     <div className="min-h-screen pt-12 pb-32 px-6 w-full max-w-lg mx-auto space-y-12">
       <div className="flex items-center gap-4">
-        <motion.button whileTap={{ scale: 0.9 }} onClick={() => setParentView('overview')} className="h-14 w-14 rounded-2xl bg-white/80 backdrop-blur-md flex items-center justify-center shadow-lg border border-white cursor-pointer">
+        <motion.button whileTap={{ scale: 0.9 }} onClick={() => setParentView('overview')} className="h-14 w-14 rounded-2xl bg-card dark:bg-white/10 backdrop-blur-md flex items-center justify-center shadow-lg border border-border cursor-pointer">
           <ChevronRight className="h-6 w-6 text-primary rotate-180" />
         </motion.button>
         <div>

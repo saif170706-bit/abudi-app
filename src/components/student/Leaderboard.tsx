@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, ChevronRight, Crown, Medal, TrendingUp, Calendar, Award, User } from 'lucide-react';
+import { Trophy, ChevronRight, Crown, Medal, TrendingUp, Calendar, Award, User, Info } from 'lucide-react';
 import { useFirebase, useUser } from '@/firebase';
 import { collection, query, limit, getDocs, where, orderBy, doc, getDoc, getCountFromServer } from 'firebase/firestore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getInitials, cn } from '@/lib/utils';
 import IslamicDivider from '@/components/ui/IslamicDivider';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
 import useSWR from 'swr';
 import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
 
@@ -62,16 +64,16 @@ function Podium({ top3, currentUserId, filter }: { top3: LeaderboardData[]; curr
                 )}
                 <Avatar className={cn(
                   "border-4 shadow-xl",
-                  isFirst ? "h-20 w-20 border-accent" : "h-14 w-14 border-white",
+                  isFirst ? "h-20 w-20 border-accent" : "h-14 w-14 border-background",
                   isMe && "ring-2 ring-primary ring-offset-2"
                 )}>
                   <AvatarImage src={entry.photoURL || undefined} className="object-cover" />
-                  <AvatarFallback className="bg-primary text-white font-black">
+                  <AvatarFallback className="bg-primary text-primary-foreground font-black">
                     {getInitials(entry.displayName)}
                   </AvatarFallback>
                 </Avatar>
                 <div 
-                  className="absolute -bottom-2 left-1/2 -translate-x-1/2 h-6 w-6 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-[10px] font-black text-white"
+                  className="absolute -bottom-2 left-1/2 -translate-x-1/2 h-6 w-6 rounded-full border-2 border-background shadow-lg flex items-center justify-center text-[10px] font-black text-white"
                   style={{ backgroundColor: MEDAL_COLORS[rank-1] }}
                 >
                   {rank}
@@ -85,7 +87,7 @@ function Podium({ top3, currentUserId, filter }: { top3: LeaderboardData[]; curr
              <div className={cn(
                "w-full rounded-t-2xl flex flex-col items-center justify-center p-2 relative overflow-hidden",
                heights[i],
-               isFirst ? "bg-primary text-white" : "bg-white text-primary border-x border-t border-primary/5 shadow-sm"
+               isFirst ? "bg-primary text-primary-foreground" : "bg-card text-primary border-x border-t border-border shadow-sm"
              )}>
                 {/* Pattern Overlay for 1st place */}
                 {isFirst && (
@@ -138,16 +140,19 @@ export default function Leaderboard({ onBack }: { onBack: () => void }) {
   // One-time fetch with SWR 5-minute cache.
   // Leaderboard scores only change when a teacher grades a session (via Cloud Function),
   // so real-time listeners are unnecessary and very expensive at scale.
+  const [limitCount, setLimitCount] = useState<number | 'all'>(10);
   const scoreKey = filter === 'monthly' ? 'monthlyScore' : filter === 'allTime' ? 'allTimeScore' : 'streakPoints';
 
-  const { data: top100 = [], isLoading: loading } = useSWR(
-    firestore ? `leaderboard_top100_${filter}` : null,
+  const { data: topUsers = [], isLoading: loading } = useSWR(
+    firestore ? `leaderboard_${limitCount}_${filter}` : null,
     async () => {
-      const q = query(
+      let q = query(
         collection(firestore!, 'leaderboard'),
-        orderBy(scoreKey, 'desc'),
-        limit(100)
+        orderBy(scoreKey, 'desc')
       );
+      if (limitCount !== 'all') {
+        q = query(q, limit(limitCount));
+      }
       const snap = await getDocs(q);
       return snap.docs.map(d => {
         const s = d.data();
@@ -167,6 +172,7 @@ export default function Leaderboard({ onBack }: { onBack: () => void }) {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       dedupingInterval: 5 * 60 * 1000, // 5-minute cache per filter
+      keepPreviousData: true,
     }
   );
 
@@ -181,29 +187,29 @@ export default function Leaderboard({ onBack }: { onBack: () => void }) {
     }).catch(() => setMyPreciseRank(null));
   }, [firestore, myLeaderboardData, scoreKey]);
 
-  const sortedData = top100;
+  const sortedData = topUsers;
   const top3 = sortedData.slice(0, 3);
   const rest = sortedData.slice(3);
   
-  const userIndexInTop100 = sortedData.findIndex(d => d.id === user?.uid);
+  const userIndexInTopUsers = sortedData.findIndex(d => d.id === user?.uid);
   // Always prefer myPreciseRank (fresh aggregation query, 0 doc reads) over the
   // cached list position. This ensures the rank number is always correct even
-  // if the top-100 list visual order is up to 5 minutes stale.
-  const myRank = myPreciseRank || (userIndexInTop100 !== -1 ? userIndexInTop100 + 1 : 0);
+  // if the list visual order is up to 5 minutes stale.
+  const myRank = myPreciseRank || (userIndexInTopUsers !== -1 ? userIndexInTopUsers + 1 : 0);
   const me = myLeaderboardData;
 
   return (
     <div className="flex-1 w-full max-w-lg mx-auto pb-40 relative">
       {/* Dynamic Background */}
-      <div className="fixed inset-0 bg-[#efebe1] -z-10" />
+      <div className="fixed inset-0 bg-background -z-10" />
       
       {/* Header */}
-      <div className="sticky top-0 z-[40] bg-[#efebe1]/80 backdrop-blur-xl border-b border-primary/5 px-6 pt-12 pb-4">
+      <div className="sticky top-0 z-[40] bg-background/80 backdrop-blur-xl border-b border-border px-6 pt-12 pb-4">
         <div className="flex items-center gap-4 mb-6">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={onBack}
-            className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shadow-sm border border-primary/10"
+            className="h-10 w-10 rounded-xl bg-card flex items-center justify-center shadow-sm border border-border"
           >
             <ChevronRight className="h-5 w-5 text-primary rotate-180" />
           </motion.button>
@@ -229,7 +235,7 @@ export default function Leaderboard({ onBack }: { onBack: () => void }) {
               className={cn(
                 "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
                 filter === f.id 
-                  ? "bg-white text-primary shadow-sm" 
+                  ? "bg-card text-primary shadow-sm" 
                   : "text-primary/40 hover:text-primary/60"
               )}
             >
@@ -237,6 +243,38 @@ export default function Leaderboard({ onBack }: { onBack: () => void }) {
               {f.label}
             </button>
           ))}
+        </div>
+
+        {/* Info Icon & Popover */}
+        <div className="flex justify-center mt-4">
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-primary/40 hover:text-primary/60 transition-colors">
+                <Info className="h-4 w-4" />
+                <span>{tGlobal('Hvordan fungerer point?')}</span>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[85vw] max-w-[320px] p-5 text-sm rounded-[24px] shadow-2xl border-border bg-card">
+              <h4 className="font-display text-base text-primary mb-3">
+                {filter === 'streak' ? tGlobal('Streak Points') : filter === 'monthly' ? tGlobal('Måneds Score') : tGlobal('Top-liste Score')}
+              </h4>
+              {filter === 'streak' && (
+                <p className="text-muted-foreground text-xs leading-relaxed">
+                  {tGlobal('Dine Streak-points bygger på din vedholdenhed uge for uge. Du får 1 point for første lektion på ugen, 1.75 for to, og maksimalt 2 point for 3 eller flere lektioner. Hvis du misser en hel uge, nulstilles din streak!')}
+                </p>
+              )}
+              {filter === 'monthly' && (
+                <p className="text-muted-foreground text-xs leading-relaxed">
+                  {tGlobal('Din Måneds-score (0-100) beregnes ud fra dine lektioner i denne måned. 50% baseres på dine karakterer (Kvalitet), 40% på dit ugentlige fremmøde (Stabilitet), og 10% på om du følger dit mål for antal sider (Plan-disciplin).')}
+                </p>
+              )}
+              {filter === 'allTime' && (
+                <p className="text-muted-foreground text-xs leading-relaxed">
+                  {tGlobal('Din Top-score (0-100) beregnes ud fra alle dine lektioner nogensinde. Ligesom måneds-scoren vægter kvaliteten af dine karakterer 50%, dit stabile fremmøde 40%, og din evne til at følge din læseplan 10%.')}
+                </p>
+              )}
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
@@ -273,7 +311,7 @@ export default function Leaderboard({ onBack }: { onBack: () => void }) {
                   >
                     <div className="glass-card-inner !p-3 flex items-center gap-3">
                        <span className="w-6 text-[10px] font-black text-primary/20 text-center">{rank}</span>
-                       <Avatar className="h-10 w-10 border border-white shadow-sm">
+                       <Avatar className="h-10 w-10 border border-border shadow-sm">
                           <AvatarImage src={entry.photoURL || undefined} className="object-cover" />
                           <AvatarFallback className="bg-primary/5 text-primary font-black text-xs">
                              {getInitials(entry.displayName)}
@@ -282,7 +320,7 @@ export default function Leaderboard({ onBack }: { onBack: () => void }) {
                        <div className="flex-1 min-w-0">
                           <h4 className="text-sm font-black text-primary truncate">
                             {entry.displayName}
-                            {isMe && <span className="ml-2 text-[8px] bg-primary text-white px-1 rounded">{tGlobal('DIG')}</span>}
+                             {isMe && <span className="ml-2 text-[8px] bg-primary text-primary-foreground px-1 rounded">{tGlobal('DIG')}</span>}
                           </h4>
                           <p className="text-[9px] font-bold text-primary/30 uppercase tracking-widest">
                             {entry.plan} {tGlobal('års plan')} • {entry.frequency} {tGlobal('dage/uge')}
@@ -298,6 +336,25 @@ export default function Leaderboard({ onBack }: { onBack: () => void }) {
                   </motion.div>
                 );
               })}
+              
+              {limitCount !== 'all' && topUsers.length === limitCount && (
+                <div className="flex flex-col gap-3 pt-6">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setLimitCount(prev => typeof prev === 'number' ? prev + 10 : prev)}
+                    className="w-full h-14 rounded-2xl font-bold border-border shadow-sm text-foreground hover:bg-muted"
+                  >
+                    {tGlobal('Vis 10 mere')}
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => setLimitCount('all')}
+                    className="w-full h-14 rounded-2xl font-bold text-muted-foreground hover:text-foreground"
+                  >
+                    {tGlobal('Vis alle')}
+                  </Button>
+                </div>
+              )}
             </div>
           </>
         )}
@@ -309,7 +366,7 @@ export default function Leaderboard({ onBack }: { onBack: () => void }) {
           <motion.div 
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="bg-primary text-white rounded-3xl p-4 shadow-2xl flex items-center gap-3 border border-white/20"
+            className="bg-primary text-primary-foreground rounded-3xl p-4 shadow-2xl flex items-center gap-3 border border-border"
           >
              <div className="h-10 w-10 rounded-2xl bg-white/10 flex items-center justify-center font-display text-lg text-accent">
                 #{myRank}

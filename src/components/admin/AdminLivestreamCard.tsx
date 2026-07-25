@@ -139,7 +139,7 @@ export default function AdminLivestreamCard({ livestream, onEdit }: Props) {
         ) : (
           <Button 
             onClick={() => setIsBroadcastOpen(true)}
-            className="w-full h-12 rounded-2xl font-bold gap-3 bg-primary hover:bg-primary/90 text-white shadow-lg shadow-green-500/10"
+            className="w-full h-12 rounded-2xl font-bold gap-3 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-green-500/10"
           >
             <Video className="h-5 w-5" />
             Start Møde

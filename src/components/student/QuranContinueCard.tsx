@@ -64,7 +64,7 @@ export default function QuranContinueCard() {
               </p>
             </div>
             <div className="h-9 w-9 rounded-full bg-primary flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-              <ChevronRight className="h-4 w-4 text-white" />
+              <ChevronRight className="h-4 w-4 text-primary-foreground" />
             </div>
           </div>
         </motion.div>

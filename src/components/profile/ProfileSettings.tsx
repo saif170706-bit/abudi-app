@@ -230,11 +230,11 @@ export default function ProfileSettings() {
         className="flex flex-col items-center text-center relative"
       >
         <div className="relative group">
-           <Avatar className="h-32 w-32 border-8 border-white shadow-2xl mb-6 scale-hover transition-transform duration-500">
+           <Avatar className="h-32 w-32 border-8 border-border dark:border-white/20 shadow-2xl mb-6 scale-hover transition-transform duration-500">
             {profile.photoURL && <AvatarImage src={profile.photoURL} className="object-cover" />}
-            <AvatarFallback className="text-3xl bg-primary/5 text-primary font-display">{getInitials(profile.displayName)}</AvatarFallback>
+            <AvatarFallback className="text-3xl bg-primary/10 text-primary dark:text-white font-display">{getInitials(profile.displayName)}</AvatarFallback>
           </Avatar>
-          <div className="absolute -bottom-2 -right-2 bg-accent text-white p-2 rounded-2xl shadow-xl border-4 border-white">
+          <div className="absolute -bottom-2 -right-2 bg-accent text-accent-foreground p-2 rounded-2xl shadow-xl border-4 border-background">
             <User className="h-5 w-5" />
           </div>
         </div>
@@ -242,7 +242,7 @@ export default function ProfileSettings() {
         <div className="flex flex-col items-center gap-3">
           <p className="text-sm font-bold text-primary/40 tracking-wider font-jakarta">{profile.email}</p>
           {profile.role === 'student' && profile.studentNumber && (
-            <div className="px-4 py-1.5 bg-primary text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">{tGlobal('Elev')} #{profile.studentNumber}</div>
+            <div className="px-4 py-1.5 bg-primary text-primary-foreground rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">{tGlobal('Elev')} #{profile.studentNumber}</div>
           )}
         </div>
       </motion.div>
@@ -327,18 +327,24 @@ export default function ProfileSettings() {
             <div className="glass-card">
               <form onSubmit={handleProfileUpdate} className="glass-card-inner space-y-6">
                   {profile.role === 'student' && (
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Elevnummer')}</Label>
-                      <Input value={profile.studentNumber || tGlobal('Ej tildelt')} disabled className="h-14 rounded-2xl border-white/40 bg-white/40 text-primary/40 font-black px-6" />
-                    </div>
+                    <>
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Elevnummer')}</Label>
+                        <Input value={profile.studentNumber || tGlobal('Ej tildelt')} disabled className="h-14 rounded-2xl border-border bg-muted text-muted-foreground font-black px-6" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Din Hifz Plan')}</Label>
+                        <Input value={`${profile.hifzPlan || '3'} ${tGlobal('år')}`} disabled className="h-14 rounded-2xl border-border bg-muted text-muted-foreground font-black px-6" />
+                      </div>
+                    </>
                   )}
                   <div className="space-y-2">
                     <Label htmlFor="edit-name" className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Fulde Navn')}</Label>
-                    <Input id="edit-name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} disabled={!isAdmin} className={cn("h-14 rounded-2xl border-white/40 px-6 font-bold text-primary", !isAdmin ? "bg-white/20" : "bg-white/60 focus:bg-white")} />
+                    <Input id="edit-name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} disabled={!isAdmin} className={cn("h-14 rounded-2xl border-border px-6 font-bold", !isAdmin ? "bg-muted text-muted-foreground" : "bg-card text-foreground focus:ring-2")} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="edit-phone" className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Telefonnummer')}</Label>
-                    <Input id="edit-phone" type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} disabled={!isAdmin} className={cn("h-14 rounded-2xl border-white/40 px-6 font-bold text-primary", !isAdmin ? "bg-white/20" : "bg-white/60 focus:bg-white")} />
+                    <Input id="edit-phone" type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} disabled={!isAdmin} className={cn("h-14 rounded-2xl border-border px-6 font-bold", !isAdmin ? "bg-muted text-muted-foreground" : "bg-card text-foreground focus:ring-2")} />
                   </div>
                   {isAdmin && (
                     <Button type="submit" disabled={loadingProfile} className="w-full h-16 rounded-[28px] font-black uppercase text-[11px] tracking-[0.2em] bg-primary text-white shadow-2xl mt-4">
@@ -355,11 +361,11 @@ export default function ProfileSettings() {
               <form onSubmit={handlePasswordUpdate} className="glass-card-inner space-y-6">
                   <div className="space-y-2">
                     <Label htmlFor="pwd-current" className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Nuværende adgangskode')}</Label>
-                    <Input id="pwd-current" type="password" autoComplete="current-password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="h-14 rounded-2xl border-white/40 bg-white/40 px-6" />
+                    <Input id="pwd-current" type="password" autoComplete="current-password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="h-14 rounded-2xl border-border bg-card px-6" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="pwd-new" className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Ny adgangskode')}</Label>
-                    <Input id="pwd-new" type="password" autoComplete="new-password" placeholder={tGlobal('Mindst 6 tegn')} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="h-14 rounded-2xl border-white/40 bg-white/40 px-6" />
+                    <Input id="pwd-new" type="password" autoComplete="new-password" placeholder={tGlobal('Mindst 6 tegn')} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="h-14 rounded-2xl border-border bg-card px-6" />
                   </div>
                   <Button type="submit" variant="outline" disabled={loadingPassword} className="w-full h-16 rounded-[28px] font-black uppercase text-[11px] tracking-[0.2em] border-primary/20 text-primary">
                     {loadingPassword && <Loader2 className="mr-3 h-5 w-5 animate-spin" />}
@@ -388,7 +394,7 @@ export default function ProfileSettings() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="contact-message" className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-2">{tGlobal('Besked')}</Label>
-                  <Textarea id="contact-message" value={contactMessage} onChange={(e) => setContactMessage(e.target.value)} required placeholder={tGlobal('Skriv din besked her...')} className="min-h-[250px] rounded-3xl border-white/40 bg-white/40 p-6 text-base font-medium resize-none shadow-inner" />
+                  <Textarea id="contact-message" value={contactMessage} onChange={(e) => setContactMessage(e.target.value)} required placeholder={tGlobal('Skriv din besked her...')} className="min-h-[250px] rounded-3xl border-border bg-card p-6 text-base font-medium resize-none shadow-inner" />
                 </div>
               </div>
             </div>
@@ -403,7 +409,7 @@ export default function ProfileSettings() {
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <DialogPortal>
           <DialogOverlay className="z-[300]" />
-          <DialogContent className="z-[300] rounded-[40px] sm:max-w-md bg-white border-none shadow-2xl">
+          <DialogContent className="z-[300] rounded-[40px] sm:max-w-md bg-card border-border shadow-2xl">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-3 text-red-600 font-display text-2xl">
                 <AlertTriangle className="h-6 w-6" />

@@ -33,7 +33,7 @@ function LeaderboardPreviewSkeleton() {
           <div className="flex items-center gap-4">
             <div className="flex -space-x-3">
               {[0, 1, 2].map(i => (
-                <Skeleton key={i} className="h-10 w-10 rounded-full border-2 border-white" />
+                <Skeleton key={i} className="h-10 w-10 rounded-full border-2 border-background" />
               ))}
             </div>
             <div className="space-y-1.5">
@@ -123,12 +123,12 @@ export default function LeaderboardPreview({
                 <Avatar
                   key={s.id}
                   className={cn(
-                    'h-10 w-10 border-2 border-white shadow-lg',
+                    'h-10 w-10 border-2 border-background shadow-lg',
                     i === 0 ? 'z-30' : i === 1 ? 'z-20' : 'z-10'
                   )}
                 >
                   <AvatarImage src={s.photoURL || undefined} className="object-cover" />
-                  <AvatarFallback className="bg-primary text-white text-[10px]">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-[10px]">
                     {getInitials(s.displayName)}
                   </AvatarFallback>
                 </Avatar>

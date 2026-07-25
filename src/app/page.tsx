@@ -147,7 +147,7 @@ export default function LoginPage() {
         </div>
 
         <CardHeader className="text-center pt-12 pb-4 px-6 sm:px-10">
-          <div className="relative h-20 w-20 mx-auto mb-4 rounded-[26px] overflow-hidden shadow-lg border-4 border-white">
+          <div className="relative h-20 w-20 mx-auto mb-4 rounded-[26px] overflow-hidden shadow-lg border-4 border-white dark:border-transparent">
             <Image 
               src={LOGO_URL} 
               alt="Ibn Amer Logo" 

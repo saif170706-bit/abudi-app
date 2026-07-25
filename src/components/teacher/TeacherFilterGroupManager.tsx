@@ -146,17 +146,17 @@ export default function TeacherFilterGroupManager({
                     className={cn(
                         "h-12 w-12 rounded-2xl flex items-center justify-center transition-all border shadow-sm relative",
                         activeFilterId 
-                            ? "bg-primary text-white shadow-xl shadow-primary/20 scale-105"
-                            : "bg-card/60 dark:bg-card/20 text-primary dark:text-emerald-400 border-border"
+                            ? "bg-primary text-primary-foreground shadow-xl shadow-primary/20 scale-105"
+                            : "bg-card/60 dark:bg-card/20 text-primary border-border"
                     )}
                 >
                     <Filter className="h-5 w-5" />
                     {activeFilterId && (
-                        <div className="absolute -top-1 -right-1 h-4 w-4 bg-emerald-500 rounded-full border-2 border-white shadow-sm" />
+                        <div className="absolute -top-1 -right-1 h-4 w-4 bg-emerald-500 rounded-full border-2 border-card shadow-sm" />
                     )}
                 </motion.button>
             </DialogTrigger>
-            <DialogContent className="max-w-md bg-[#FDF8F3] border-none rounded-[40px] shadow-2xl overflow-hidden p-0">
+            <DialogContent className="max-w-md bg-background border border-border rounded-[40px] shadow-2xl overflow-hidden p-0">
                 <div className="p-8">
                     <DialogHeader className="mb-6">
                         <DialogTitle className="text-3xl font-display text-primary">Elevgrupper</DialogTitle>
@@ -171,7 +171,7 @@ export default function TeacherFilterGroupManager({
                                         onClick={() => { onFilterChange(null); setIsDialogOpen(false); }}
                                         className={cn(
                                             "w-full flex items-center justify-between p-5 rounded-[24px] transition-all border text-left",
-                                            !activeFilterId ? "bg-primary text-white border-primary shadow-xl" : "bg-white border-black/5 text-primary"
+                                            !activeFilterId ? "bg-primary text-primary-foreground border-primary shadow-xl" : "bg-card border border-border text-primary"
                                         )}
                                     >
                                         <div className="flex items-center gap-4">
@@ -187,7 +187,7 @@ export default function TeacherFilterGroupManager({
                                             onClick={() => { onFilterChange(f.id); setIsDialogOpen(false); }}
                                             className={cn(
                                                 "w-full flex items-center justify-between p-5 rounded-[24px] cursor-pointer transition-all border text-left",
-                                                activeFilterId === f.id ? "bg-accent text-white border-accent shadow-xl" : "bg-white border-black/5 text-primary"
+                                                activeFilterId === f.id ? "bg-accent text-accent-foreground border-accent shadow-xl" : "bg-card border border-border text-primary"
                                             )}
                                         >
                                             <div className="flex items-center gap-4 min-w-0">
@@ -226,7 +226,7 @@ export default function TeacherFilterGroupManager({
                                             <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Søg..." className="h-14 rounded-2xl bg-card border-border shadow-inner pl-11 font-bold" />
                                         </div>
                                     </div>
-                                    <div className="rounded-3xl border border-black/5 bg-white overflow-hidden shadow-sm">
+                                    <div className="rounded-3xl border border-border bg-card overflow-hidden shadow-sm">
                                         <ScrollArea className="h-64 p-2">
                                             {isLoadingStudents ? (
                                                 <div className="flex flex-col items-center justify-center h-40 text-primary/30 gap-3">
@@ -268,7 +268,7 @@ export default function TeacherFilterGroupManager({
                                 
                                 <div className="flex gap-3">
                                     <Button variant="ghost" className="flex-1 h-14 rounded-2xl font-bold text-primary/40" onClick={() => setEditingGroup(null)}>Annuller</Button>
-                                    <Button className="flex-1 h-14 rounded-2xl bg-primary hover:bg-[#00332B] text-white font-bold" disabled={!tempName.trim()} onClick={handleSaveGroup}>Gem Gruppe</Button>
+                                    <Button className="flex-1 h-14 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold" disabled={!tempName.trim()} onClick={handleSaveGroup}>Gem Gruppe</Button>
                                 </div>
                             </div>
                         )}
@@ -287,7 +287,7 @@ export default function TeacherFilterGroupManager({
                 value={activeFilterId || 'all'} 
                 onValueChange={(v) => onFilterChange(v === 'all' ? null : v)}
             >
-                <SelectTrigger className="flex-1 h-16 rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner text-lg px-6 font-display text-primary dark:text-emerald-400">
+                <SelectTrigger className="flex-1 h-16 rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner text-lg px-6 font-display text-primary">
                     <SelectValue placeholder="Vælg gruppe..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -300,11 +300,11 @@ export default function TeacherFilterGroupManager({
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
-                    <Button onClick={handleOpenDialog} variant="outline" className="h-16 w-16 rounded-2xl border-border bg-card/60 dark:bg-card/20 text-primary dark:text-emerald-400 shadow-inner">
+                    <Button onClick={handleOpenDialog} variant="outline" className="h-16 w-16 rounded-2xl border-border bg-card/60 dark:bg-card/20 text-primary shadow-inner">
                         <Edit className="h-5 w-5 text-primary" />
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md bg-[#FDF8F3] border-primary/10 rounded-[32px] overflow-hidden">
+                <DialogContent className="max-w-md bg-background border border-border rounded-[32px] overflow-hidden">
                     <DialogHeader>
                         <DialogTitle className="text-2xl font-display text-primary">Håndter Elevgrupper</DialogTitle>
                     </DialogHeader>
@@ -317,7 +317,7 @@ export default function TeacherFilterGroupManager({
                                         <p className="text-sm text-gray-500 italic text-center py-4">Ingen gemte grupper endnu.</p>
                                     ) : (
                                         savedFilters.map(f => (
-                                            <div key={f.id} className="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-black/5">
+                                            <div key={f.id} className="flex items-center justify-between bg-card p-4 rounded-2xl shadow-sm border border-border">
                                                 <div>
                                                     <p className="font-bold text-primary">{f.name}</p>
                                                     <p className="text-xs font-bold uppercase tracking-widest text-accent">{f.studentIds.length} elever</p>
@@ -343,7 +343,7 @@ export default function TeacherFilterGroupManager({
                                             value={tempName} 
                                             onChange={(e) => setTempName(e.target.value)} 
                                             placeholder="F.eks. Hold 1" 
-                                            className="h-12 rounded-xl bg-white"
+                                            className="h-12 rounded-xl bg-card border-border"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -352,10 +352,10 @@ export default function TeacherFilterGroupManager({
                                             value={searchQuery} 
                                             onChange={(e) => setSearchQuery(e.target.value)} 
                                             placeholder="Søg..." 
-                                            className="h-12 rounded-xl bg-white"
+                                            className="h-12 rounded-xl bg-card border-border"
                                         />
                                     </div>
-                                    <ScrollArea className="h-64 rounded-xl border bg-white p-2">
+                                    <ScrollArea className="h-64 rounded-xl border border-border bg-card p-2">
                                         {isLoadingStudents ? (
                                             <div className="flex justify-center items-center h-full text-primary/30"><Loader2 className="animate-spin h-6 w-6"/></div>
                                         ) : filteredStudents.length === 0 ? (
@@ -378,7 +378,7 @@ export default function TeacherFilterGroupManager({
                                 
                                 <div className="flex gap-3">
                                     <Button variant="outline" className="flex-1 h-12 rounded-xl" onClick={() => setEditingGroup(null)}>Annuller</Button>
-                                    <Button className="flex-1 h-12 rounded-xl bg-primary hover:bg-[#00332B] text-white" disabled={!tempName.trim()} onClick={handleSaveGroup}>Gem Gruppe</Button>
+                                    <Button className="flex-1 h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground" disabled={!tempName.trim()} onClick={handleSaveGroup}>Gem Gruppe</Button>
                                 </div>
                             </div>
                         )}

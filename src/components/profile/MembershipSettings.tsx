@@ -83,7 +83,7 @@ export default function MembershipSettings({}: MembershipSettingsProps) {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-[70vh]">
-        <Loader2 className="h-10 w-10 animate-spin text-emerald-500" />
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
     );
   }
@@ -103,7 +103,7 @@ export default function MembershipSettings({}: MembershipSettingsProps) {
           <ArrowLeft className="mr-2 h-4 w-4" />
           {t('back')}
         </Button>
-        <h1 className="text-3xl md:text-4xl font-bold font-headline bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent pb-1">
+        <h1 className="text-3xl md:text-4xl font-bold font-headline bg-gradient-to-r from-emerald-500 to-teal-500 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent pb-1">
           {t('manageMembership')}
         </h1>
         <p className="text-lg text-muted-foreground mt-2 max-w-xl leading-relaxed">
@@ -119,7 +119,7 @@ export default function MembershipSettings({}: MembershipSettingsProps) {
           transition={{ duration: 0.4, delay: 0.1 }}
         >
           <Card className="border-0 shadow-lg bg-card/40 backdrop-blur-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-32 bg-emerald-500/10 rounded-full blur-[100px] -mr-16 -mt-16 pointer-events-none" />
+            <div className="absolute top-0 right-0 p-32 bg-emerald-500/10 dark:bg-accent/10 rounded-full blur-[100px] -mr-16 -mt-16 pointer-events-none" />
             <CardHeader className="relative z-10 pb-4">
               <div className="flex justify-between items-start">
                 <div>

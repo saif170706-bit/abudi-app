@@ -103,8 +103,8 @@ export default function QuranProgressMap({
                 className={cn(
                   'px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all',
                   mapView === tab.key
-                    ? 'bg-primary text-white shadow-lg'
-                    : 'text-primary/40 dark:text-white/30'
+                    ? 'bg-foreground text-background shadow-lg'
+                    : 'text-primary/40 dark:text-white/30 hover:text-primary/60 dark:hover:text-white/50'
                 )}
               >
                 {tab.label}
@@ -136,7 +136,7 @@ export default function QuranProgressMap({
                         className={cn(
                           'aspect-square rounded-[2px] transition-all duration-500',
                           isCompleted
-                            ? 'bg-gradient-to-br from-primary to-[#00695C] shadow-sm ring-1 ring-white/10'
+                            ? 'bg-gradient-to-br from-primary to-[#00695C] dark:to-zinc-600 shadow-sm ring-1 ring-white/10'
                             : 'bg-primary/5 dark:bg-white/5 border border-primary/5 dark:border-white/5'
                         )}
                         title={`${tGlobal('Side')} ${pageNum}`}
@@ -147,7 +147,7 @@ export default function QuranProgressMap({
 
                 <div className="flex items-center gap-8 pt-4 border-t border-primary/5 dark:border-white/5">
                   <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-sm bg-gradient-to-br from-primary to-[#00695C]" />
+                    <div className="h-3 w-3 rounded-sm bg-gradient-to-br from-primary to-[#00695C] dark:to-zinc-600" />
                     <span className="text-[10px] uppercase font-black tracking-widest text-primary/40 dark:text-white/30">{tGlobal('Færdig')}</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -205,7 +205,7 @@ export default function QuranProgressMap({
                             'h-full rounded-full',
                             isDone
                               ? 'bg-gradient-to-r from-accent to-[#F5C842]'
-                              : 'bg-gradient-to-r from-primary to-[#00695C]'
+                              : 'bg-gradient-to-r from-primary to-[#00695C] dark:to-zinc-600'
                           )}
                         />
                       </div>

@@ -2,9 +2,9 @@
 
 import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
 
-import { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useFirebase } from '@/firebase';
-import { doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc, deleteDoc, updateDoc, collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -44,7 +44,7 @@ import { getInitials, cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FullscreenSheet } from '@/components/ui/fullscreen-sheet';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { useMembersData, type CombinedUser } from '@/hooks/use-members-data';
+import { type CombinedUser } from '@/hooks/use-members-data';
 import { useHaptic } from 'use-haptic';
 import { useLanguage } from '@/context/LanguageContext';
 import { useView } from '@/context/ViewContext';
@@ -56,8 +56,12 @@ export default function AdminMembers() {
   const { toast } = useToast();
   const { triggerHaptic } = useHaptic();
   const { setView } = useView();
-  const { members, isLoading, mutate } = useMembersData();
-  const [searchTerm, setSearchTerm] = useState('');
+  
+  const [localMembers, setLocalMembers] = useState<CombinedUser[]>([]);
+  const [isLoadingList, setIsLoadingList] = useState(true);
+  const [limitCount, setLimitCount] = useState<number | 'all'>(10);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
   
   // Modals
   const [userToEdit, setUserToEdit] = useState<CombinedUser | null>(null);
@@ -73,6 +77,180 @@ export default function AdminMembers() {
   const [editGender, setEditGender] = useState<UserGender>('man');
   const [editStudentNumber, setEditStudentNumber] = useState('');
   const [editCourseDuration, setEditCourseDuration] = useState('3 year');
+
+  const fetchUsers = useCallback(async (currentLimit: number | 'all', searchFilter: string) => {
+    if (!firestore) return;
+    setIsLoadingList(true);
+    
+    try {
+      const collectionsToFetch = ['students', 'teachers', 'admins'];
+      const allUsers: CombinedUser[] = [];
+      const userEmails = new Set<string>();
+
+      const fetchCollection = async (col: string) => {
+        try {
+          let q;
+          if (currentLimit === 'all' || searchFilter) {
+            q = query(collection(firestore, col)); // Fetch all for search or 'show all'
+          } else {
+            q = query(collection(firestore, col), orderBy('createdAt', 'desc'), limit(currentLimit));
+          }
+          
+          try {
+            const snap = await getDocs(q);
+            
+            if (snap.empty && currentLimit !== 'all' && !searchFilter) {
+              throw new Error("Empty snapshot - possibly missing createdAt fields");
+            }
+
+            snap.forEach(doc => {
+              const data = doc.data() as any;
+              if (data && data.email) {
+                allUsers.push({
+                  ...data,
+                  id: doc.id,
+                  uid: doc.id,
+                  status: data.pendingDeletion ? 'Afventer Sletning' : 'Tilmeldt',
+                } as CombinedUser);
+                userEmails.add(data.email.toLowerCase());
+              }
+            });
+          } catch (e: any) {
+            console.warn(`Fallback fetch for ${col} because: ${e.message}`);
+            if (currentLimit !== 'all' && !searchFilter) {
+               const fallbackQ = query(collection(firestore, col), limit(currentLimit));
+               const snap = await getDocs(fallbackQ);
+               snap.forEach(doc => {
+                  const data = doc.data() as any;
+                  if (data && data.email) {
+                    allUsers.push({
+                      ...data,
+                      id: doc.id,
+                      uid: doc.id,
+                      status: data.pendingDeletion ? 'Afventer Sletning' : 'Tilmeldt',
+                    } as CombinedUser);
+                    userEmails.add(data.email.toLowerCase());
+                  }
+               });
+            }
+          }
+        } catch (outerError: any) {
+           console.error(`Failed completely to fetch collection ${col}:`, outerError);
+        }
+      };
+
+      const fetchPlaceholders = async () => {
+        try {
+          let q;
+          if (currentLimit === 'all' || searchFilter) {
+            q = query(collection(firestore, 'placeholders'));
+          } else {
+            q = query(collection(firestore, 'placeholders'), orderBy('createdAt', 'desc'), limit(currentLimit));
+          }
+          
+          try {
+            const snap = await getDocs(q);
+
+            if (snap.empty && currentLimit !== 'all' && !searchFilter) {
+              throw new Error("Empty snapshot - possibly missing createdAt fields");
+            }
+
+            snap.forEach(doc => {
+              const data = doc.data() as any;
+              if (data && data.email && !userEmails.has(data.email.toLowerCase())) {
+                allUsers.push({
+                  ...data,
+                  id: doc.id,
+                  uid: doc.id,
+                  displayName: data.fullName || data.name || 'N/A',
+                  status: 'Venter',
+                  role: data.role || 'student'
+                } as CombinedUser);
+                userEmails.add(data.email.toLowerCase());
+              }
+            });
+          } catch (e: any) {
+             console.warn(`Fallback fetch for placeholders because: ${e.message}`);
+             if (currentLimit !== 'all' && !searchFilter) {
+               const fallbackQ = query(collection(firestore, 'placeholders'), limit(currentLimit));
+               const snap = await getDocs(fallbackQ);
+               snap.forEach(doc => {
+                  const data = doc.data() as any;
+                  if (data && data.email && !userEmails.has(data.email.toLowerCase())) {
+                    allUsers.push({
+                      ...data,
+                      id: doc.id,
+                      uid: doc.id,
+                      displayName: data.fullName || data.name || 'N/A',
+                      status: 'Venter',
+                      role: data.role || 'student'
+                    } as CombinedUser);
+                    userEmails.add(data.email.toLowerCase());
+                  }
+               });
+             }
+          }
+        } catch (outerError: any) {
+           console.error(`Failed completely to fetch collection placeholders:`, outerError);
+        }
+      };
+
+      await Promise.all(collectionsToFetch.map(fetchCollection));
+      await fetchPlaceholders();
+
+      let finalUsers = allUsers;
+
+      if (searchFilter) {
+        const term = searchFilter.toLowerCase().trim();
+        finalUsers = allUsers.filter(u => {
+          const isNumeric = /^\d+$/.test(term);
+          if (isNumeric) return u.studentNumber?.includes(term);
+          return u.displayName?.toLowerCase().includes(term) || u.email.toLowerCase().includes(term);
+        });
+      } else {
+        // Sort globally by createdAt descending
+        finalUsers.sort((a, b) => {
+           const tA = a.createdAt?.toMillis?.() || a.createdAt || 0;
+           const tB = b.createdAt?.toMillis?.() || b.createdAt || 0;
+           return tB - tA;
+        });
+        
+        if (currentLimit !== 'all') {
+          finalUsers = finalUsers.slice(0, currentLimit);
+        }
+      }
+
+      setLocalMembers(finalUsers);
+
+    } catch (e) {
+      console.error("Error fetching members:", e);
+      toast({ variant: 'destructive', title: 'Fejl', description: 'Kunne ikke hente medlemmer' });
+    } finally {
+      setIsLoadingList(false);
+    }
+  }, [firestore, toast]);
+
+  useEffect(() => {
+    if (!hasSearched) {
+      fetchUsers(limitCount, '');
+    }
+  }, [limitCount, hasSearched, fetchUsers]);
+
+  const handleSearchClick = () => {
+    triggerHaptic();
+    if (searchInput.trim() === '') {
+       setHasSearched(false);
+       setLimitCount(10);
+       fetchUsers(10, '');
+    } else {
+       setHasSearched(true);
+       fetchUsers('all', searchInput);
+    }
+  };
+
+  const handleRefreshData = () => {
+     fetchUsers(hasSearched ? 'all' : limitCount, hasSearched ? searchInput : '');
+  };
 
   const handleEditClick = (u: CombinedUser) => {
     setUserToEdit(u);
@@ -123,7 +301,7 @@ export default function AdminMembers() {
       
       toast({ variant: 'primary', title: tGlobal('Bruger Opdateret') });
       setUserToEdit(null);
-      mutate();
+      handleRefreshData();
     } catch (err: any) {
       toast({ variant: 'destructive', title: 'Fejl', description: err.message });
     } finally {
@@ -142,28 +320,13 @@ export default function AdminMembers() {
       }
       toast({ variant: 'primary', title: tGlobal('Bruger Slettet') });
       setUserToDelete(null);
-      mutate();
+      handleRefreshData();
     } catch (err: any) {
       toast({ variant: 'destructive', title: 'Fejl', description: err.message });
     } finally {
       setIsDeleting(false);
     }
   };
-
-  const filteredUsers = members.filter((u) => {
-    const term = searchTerm.toLowerCase().trim();
-    if (!term) return true;
-    
-    const isNumeric = /^\d+$/.test(term);
-    if (isNumeric) {
-      return u.studentNumber?.includes(term);
-    }
-    
-    return (
-      u.displayName?.toLowerCase().includes(term) || 
-      u.email.toLowerCase().includes(term)
-    );
-  });
 
   const RoleIcon = ({ role }: { role: string }) => {
     switch (role) {
@@ -196,52 +359,82 @@ export default function AdminMembers() {
       </div>
 
       <section className="space-y-6">
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-          <Input 
-            placeholder={tGlobal('Søg efter navn eller elevnummer...')} 
-            value={searchTerm} 
-            onChange={(e) => setSearchTerm(e.target.value)} 
-            className="h-14 rounded-2xl pl-12 border-border bg-card shadow-sm text-base"
-          />
+        <div className="relative flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+            <Input 
+              placeholder={tGlobal('Søg efter navn eller elevnummer...')} 
+              value={searchInput} 
+              onChange={(e) => setSearchInput(e.target.value)} 
+              onKeyDown={(e) => e.key === 'Enter' && handleSearchClick()}
+              className="h-14 rounded-2xl pl-12 border-border bg-card shadow-sm text-base w-full"
+            />
+          </div>
+          <Button 
+            onClick={handleSearchClick}
+            className="h-14 px-6 rounded-2xl bg-primary text-primary-foreground font-bold shadow-sm"
+          >
+            {tGlobal('Søg')}
+          </Button>
         </div>
 
         <div className="space-y-3">
-          {isLoading ? (
+          {isLoadingList ? (
             <div className="flex justify-center py-20"><Loader2 className="h-10 w-10 animate-spin text-primary/30" /></div>
-          ) : filteredUsers.length === 0 ? (
+          ) : localMembers.length === 0 ? (
             <div className="text-center py-20 text-muted-foreground">{tGlobal('Ingen medlemmer fundet.')}</div>
           ) : (
-            filteredUsers.map((u) => (
-              <Card key={u.uid} className="rounded-[24px] border border-border bg-card shadow-sm hover:shadow-md transition-all">
-                <div className="p-4 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-4 min-w-0">
-                    <Avatar className="h-12 w-12 border border-border">
-                      <AvatarImage src={u.photoURL || undefined} />
-                      <AvatarFallback className="bg-muted text-xs font-bold">{getInitials(u.displayName)}</AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="text-[16px] font-bold text-foreground truncate">{u.displayName}</p>
-                        <RoleIcon role={u.role} />
-                      </div>
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium truncate">
-                        <Mail className="h-3 w-3" /> {u.email}
+            <>
+              {localMembers.map((u) => (
+                <Card key={u.uid} className="rounded-[24px] border border-border bg-card shadow-sm hover:shadow-md transition-all">
+                  <div className="p-4 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4 min-w-0">
+                      <Avatar className="h-12 w-12 border border-border">
+                        <AvatarImage src={u.photoURL || undefined} />
+                        <AvatarFallback className="bg-muted text-xs font-bold">{getInitials(u.displayName)}</AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-[16px] font-bold text-foreground truncate">{u.displayName}</p>
+                          <RoleIcon role={u.role} />
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium truncate">
+                          <Mail className="h-3 w-3" /> {u.email}
+                        </div>
                       </div>
                     </div>
+                    
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button variant="ghost" size="icon" onClick={() => handleEditClick(u)} className="h-10 w-10 rounded-xl hover:bg-muted">
+                        <Pencil className="h-4 w-4 opacity-40" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => setUserToDelete(u)} className="h-10 w-10 rounded-xl text-red-500 hover:bg-red-50">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  
-                  <div className="flex items-center gap-1 shrink-0">
-                    <Button variant="ghost" size="icon" onClick={() => handleEditClick(u)} className="h-10 w-10 rounded-xl hover:bg-muted">
-                      <Pencil className="h-4 w-4 opacity-40" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => setUserToDelete(u)} className="h-10 w-10 rounded-xl text-red-500 hover:bg-red-50">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                </Card>
+              ))}
+
+              {!hasSearched && limitCount !== 'all' && localMembers.length === limitCount && (
+                <div className="flex flex-col gap-3 pt-6">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => { triggerHaptic(); setLimitCount(prev => typeof prev === 'number' ? prev + 10 : prev); }}
+                    className="w-full h-14 rounded-2xl font-bold border-border shadow-sm text-foreground hover:bg-muted"
+                  >
+                    Vis 10 mere
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => { triggerHaptic(); setLimitCount('all'); }}
+                    className="w-full h-14 rounded-2xl font-bold text-muted-foreground hover:text-foreground"
+                  >
+                    Vis alle
+                  </Button>
                 </div>
-              </Card>
-            ))
+              )}
+            </>
           )}
         </div>
       </section>
@@ -350,7 +543,7 @@ export default function AdminMembers() {
           <Button 
             onClick={handleUpdateUser} 
             disabled={isUpdating} 
-            className="w-full h-14 rounded-2xl bg-primary text-white font-bold text-[16px] shadow-lg shadow-primary/20"
+            className="w-full h-14 rounded-2xl bg-primary text-primary-foreground font-bold text-[16px] shadow-lg shadow-primary/20"
           >
             {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} {tGlobal('Gem ændringer')}
           </Button>

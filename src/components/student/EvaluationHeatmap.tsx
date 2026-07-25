@@ -103,9 +103,9 @@ export default function EvaluationHeatmap({ assignments, className }: Evaluation
                                                 className={cn(
                                                     "h-4.5 w-4.5 rounded-[5px] transition-all duration-500 shadow-sm",
                                                     day.intensity === 0 ? "bg-primary/5 border border-white/40" :
-                                                    day.intensity === 1 ? "bg-primary/30 shadow-[#004D40]/10" :
-                                                    day.intensity === 2 ? "bg-primary/60 shadow-[#004D40]/20" :
-                                                    "bg-primary shadow-[0_2px_8px_rgba(0,77,64,0.3)] ring-1 ring-white/20"
+                                                    day.intensity === 1 ? "bg-primary/30 shadow-black/5" :
+                                                    day.intensity === 2 ? "bg-primary/60 shadow-black/10" :
+                                                    "bg-primary shadow-[0_2px_8px_rgba(0,0,0,0.25)] ring-1 ring-white/20"
                                                 )}
                                             />
                                         ))}

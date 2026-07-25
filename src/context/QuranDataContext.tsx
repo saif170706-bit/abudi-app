@@ -6,9 +6,9 @@ import { surahs as allSurahs, type Surah } from '@/app/lib/surahs';
 
 // --- Simple IndexedDB Helper ---
 const DB_NAME = 'QuranDataCache';
-const DB_VERSION = 8; // Incremented to 8 to fix VersionError on mobile devices
+const DB_VERSION = 9; // Bumped: fix versePageMap to include ALL ayahs (mid-line starts)
 const STORE_NAME = 'processed_data';
-const CACHE_KEY = 'quran_v5'; 
+const CACHE_KEY = 'quran_v6'; // Bump to force cache rebuild
 
 async function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -142,10 +142,12 @@ export const QuranDataProvider = ({ children }: { children: ReactNode }) => {
         }
         
         for (const line of layoutData) {
-            if (typeof line.first_word_id === 'number') {
-                const verseKey = wordVerseKeysMap.get(line.first_word_id);
-                if (verseKey && !versePageMap.has(verseKey)) {
-                    versePageMap.set(verseKey, line.page_number);
+            if (typeof line.first_word_id === 'number' && typeof line.last_word_id === 'number') {
+                for (let wordId = line.first_word_id; wordId <= line.last_word_id; wordId++) {
+                    const verseKey = wordVerseKeysMap.get(wordId);
+                    if (verseKey && !versePageMap.has(verseKey)) {
+                        versePageMap.set(verseKey, line.page_number);
+                    }
                 }
             }
         }

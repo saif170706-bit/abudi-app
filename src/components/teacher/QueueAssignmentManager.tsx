@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2, Save, BookOpen, FileText, CheckCircle2 } from 'lucide-react';
+import { Loader2, Save, BookOpen, FileText, CheckCircle2, BookMarked } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -59,6 +59,18 @@ interface QueueAssignmentManagerProps {
   studentId: string;
   studentName: string;
   onCycleComplete: () => void;
+  onOpenQuran?: (mode: 'hifz' | 'murajara') => void;
+  onAssignmentLoaded?: (assignment: Assignment | null) => void;
+  externalResult?: {
+    hifz?: { surahName: string; fromAyah: number; toAyah: number } | null;
+    murajara?: { surahName: string; fromAyah: number; toAyah: number } | null;
+    gradeHifz?: string | null;
+    gradeMurajara?: string | null;
+    notes?: string | null;
+    updateCurrentHifzToAyah?: number | null;
+    updateCurrentMurajaraToAyah?: number | null;
+  } | null;
+  onExternalResultConsumed?: () => void;
 }
 
 const formSchema = z.object({
@@ -134,7 +146,7 @@ function CurrentAssignmentPart({ part, label, icon }: { part: AssignmentPart, la
     );
 }
 
-export default function QueueAssignmentManager({ studentId, studentName, onCycleComplete }: QueueAssignmentManagerProps) {
+export default function QueueAssignmentManager({ studentId, studentName, onCycleComplete, onOpenQuran, externalResult, onExternalResultConsumed, onAssignmentLoaded }: QueueAssignmentManagerProps) {
   const { firestore } = useFirebase();
   const { user: teacher } = useUser();
   const { toast } = useToast();
@@ -198,6 +210,7 @@ export default function QueueAssignmentManager({ studentId, studentName, onCycle
             
             if (foundAssignment) {
                 setCurrentAssignment(foundAssignment);
+                onAssignmentLoaded?.(foundAssignment);
                 reset({
                     gradeHifz: foundAssignment.gradeHifz || null,
                     gradeMurajara: foundAssignment.gradeMurajara || null,
@@ -205,10 +218,11 @@ export default function QueueAssignmentManager({ studentId, studentName, onCycle
                 });
             } else {
                 setCurrentAssignment(null);
+                onAssignmentLoaded?.(null);
             }
         } catch (error) {
             console.error("Error fetching current assignment: ", error);
-            toast({ variant: 'destructive', title: 'Fejl', description: 'Kunne ikke hnte nuværende lektie.' });
+            toast({ variant: 'destructive', title: 'Fejl', description: 'Kunne ikke hente nuværende lektie.' });
         } finally {
             setIsFetchingAssignment(false);
         }
@@ -216,6 +230,102 @@ export default function QueueAssignmentManager({ studentId, studentName, onCycle
 
     fetchCurrentAssignment();
   }, [studentId, firestore, reset, toast]);
+
+  // When the Quran panel sends back results, apply them to the form and auto-submit
+  useEffect(() => {
+    if (!externalResult) return;
+
+    // Apply grades to form fields
+    if (externalResult.gradeHifz !== undefined) setValue('gradeHifz', externalResult.gradeHifz);
+    if (externalResult.gradeMurajara !== undefined) setValue('gradeMurajara', externalResult.gradeMurajara);
+    if (externalResult.notes !== undefined) setValue('notes', externalResult.notes || '');
+
+    // Apply new hifz assignment fields
+    if (externalResult.hifz) {
+      const hifzSurah = allSurahs.find(s => s.name === externalResult.hifz!.surahName);
+      if (hifzSurah) {
+        setValue('hifzSurahName', String(hifzSurah.number));
+        setValue('hifzFromAyah', externalResult.hifz.fromAyah);
+        setValue('hifzToAyah', externalResult.hifz.toAyah);
+      }
+    }
+
+    // Apply new murajara assignment fields
+    if (externalResult.murajara) {
+      const muraraSurah = allSurahs.find(s => s.name === externalResult.murajara!.surahName);
+      if (muraraSurah) {
+        setValue('murajaraSurahName', String(muraraSurah.number));
+        setValue('murajaraFromAyah', externalResult.murajara.fromAyah);
+        setValue('murajaraToAyah', externalResult.murajara.toAyah);
+      }
+    }
+
+    // Immediately submit with the external data (avoid needing user to press the button again)
+    const submitExternal = async () => {
+      if (!firestore || !teacher) return;
+      setIsLoading(true);
+      try {
+        const batch = writeBatch(firestore);
+
+        if (currentAssignment) {
+          const assignmentDocRef = doc(firestore, 'students', studentId, 'assignments', currentAssignment.id);
+          const updatePayload: any = {
+            gradeHifz: externalResult.gradeHifz ?? null,
+            gradeMurajara: externalResult.gradeMurajara ?? null,
+            notes: externalResult.notes ?? null,
+          };
+          // Update toAyah if student stopped early
+          if (externalResult.updateCurrentHifzToAyah != null) {
+            updatePayload['hifz.toAyah'] = externalResult.updateCurrentHifzToAyah;
+          }
+          if (externalResult.updateCurrentMurajaraToAyah != null) {
+            updatePayload['murajara.toAyah'] = externalResult.updateCurrentMurajaraToAyah;
+          }
+          batch.update(assignmentDocRef, updatePayload);
+        }
+
+        const hasNew = externalResult.hifz || externalResult.murajara;
+        if (hasNew) {
+          const newRef = doc(collection(firestore, 'students', studentId, 'assignments'));
+          const defaultDueDate = new Date();
+          defaultDueDate.setDate(defaultDueDate.getDate() + 7);
+          const hifzSurah = externalResult.hifz ? allSurahs.find(s => s.name === externalResult.hifz!.surahName) : null;
+          const murajaraSurah = externalResult.murajara ? allSurahs.find(s => s.name === externalResult.murajara!.surahName) : null;
+          batch.set(newRef, {
+            studentId,
+            teacherId: teacher.uid,
+            dueDate: defaultDueDate.toISOString().split('T')[0],
+            hifz: externalResult.hifz ? {
+              surahName: hifzSurah?.name || '',
+              endSurahName: null,
+              fromAyah: externalResult.hifz.fromAyah,
+              toAyah: externalResult.hifz.toAyah,
+            } : (currentAssignment?.hifz ?? { surahName: '', fromAyah: 0, toAyah: 0 }),
+            murajara: externalResult.murajara ? {
+              surahName: murajaraSurah?.name || '',
+              endSurahName: null,
+              fromAyah: externalResult.murajara.fromAyah,
+              toAyah: externalResult.murajara.toAyah,
+            } : (currentAssignment?.murajara ?? { surahName: '', fromAyah: 0, toAyah: 0 }),
+            gradeHifz: null,
+            gradeMurajara: null,
+            notes: null,
+            assignedAt: serverTimestamp(),
+          });
+        }
+
+        await batch.commit();
+        onExternalResultConsumed?.();
+        onCycleComplete();
+      } catch (err: any) {
+        toast({ variant: 'destructive', title: 'Fejl', description: 'Kunne ikke gemme lektien.' });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    submitExternal();
+  }, [externalResult]);
 
   const surahSelectItems = useMemo(() => {
     return allSurahs.map(s => ({
@@ -336,19 +446,33 @@ export default function QueueAssignmentManager({ studentId, studentName, onCycle
                 {currentAssignment && (
                     <div className="space-y-6">
                         <SectionLabel>{t('gradeCurrent')}</SectionLabel>
-                        <div className="glass-card shadow-2xl border-emerald-500/10">
+                        <div className="glass-card shadow-2xl border-primary/10">
                             <div className="glass-card-inner !p-8 space-y-10">
                                 {/* Hifz Grade */}
                                 <div className="space-y-4">
-                                    <CurrentAssignmentPart part={currentAssignment.hifz} label={t('hifzLabel')} icon={<BookOpen className="h-6 w-6" />} />
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex-1">
+                                            <CurrentAssignmentPart part={currentAssignment.hifz} label={t('hifzLabel')} icon={<BookOpen className="h-6 w-6" />} />
+                                        </div>
+                                        {onOpenQuran && currentAssignment.hifz?.surahName && (
+                                            <button
+                                                type="button"
+                                                onClick={() => onOpenQuran('hifz')}
+                                                className="h-11 w-11 shrink-0 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shadow-sm active:scale-95 transition-transform"
+                                                title="Åbn i Quran"
+                                            >
+                                                <BookMarked className="h-5 w-5" />
+                                            </button>
+                                        )}
+                                    </div>
                                     <div className="space-y-3">
                                         <Label className="text-[11px] font-black uppercase tracking-widest text-primary/40 ml-1">{t('gradeHifzLabel')}</Label>
                                         <Controller
                                             name="gradeHifz"
                                             control={control}
                                             render={({ field }) => (
-                                            <Select onValueChange={field.onChange} value={field.value || ''}>
-                                                <SelectTrigger className="h-14 rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner font-bold text-primary dark:text-emerald-400">
+                                            <Select flex-wrap="true" onValueChange={field.onChange} value={field.value || ''}>
+                                                <SelectTrigger className="h-14 rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner font-bold text-primary">
                                                     <SelectValue placeholder={t('selectGrade')} />
                                                 </SelectTrigger>
                                                 <SelectContent className="rounded-2xl border-border backdrop-blur-xl">
@@ -364,15 +488,29 @@ export default function QueueAssignmentManager({ studentId, studentName, onCycle
 
                                 {/* Murajara Grade */}
                                 <div className="space-y-4">
-                                    <CurrentAssignmentPart part={currentAssignment.murajara} label={t('murajaraLabel')} icon={<FileText className="h-6 w-6" />} />
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex-1">
+                                            <CurrentAssignmentPart part={currentAssignment.murajara} label={t('murajaraLabel')} icon={<FileText className="h-6 w-6" />} />
+                                        </div>
+                                        {onOpenQuran && currentAssignment.murajara?.surahName && (
+                                            <button
+                                                type="button"
+                                                onClick={() => onOpenQuran('murajara')}
+                                                className="h-11 w-11 shrink-0 rounded-2xl bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center shadow-sm active:scale-95 transition-transform"
+                                                title="Åbn i Quran"
+                                            >
+                                                <BookMarked className="h-5 w-5" />
+                                            </button>
+                                        )}
+                                    </div>
                                     <div className="space-y-3">
                                         <Label className="text-[11px] font-black uppercase tracking-widest text-primary/40 ml-1">{t('gradeMurajaraLabel')}</Label>
                                         <Controller
                                             name="gradeMurajara"
                                             control={control}
                                             render={({ field }) => (
-                                            <Select onValueChange={field.onChange} value={field.value || ''}>
-                                                <SelectTrigger className="h-14 rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner font-bold text-primary dark:text-emerald-400">
+                                            <Select flex-wrap="true" onValueChange={field.onChange} value={field.value || ''}>
+                                                <SelectTrigger className="h-14 rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner font-bold text-primary">
                                                     <SelectValue placeholder={t('selectGrade')} />
                                                 </SelectTrigger>
                                                 <SelectContent className="rounded-2xl border-border backdrop-blur-xl">
@@ -482,7 +620,7 @@ export default function QueueAssignmentManager({ studentId, studentName, onCycle
                                             {...field}
                                             value={field.value || ''}
                                             placeholder={t('notesPlaceholder')}
-                                            className="min-h-[140px] rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner text-[16px] p-5 font-medium leading-relaxed outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-primary/40 dark:placeholder:text-emerald-400/40"
+                                            className="min-h-[140px] rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner text-[16px] p-5 font-medium leading-relaxed outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-primary/40"
                                         />
                                     )}
                                 />
@@ -497,7 +635,7 @@ export default function QueueAssignmentManager({ studentId, studentName, onCycle
                 >
                     <Button 
                         type="submit" 
-                        className="w-full h-20 rounded-[32px] text-xl font-display bg-primary hover:bg-[#00332B] text-white shadow-2xl shadow-[#004D40]/20 flex items-center justify-center gap-4 group" 
+                        className="w-full h-20 rounded-[32px] text-xl font-display bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xl shadow-primary/10 flex items-center justify-center gap-4 group" 
                         disabled={isLoading}
                     >
                         {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform"><CheckCircle2 className="h-5 w-5" /></div>}

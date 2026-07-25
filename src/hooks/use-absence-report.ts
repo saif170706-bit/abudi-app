@@ -37,7 +37,7 @@ export function useAbsenceReport() {
   const fetcher = async () => {
     if (!firestore || students.length === 0) return null;
 
-    const periods = [0, 1] as const; // This week and Last week
+    const periods = [1, 2] as const; // Last week and 2 weeks ago
     const reportData: Record<number, Record<string, { 
       attended: boolean, 
       lastGraded?: any,

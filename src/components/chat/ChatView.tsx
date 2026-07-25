@@ -836,7 +836,7 @@ export default function ChatView() {
               <motion.button
                 whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.9 }}
-                className="h-16 w-16 rounded-[24px] bg-primary text-white shadow-2xl flex items-center justify-center transition-all"
+                className="h-16 w-16 rounded-[24px] bg-accent text-accent-foreground shadow-2xl flex items-center justify-center transition-all"
                 aria-label={tGlobal('Start ny chat')}
               >
                 <Plus className="h-8 w-8" />
@@ -850,7 +850,7 @@ export default function ChatView() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={tGlobal('Søg i samtaler...')}
-              className="h-16 rounded-[28px] pl-16 pr-6 text-base font-bold bg-primary/5 border-white/40 focus:bg-white focus:shadow-xl transition-all"
+              className="h-16 rounded-[28px] pl-16 pr-6 text-base font-bold bg-primary/5 dark:bg-white/5 border-border dark:border-white/10 focus:bg-card dark:focus:bg-white/10 focus:shadow-xl transition-all"
             />
           </div>
 

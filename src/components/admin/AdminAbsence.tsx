@@ -53,8 +53,12 @@ const translations: Record<string, Record<Language, string>> = {
   history: { da: 'Historik & Søgning', en: 'History & Search', ar: 'السجل والبحث' , so: "Taariikhda & Raadinta"},
   thisWeek: { da: 'Denne uge', en: 'This week', ar: 'هذا الأسبوع' , so: "Toddobaadkan"},
   lastWeek: { da: 'Sidste uge', en: 'Last week', ar: 'الأسبوع الماضي' , so: "Toddobaadkii Hore"},
+  twoWeeksAgo: { da: '2 uger siden', en: '2 weeks ago', ar: 'قبل أسبوعين', so: '2 toddobaad ka hor' },
   searchStudent: { da: 'Søg efter elev...', en: 'Search for student...', ar: 'البحث عن طالب...' , so: "Raadi arday..."},
   noResults: { da: 'Ingen elever fundet.', en: 'No students found.', ar: 'لم يتم العثور على طلاب.' , so: "Arday lama Helin."},
+  all: { da: 'Alle', en: 'All', ar: 'الكل' , so: "Dhammaan"},
+  men: { da: 'Mænd', en: 'Men', ar: 'رجال' , so: "Rag"},
+  women: { da: 'Kvinder', en: 'Kvinder', ar: 'نساء' , so: "Dumar"},
   attended: { da: 'Mødt op', en: 'Attended', ar: 'حضر' , so: "Joogista"},
   absent: { da: 'Ikke mødt', en: 'Absent', ar: 'غائب' , so: "Maqan"},
   callStudent: { da: 'Ring op', en: 'Call Student', ar: 'اتصال بالطالب' , so: "Wac Ardayga"},
@@ -108,10 +112,11 @@ export default function AdminAbsence() {
   };
 
   const [activeTab, setActiveTab] = useState<'report' | 'history'>('report');
-  const [reportPeriod, setReportPeriod] = useState<0 | 1>(0); 
+  const [reportPeriod, setReportPeriod] = useState<1 | 2>(1);
   const [isNoteOpen, setIsEditNoteOpen] = useState(false);
   const [isHistoryDetailOpen, setIsHistoryDetailOpen] = useState(false);
   const [isAbsenceDetailOpen, setIsAbsenceDetailOpen] = useState(false);
+  const [genderFilter, setGenderFilter] = useState<'all'|'man'|'woman'>('all');
   
   const [selectedStudent, setSelectedStudent] = useState<CombinedUser | null>(null);
   const [noteText, setNoteText] = useState('');
@@ -254,9 +259,10 @@ export default function AdminAbsence() {
     return members.filter(m => 
       m.role === 'student' && 
       m.status === 'Tilmeldt' && 
+      (genderFilter === 'all' || m.gender === genderFilter) &&
       periodData?.[m.uid]?.attended !== true
     );
-  }, [members, reportData, reportPeriod]);
+  }, [members, reportData, reportPeriod, genderFilter]);
 
   const { start, end } = getWeekBoundaries(reportPeriod);
   const dateRangeLabel = t('reportDateRange', {
@@ -286,16 +292,37 @@ export default function AdminAbsence() {
         <TabsContent value="report" className="space-y-6 outline-none">
           <div className="flex items-center justify-between gap-4 bg-card p-2 rounded-2xl border border-border shadow-sm">
             <button 
-              onClick={() => { triggerHaptic(); setReportPeriod(0); }} 
-              className={cn("flex-1 py-2.5 rounded-xl text-sm font-bold transition-all", reportPeriod === 0 ? "bg-[#111214] text-white shadow-md" : "text-muted-foreground hover:bg-muted")}
-            >
-              {t('thisWeek')}
-            </button>
-            <button 
               onClick={() => { triggerHaptic(); setReportPeriod(1); }} 
               className={cn("flex-1 py-2.5 rounded-xl text-sm font-bold transition-all", reportPeriod === 1 ? "bg-[#111214] text-white shadow-md" : "text-muted-foreground hover:bg-muted")}
             >
               {t('lastWeek')}
+            </button>
+            <button 
+              onClick={() => { triggerHaptic(); setReportPeriod(2); }} 
+              className={cn("flex-1 py-2.5 rounded-xl text-sm font-bold transition-all", reportPeriod === 2 ? "bg-[#111214] text-white shadow-md" : "text-muted-foreground hover:bg-muted")}
+            >
+              {t('twoWeeksAgo')}
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 bg-card p-1 rounded-xl border border-border shadow-sm">
+            <button 
+              onClick={() => { triggerHaptic(); setGenderFilter('all'); }} 
+              className={cn("flex-1 py-2 text-xs font-bold rounded-lg transition-all", genderFilter === 'all' ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted")}
+            >
+              {t('all')}
+            </button>
+            <button 
+              onClick={() => { triggerHaptic(); setGenderFilter('man'); }} 
+              className={cn("flex-1 py-2 text-xs font-bold rounded-lg transition-all", genderFilter === 'man' ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted")}
+            >
+              {t('men')}
+            </button>
+            <button 
+              onClick={() => { triggerHaptic(); setGenderFilter('woman'); }} 
+              className={cn("flex-1 py-2 text-xs font-bold rounded-lg transition-all", genderFilter === 'woman' ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted")}
+            >
+              {t('women')}
             </button>
           </div>
 
@@ -455,7 +482,7 @@ export default function AdminAbsence() {
             <Button 
               onClick={handleSaveNote} 
               disabled={isSavingNote || !noteText.trim()} 
-              className="w-full h-16 rounded-2xl bg-primary text-white font-bold text-lg shadow-lg shadow-primary/20"
+              className="w-full h-16 rounded-2xl bg-primary text-primary-foreground font-bold text-lg shadow-lg shadow-primary/20"
             >
               {isSavingNote ? <Loader2 className="h-6 w-6 animate-spin" /> : <CheckCircle2 className="h-6 w-6 mr-2" />}
               {t('saveNote')}
@@ -604,7 +631,7 @@ export default function AdminAbsence() {
 
           <Button 
             onClick={() => setIsAbsenceDetailOpen(false)}
-            className="w-full h-16 rounded-[28px] bg-primary text-white font-black uppercase text-[11px] tracking-[0.2em] shadow-2xl mt-8"
+            className="w-full h-16 rounded-[28px] bg-primary text-primary-foreground font-black uppercase text-[11px] tracking-[0.2em] shadow-2xl mt-8"
           >
             Luk oversigt
           </Button>

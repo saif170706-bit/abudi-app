@@ -454,7 +454,7 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
                   {...field}
                   value={field.value || ''}
                   placeholder={tGlobal("Skriv feedback, rettelse eller hvad eleven skal arbejde på...")}
-                  className="min-h-[120px] rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner text-lg p-6 font-display placeholder:text-primary/20 dark:placeholder:text-emerald-400/40"
+                  className="min-h-[120px] rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner text-lg p-6 font-display placeholder:text-primary/20"
                 />
               )}
             />
@@ -480,7 +480,7 @@ export default function AssignmentForm({ studentId, studentName, studentPhoto, a
 
       <Button
         type="submit"
-        className="w-full h-18 text-xl font-display rounded-3xl bg-primary hover:bg-[#00332B] text-white shadow-2xl shadow-[#004D40]/20 active:scale-[0.98] transition-all"
+        className="w-full h-18 text-xl font-display rounded-3xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xl shadow-primary/10 active:scale-[0.98] transition-all"
         disabled={isLoading}
       >
         {isLoading ? (

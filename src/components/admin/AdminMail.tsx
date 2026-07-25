@@ -142,7 +142,7 @@ export default function AdminMail() {
       <Tabs defaultValue="inbox" className="space-y-8">
         <TabsList className="grid w-full grid-cols-2 h-12 bg-muted p-1 rounded-2xl">
           <TabsTrigger value="inbox" className="rounded-xl font-bold data-[state=active]:bg-card data-[state=active]:shadow-sm gap-2">
-            Indbakke {(messages?.filter(m => !m.isRead).length || 0) > 0 && <Badge className="h-5 px-1.5 bg-primary text-white border-none">{messages?.filter(m => !m.isRead).length}</Badge>}
+            Indbakke {(messages?.filter(m => !m.isRead).length || 0) > 0 && <Badge className="h-5 px-1.5 bg-primary text-primary-foreground border-none">{messages?.filter(m => !m.isRead).length}</Badge>}
           </TabsTrigger>
           <TabsTrigger value="requests" className="rounded-xl font-bold data-[state=active]:bg-card data-[state=active]:shadow-sm gap-2">
             Anmodninger {deletionRequests.length > 0 && <Badge className="h-5 px-1.5 bg-red-500 text-white border-none">{deletionRequests.length}</Badge>}
@@ -283,7 +283,7 @@ export default function AdminMail() {
                   </div>
                   <div className="space-y-1">
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Besked</p>
-                    <p className="text-[17px] font-medium text-black/80 leading-relaxed whitespace-pre-wrap">{selectedMessage.message || 'Ingen besked'}</p>
+                    <p className="text-[17px] font-medium text-foreground/80 leading-relaxed whitespace-pre-wrap">{selectedMessage.message || 'Ingen besked'}</p>
                   </div>
                 </>
               ) : (
@@ -310,7 +310,7 @@ export default function AdminMail() {
                   <Button 
                     onClick={() => handleRestore(selectedMessage)} 
                     disabled={isRestoring === selectedMessage.uid}
-                    className="h-16 rounded-2xl bg-primary text-white font-bold text-lg shadow-lg shadow-primary/20"
+                    className="h-16 rounded-2xl bg-primary text-primary-foreground font-bold text-lg shadow-lg shadow-primary/20"
                   >
                     {isRestoring === selectedMessage.uid ? <Loader2 className="h-6 w-6 animate-spin" /> : <RotateCcw className="h-6 w-6 mr-2" />}
                     Gendan Konto

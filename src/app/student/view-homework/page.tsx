@@ -71,7 +71,7 @@ function AssignmentSection({ title, part, grade, onReadClick }: { title: string;
                  </p>
               </div>
            </div>
-           <motion.button whileTap={{ scale: 0.9 }} onClick={() => onReadClick(part)} disabled={!(part.surahName && part.fromAyah)} className="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg disabled:opacity-20 transition-all">
+           <motion.button whileTap={{ scale: 0.9 }} onClick={() => onReadClick(part)} disabled={!(part.surahName && part.fromAyah)} className="h-12 w-12 rounded-2xl bg-foreground text-background flex items-center justify-center shadow-lg disabled:opacity-20 transition-all">
               <ChevronRight className="h-5 w-5" />
            </motion.button>
         </div>
@@ -119,7 +119,7 @@ export default function ViewHomeworkPage({ BackButton, assignments, isLoading }:
   return (
     <div className="min-h-screen pt-12 pb-32 px-6 w-full max-w-lg mx-auto space-y-12">
        <div className="flex items-center gap-4">
-          <motion.button whileTap={{ scale: 0.9 }} onClick={() => setParentView('overview')} className="h-14 w-14 rounded-2xl bg-white/80 backdrop-blur-md flex items-center justify-center shadow-lg border border-white cursor-pointer">
+          <motion.button whileTap={{ scale: 0.9 }} onClick={() => setParentView('overview')} className="h-14 w-14 rounded-2xl bg-card dark:bg-white/10 backdrop-blur-md flex items-center justify-center shadow-lg border border-border cursor-pointer">
              <ChevronRight className="h-6 w-6 text-primary rotate-180" />
           </motion.button>
           <div>
@@ -136,7 +136,7 @@ export default function ViewHomeworkPage({ BackButton, assignments, isLoading }:
                  {tGlobal('Næste Lektie')}
               </div>
               <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="glass-card shadow-2xl relative overflow-visible">
-                 <div className="absolute -top-3 -right-3 px-4 py-1.5 bg-primary text-white rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl border-4 border-white z-10">{tGlobal('Kommende')}</div>
+                 <div className="absolute -top-3 -right-3 px-4 py-1.5 bg-primary text-primary-foreground rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl border-4 border-background z-10">{tGlobal('Kommende')}</div>
                  <div className="glass-card-inner !p-8 space-y-10">
                     <div className="flex items-center gap-3 text-[10px] font-black text-primary/30 uppercase tracking-widest">
                        <Calendar className="h-3 w-3" />

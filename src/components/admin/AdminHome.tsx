@@ -3,7 +3,7 @@
 import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
 import { useState, FormEvent } from 'react';
 import { useFirebase, useUser } from '@/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -70,6 +70,7 @@ export default function AdminHome() {
         phoneNumber: phoneNumber.trim() || null,
         studentNumber: role === 'student' ? studentNumber.trim() : null,
         courseDuration: role === 'student' ? courseDuration : null,
+        createdAt: serverTimestamp(),
       });
 
       toast({ 
@@ -272,7 +273,7 @@ export default function AdminHome() {
 
               <Button 
                 type="submit" 
-                className="w-full h-16 rounded-[20px] text-lg font-bold bg-primary hover:bg-primary/90 text-white shadow-[0_10px_30px_rgba(25,118,112,0.25)] transition-all active:scale-[0.98]" 
+                className="w-full h-16 rounded-[20px] text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_10px_30px_rgba(25,118,112,0.25)] transition-all active:scale-[0.98]" 
                 disabled={isSubmitting}
               >
                 {isSubmitting ? <Loader2 className="mr-2 h-6 w-6 animate-spin" /> : <PlusCircle className="mr-2 h-6 w-6" />}

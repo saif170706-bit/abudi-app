@@ -120,7 +120,7 @@ export default function AbsenceRegistration({
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                     required
-                    className="h-14 rounded-2xl border-white bg-white/60 shadow-inner px-4 font-bold text-primary appearance-none"
+                    className="h-14 rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner px-4 font-bold text-primary dark:text-foreground appearance-none"
                   />
                 </div>
               </div>
@@ -134,7 +134,7 @@ export default function AbsenceRegistration({
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                   required
-                  className="h-14 rounded-2xl border-white bg-white/60 shadow-inner px-4 font-bold text-primary appearance-none"
+                  className="h-14 rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner px-4 font-bold text-primary dark:text-foreground appearance-none"
                 />
               </div>
             </div>
@@ -148,14 +148,14 @@ export default function AbsenceRegistration({
                 onChange={(e) => setReason(e.target.value)}
                 placeholder={t('reasonPlaceholder')}
                 required
-                className="min-h-[140px] rounded-2xl border-white bg-white/60 shadow-inner p-5 font-medium leading-relaxed resize-none"
+                className="min-h-[140px] rounded-2xl border-border bg-card/60 dark:bg-card/20 shadow-inner p-5 font-medium leading-relaxed resize-none text-primary dark:text-foreground"
               />
             </div>
 
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-16 rounded-[24px] bg-primary hover:bg-[#00332B] text-white font-display text-lg shadow-xl shadow-[#004D40]/20 flex items-center justify-center gap-3"
+              className="w-full h-16 rounded-[24px] bg-primary hover:bg-primary/90 text-primary-foreground font-display text-lg shadow-xl shadow-primary/10 flex items-center justify-center gap-3"
             >
               {isLoading ? (
                 <Loader2 className="h-6 w-6 animate-spin" />

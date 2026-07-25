@@ -16,6 +16,7 @@ type View =
   | 'chat'
   | 'progress-journey'
   | 'leaderboard'
+  | 'tilfoej-elev'
   // Admin Views
   | 'admin-members'
   | 'admin-absence'
@@ -89,7 +90,8 @@ export const ViewProvider = ({ children }: { children: ReactNode }) => {
         'view-homework', 
         'homework-reading', 
         'find-student',
-        'progress-journey'
+        'progress-journey',
+        'tilfoej-elev'
       ];
       if (subViews.includes(newView)) {
         setPreviousView(prev);
