@@ -1,0 +1,1337 @@
+[
+  {
+    "pageNumber": 1,
+    "lines": [
+      {
+        "lineNumber": 1,
+        "lineType": "surah_name",
+        "isCentered": true,
+        "surahNumber": 1,
+        "words": []
+      },
+      {
+        "lineNumber": 2,
+        "lineType": "ayah",
+        "isCentered": true,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 1,
+            "text": "ﭑ",
+            "location": "1:1:1"
+          },
+          {
+            "id": 2,
+            "text": "ﭒ",
+            "location": "1:1:2"
+          },
+          {
+            "id": 3,
+            "text": "ﭓ",
+            "location": "1:1:3"
+          },
+          {
+            "id": 4,
+            "text": "ﭔ",
+            "location": "1:1:4"
+          },
+          {
+            "id": 5,
+            "text": "ﭕ",
+            "location": "1:1:5"
+          }
+        ]
+      },
+      {
+        "lineNumber": 3,
+        "lineType": "ayah",
+        "isCentered": true,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 6,
+            "text": "ﭖ",
+            "location": "1:2:1"
+          },
+          {
+            "id": 7,
+            "text": "ﭗ",
+            "location": "1:2:2"
+          },
+          {
+            "id": 8,
+            "text": "ﭘ",
+            "location": "1:2:3"
+          },
+          {
+            "id": 9,
+            "text": "ﭙ",
+            "location": "1:2:4"
+          },
+          {
+            "id": 10,
+            "text": "ﭚ",
+            "location": "1:2:5"
+          }
+        ]
+      },
+      {
+        "lineNumber": 4,
+        "lineType": "ayah",
+        "isCentered": true,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 11,
+            "text": "ﭛ",
+            "location": "1:3:1"
+          },
+          {
+            "id": 12,
+            "text": "ﭜ",
+            "location": "1:3:2"
+          },
+          {
+            "id": 13,
+            "text": "ﭝ",
+            "location": "1:3:3"
+          },
+          {
+            "id": 14,
+            "text": "ﭞ",
+            "location": "1:4:1"
+          },
+          {
+            "id": 15,
+            "text": "ﭟ",
+            "location": "1:4:2"
+          },
+          {
+            "id": 16,
+            "text": "ﭠ",
+            "location": "1:4:3"
+          },
+          {
+            "id": 17,
+            "text": "ﭡ",
+            "location": "1:4:4"
+          }
+        ]
+      },
+      {
+        "lineNumber": 5,
+        "lineType": "ayah",
+        "isCentered": true,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 18,
+            "text": "ﭢ",
+            "location": "1:5:1"
+          },
+          {
+            "id": 19,
+            "text": "ﭣ",
+            "location": "1:5:2"
+          },
+          {
+            "id": 20,
+            "text": "ﭤ",
+            "location": "1:5:3"
+          },
+          {
+            "id": 21,
+            "text": "ﭥ",
+            "location": "1:5:4"
+          },
+          {
+            "id": 22,
+            "text": "ﭦ",
+            "location": "1:5:5"
+          },
+          {
+            "id": 23,
+            "text": "ﭧ",
+            "location": "1:6:1"
+          }
+        ]
+      },
+      {
+        "lineNumber": 6,
+        "lineType": "ayah",
+        "isCentered": true,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 24,
+            "text": "ﭨ",
+            "location": "1:6:2"
+          },
+          {
+            "id": 25,
+            "text": "ﭩ",
+            "location": "1:6:3"
+          },
+          {
+            "id": 26,
+            "text": "ﭪ",
+            "location": "1:6:4"
+          },
+          {
+            "id": 27,
+            "text": "ﭫ",
+            "location": "1:7:1"
+          },
+          {
+            "id": 28,
+            "text": "ﭬ",
+            "location": "1:7:2"
+          },
+          {
+            "id": 29,
+            "text": "ﭭ",
+            "location": "1:7:3"
+          }
+        ]
+      },
+      {
+        "lineNumber": 7,
+        "lineType": "ayah",
+        "isCentered": true,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 30,
+            "text": "ﭮ",
+            "location": "1:7:4"
+          },
+          {
+            "id": 31,
+            "text": "ﭯ",
+            "location": "1:7:5"
+          },
+          {
+            "id": 32,
+            "text": "ﭰ",
+            "location": "1:7:6"
+          },
+          {
+            "id": 33,
+            "text": "ﭱ",
+            "location": "1:7:7"
+          }
+        ]
+      },
+      {
+        "lineNumber": 8,
+        "lineType": "ayah",
+        "isCentered": true,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 34,
+            "text": "ﭲ",
+            "location": "1:7:8"
+          },
+          {
+            "id": 35,
+            "text": "ﭳ",
+            "location": "1:7:9"
+          },
+          {
+            "id": 36,
+            "text": "ﭴ",
+            "location": "1:7:10"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "pageNumber": 2,
+    "lines": [
+      {
+        "lineNumber": 1,
+        "lineType": "surah_name",
+        "isCentered": true,
+        "surahNumber": 2,
+        "words": []
+      },
+      {
+        "lineNumber": 2,
+        "lineType": "basmallah",
+        "isCentered": true,
+        "surahNumber": null,
+        "words": []
+      },
+      {
+        "lineNumber": 3,
+        "lineType": "ayah",
+        "isCentered": true,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 37,
+            "text": "ﭑ",
+            "location": "2:1:1"
+          },
+          {
+            "id": 38,
+            "text": "ﭒ",
+            "location": "2:1:2"
+          },
+          {
+            "id": 39,
+            "text": "ﭓ",
+            "location": "2:2:1"
+          },
+          {
+            "id": 40,
+            "text": "ﭔ",
+            "location": "2:2:2"
+          },
+          {
+            "id": 41,
+            "text": "ﭕ",
+            "location": "2:2:3"
+          },
+          {
+            "id": 42,
+            "text": "ﭖﭗ",
+            "location": "2:2:4"
+          },
+          {
+            "id": 43,
+            "text": "ﭘﭙ",
+            "location": "2:2:5"
+          },
+          {
+            "id": 44,
+            "text": "ﭚ",
+            "location": "2:2:6"
+          }
+        ]
+      },
+      {
+        "lineNumber": 4,
+        "lineType": "ayah",
+        "isCentered": true,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 45,
+            "text": "ﭛ",
+            "location": "2:2:7"
+          },
+          {
+            "id": 46,
+            "text": "ﭜ",
+            "location": "2:2:8"
+          },
+          {
+            "id": 47,
+            "text": "ﭝ",
+            "location": "2:3:1"
+          },
+          {
+            "id": 48,
+            "text": "ﭞ",
+            "location": "2:3:2"
+          },
+          {
+            "id": 49,
+            "text": "ﭟ",
+            "location": "2:3:3"
+          },
+          {
+            "id": 50,
+            "text": "ﭠ",
+            "location": "2:3:4"
+          },
+          {
+            "id": 51,
+            "text": "ﭡ",
+            "location": "2:3:5"
+          }
+        ]
+      },
+      {
+        "lineNumber": 5,
+        "lineType": "ayah",
+        "isCentered": true,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 52,
+            "text": "ﭢ",
+            "location": "2:3:6"
+          },
+          {
+            "id": 53,
+            "text": "ﭣ",
+            "location": "2:3:7"
+          },
+          {
+            "id": 54,
+            "text": "ﭤ",
+            "location": "2:3:8"
+          },
+          {
+            "id": 55,
+            "text": "ﭥ",
+            "location": "2:3:9"
+          },
+          {
+            "id": 56,
+            "text": "ﭦ",
+            "location": "2:4:1"
+          },
+          {
+            "id": 57,
+            "text": "ﭧ",
+            "location": "2:4:2"
+          },
+          {
+            "id": 58,
+            "text": "ﭨ",
+            "location": "2:4:3"
+          },
+          {
+            "id": 59,
+            "text": "ﭩ",
+            "location": "2:4:4"
+          }
+        ]
+      },
+      {
+        "lineNumber": 6,
+        "lineType": "ayah",
+        "isCentered": true,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 60,
+            "text": "ﭪ",
+            "location": "2:4:5"
+          },
+          {
+            "id": 61,
+            "text": "ﭫ",
+            "location": "2:4:6"
+          },
+          {
+            "id": 62,
+            "text": "ﭬ",
+            "location": "2:4:7"
+          },
+          {
+            "id": 63,
+            "text": "ﭭ",
+            "location": "2:4:8"
+          },
+          {
+            "id": 64,
+            "text": "ﭮ",
+            "location": "2:4:9"
+          },
+          {
+            "id": 65,
+            "text": "ﭯ",
+            "location": "2:4:10"
+          },
+          {
+            "id": 66,
+            "text": "ﭰ",
+            "location": "2:4:11"
+          },
+          {
+            "id": 67,
+            "text": "ﭱ",
+            "location": "2:4:12"
+          },
+          {
+            "id": 68,
+            "text": "ﭲ",
+            "location": "2:4:13"
+          }
+        ]
+      },
+      {
+        "lineNumber": 7,
+        "lineType": "ayah",
+        "isCentered": true,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 69,
+            "text": "ﭳ",
+            "location": "2:5:1"
+          },
+          {
+            "id": 70,
+            "text": "ﭴ",
+            "location": "2:5:2"
+          },
+          {
+            "id": 71,
+            "text": "ﭵ",
+            "location": "2:5:3"
+          },
+          {
+            "id": 72,
+            "text": "ﭶ",
+            "location": "2:5:4"
+          },
+          {
+            "id": 73,
+            "text": "ﭷﭸ",
+            "location": "2:5:5"
+          },
+          {
+            "id": 74,
+            "text": "ﭹ",
+            "location": "2:5:6"
+          }
+        ]
+      },
+      {
+        "lineNumber": 8,
+        "lineType": "ayah",
+        "isCentered": true,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 75,
+            "text": "ﭺ",
+            "location": "2:5:7"
+          },
+          {
+            "id": 76,
+            "text": "ﭻ",
+            "location": "2:5:8"
+          },
+          {
+            "id": 77,
+            "text": "ﭼ",
+            "location": "2:5:9"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "pageNumber": 3,
+    "lines": [
+      {
+        "lineNumber": 1,
+        "lineType": "ayah",
+        "isCentered": false,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 78,
+            "text": "ﭑ",
+            "location": "2:6:1"
+          },
+          {
+            "id": 79,
+            "text": "ﭒ",
+            "location": "2:6:2"
+          },
+          {
+            "id": 80,
+            "text": "ﭓ",
+            "location": "2:6:3"
+          },
+          {
+            "id": 81,
+            "text": "ﭔ",
+            "location": "2:6:4"
+          },
+          {
+            "id": 82,
+            "text": "ﭕ",
+            "location": "2:6:5"
+          },
+          {
+            "id": 83,
+            "text": "ﭖ",
+            "location": "2:6:6"
+          },
+          {
+            "id": 84,
+            "text": "ﭗ",
+            "location": "2:6:7"
+          },
+          {
+            "id": 85,
+            "text": "ﭘ",
+            "location": "2:6:8"
+          },
+          {
+            "id": 86,
+            "text": "ﭙ",
+            "location": "2:6:9"
+          }
+        ]
+      },
+      {
+        "lineNumber": 2,
+        "lineType": "ayah",
+        "isCentered": false,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 87,
+            "text": "ﭚ",
+            "location": "2:6:10"
+          },
+          {
+            "id": 88,
+            "text": "ﭛ",
+            "location": "2:6:11"
+          },
+          {
+            "id": 89,
+            "text": "ﭜ",
+            "location": "2:6:12"
+          },
+          {
+            "id": 90,
+            "text": "ﭝ",
+            "location": "2:7:1"
+          },
+          {
+            "id": 91,
+            "text": "ﭞ",
+            "location": "2:7:2"
+          },
+          {
+            "id": 92,
+            "text": "ﭟ",
+            "location": "2:7:3"
+          },
+          {
+            "id": 93,
+            "text": "ﭠ",
+            "location": "2:7:4"
+          },
+          {
+            "id": 94,
+            "text": "ﭡ",
+            "location": "2:7:5"
+          },
+          {
+            "id": 95,
+            "text": "ﭢﭣ",
+            "location": "2:7:6"
+          },
+          {
+            "id": 96,
+            "text": "ﭤ",
+            "location": "2:7:7"
+          }
+        ]
+      },
+      {
+        "lineNumber": 3,
+        "lineType": "ayah",
+        "isCentered": false,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 97,
+            "text": "ﭥ",
+            "location": "2:7:8"
+          },
+          {
+            "id": 98,
+            "text": "ﭦﭧ",
+            "location": "2:7:9"
+          },
+          {
+            "id": 99,
+            "text": "ﭨ",
+            "location": "2:7:10"
+          },
+          {
+            "id": 100,
+            "text": "ﭩ",
+            "location": "2:7:11"
+          },
+          {
+            "id": 101,
+            "text": "ﭪ",
+            "location": "2:7:12"
+          },
+          {
+            "id": 102,
+            "text": "ﭫ",
+            "location": "2:7:13"
+          },
+          {
+            "id": 103,
+            "text": "ﭬ",
+            "location": "2:8:1"
+          },
+          {
+            "id": 104,
+            "text": "ﭭ",
+            "location": "2:8:2"
+          }
+        ]
+      },
+      {
+        "lineNumber": 4,
+        "lineType": "ayah",
+        "isCentered": false,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 105,
+            "text": "ﭮ",
+            "location": "2:8:3"
+          },
+          {
+            "id": 106,
+            "text": "ﭯ",
+            "location": "2:8:4"
+          },
+          {
+            "id": 107,
+            "text": "ﭰ",
+            "location": "2:8:5"
+          },
+          {
+            "id": 108,
+            "text": "ﭱ",
+            "location": "2:8:6"
+          },
+          {
+            "id": 109,
+            "text": "ﭲ",
+            "location": "2:8:7"
+          },
+          {
+            "id": 110,
+            "text": "ﭳ",
+            "location": "2:8:8"
+          },
+          {
+            "id": 111,
+            "text": "ﭴ",
+            "location": "2:8:9"
+          },
+          {
+            "id": 112,
+            "text": "ﭵ",
+            "location": "2:8:10"
+          },
+          {
+            "id": 113,
+            "text": "ﭶ",
+            "location": "2:8:11"
+          },
+          {
+            "id": 114,
+            "text": "ﭷ",
+            "location": "2:8:12"
+          }
+        ]
+      },
+      {
+        "lineNumber": 5,
+        "lineType": "ayah",
+        "isCentered": false,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 115,
+            "text": "ﭸ",
+            "location": "2:9:1"
+          },
+          {
+            "id": 116,
+            "text": "ﭹ",
+            "location": "2:9:2"
+          },
+          {
+            "id": 117,
+            "text": "ﭺ",
+            "location": "2:9:3"
+          },
+          {
+            "id": 118,
+            "text": "ﭻ",
+            "location": "2:9:4"
+          },
+          {
+            "id": 119,
+            "text": "ﭼ",
+            "location": "2:9:5"
+          },
+          {
+            "id": 120,
+            "text": "ﭽ",
+            "location": "2:9:6"
+          },
+          {
+            "id": 121,
+            "text": "ﭾ",
+            "location": "2:9:7"
+          },
+          {
+            "id": 122,
+            "text": "ﭿ",
+            "location": "2:9:8"
+          }
+        ]
+      },
+      {
+        "lineNumber": 6,
+        "lineType": "ayah",
+        "isCentered": false,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 123,
+            "text": "ﮀ",
+            "location": "2:9:9"
+          },
+          {
+            "id": 124,
+            "text": "ﮁ",
+            "location": "2:9:10"
+          },
+          {
+            "id": 125,
+            "text": "ﮂ",
+            "location": "2:9:11"
+          },
+          {
+            "id": 126,
+            "text": "ﮃ",
+            "location": "2:10:1"
+          },
+          {
+            "id": 127,
+            "text": "ﮄ",
+            "location": "2:10:2"
+          },
+          {
+            "id": 128,
+            "text": "ﮅ",
+            "location": "2:10:3"
+          },
+          {
+            "id": 129,
+            "text": "ﮆ",
+            "location": "2:10:4"
+          },
+          {
+            "id": 130,
+            "text": "ﮇ",
+            "location": "2:10:5"
+          },
+          {
+            "id": 131,
+            "text": "ﮈﮉ",
+            "location": "2:10:6"
+          }
+        ]
+      },
+      {
+        "lineNumber": 7,
+        "lineType": "ayah",
+        "isCentered": false,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 132,
+            "text": "ﮊ",
+            "location": "2:10:7"
+          },
+          {
+            "id": 133,
+            "text": "ﮋ",
+            "location": "2:10:8"
+          },
+          {
+            "id": 134,
+            "text": "ﮌ",
+            "location": "2:10:9"
+          },
+          {
+            "id": 135,
+            "text": "ﮍ",
+            "location": "2:10:10"
+          },
+          {
+            "id": 136,
+            "text": "ﮎ",
+            "location": "2:10:11"
+          },
+          {
+            "id": 137,
+            "text": "ﮏ",
+            "location": "2:10:12"
+          },
+          {
+            "id": 138,
+            "text": "ﮐ",
+            "location": "2:10:13"
+          },
+          {
+            "id": 139,
+            "text": "ﮑ",
+            "location": "2:11:1"
+          },
+          {
+            "id": 140,
+            "text": "ﮒ",
+            "location": "2:11:2"
+          },
+          {
+            "id": 141,
+            "text": "ﮓ",
+            "location": "2:11:3"
+          }
+        ]
+      },
+      {
+        "lineNumber": 8,
+        "lineType": "ayah",
+        "isCentered": false,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 142,
+            "text": "ﮔ",
+            "location": "2:11:4"
+          },
+          {
+            "id": 143,
+            "text": "ﮕ",
+            "location": "2:11:5"
+          },
+          {
+            "id": 144,
+            "text": "ﮖ",
+            "location": "2:11:6"
+          },
+          {
+            "id": 145,
+            "text": "ﮗ",
+            "location": "2:11:7"
+          },
+          {
+            "id": 146,
+            "text": "ﮘ",
+            "location": "2:11:8"
+          },
+          {
+            "id": 147,
+            "text": "ﮙ",
+            "location": "2:11:9"
+          },
+          {
+            "id": 148,
+            "text": "ﮚ",
+            "location": "2:11:10"
+          },
+          {
+            "id": 149,
+            "text": "ﮛ",
+            "location": "2:11:11"
+          },
+          {
+            "id": 150,
+            "text": "ﮜ",
+            "location": "2:11:12"
+          }
+        ]
+      },
+      {
+        "lineNumber": 9,
+        "lineType": "ayah",
+        "isCentered": false,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 151,
+            "text": "ﮝ",
+            "location": "2:12:1"
+          },
+          {
+            "id": 152,
+            "text": "ﮞ",
+            "location": "2:12:2"
+          },
+          {
+            "id": 153,
+            "text": "ﮟ",
+            "location": "2:12:3"
+          },
+          {
+            "id": 154,
+            "text": "ﮠ",
+            "location": "2:12:4"
+          },
+          {
+            "id": 155,
+            "text": "ﮡ",
+            "location": "2:12:5"
+          },
+          {
+            "id": 156,
+            "text": "ﮢ",
+            "location": "2:12:6"
+          },
+          {
+            "id": 157,
+            "text": "ﮣ",
+            "location": "2:12:7"
+          },
+          {
+            "id": 158,
+            "text": "ﮤ",
+            "location": "2:12:8"
+          },
+          {
+            "id": 159,
+            "text": "ﮥ",
+            "location": "2:13:1"
+          },
+          {
+            "id": 160,
+            "text": "ﮦ",
+            "location": "2:13:2"
+          }
+        ]
+      },
+      {
+        "lineNumber": 10,
+        "lineType": "ayah",
+        "isCentered": false,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 161,
+            "text": "ﮧ",
+            "location": "2:13:3"
+          },
+          {
+            "id": 162,
+            "text": "ﮨ",
+            "location": "2:13:4"
+          },
+          {
+            "id": 163,
+            "text": "ﮩ",
+            "location": "2:13:5"
+          },
+          {
+            "id": 164,
+            "text": "ﮪ",
+            "location": "2:13:6"
+          },
+          {
+            "id": 165,
+            "text": "ﮫ",
+            "location": "2:13:7"
+          },
+          {
+            "id": 166,
+            "text": "ﮬ",
+            "location": "2:13:8"
+          },
+          {
+            "id": 167,
+            "text": "ﮭ",
+            "location": "2:13:9"
+          },
+          {
+            "id": 168,
+            "text": "ﮮ",
+            "location": "2:13:10"
+          },
+          {
+            "id": 169,
+            "text": "ﮯ",
+            "location": "2:13:11"
+          },
+          {
+            "id": 170,
+            "text": "ﮰﮱ",
+            "location": "2:13:12"
+          }
+        ]
+      },
+      {
+        "lineNumber": 11,
+        "lineType": "ayah",
+        "isCentered": false,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 171,
+            "text": "ﯓ",
+            "location": "2:13:13"
+          },
+          {
+            "id": 172,
+            "text": "ﯔ",
+            "location": "2:13:14"
+          },
+          {
+            "id": 173,
+            "text": "ﯕ",
+            "location": "2:13:15"
+          },
+          {
+            "id": 174,
+            "text": "ﯖ",
+            "location": "2:13:16"
+          },
+          {
+            "id": 175,
+            "text": "ﯗ",
+            "location": "2:13:17"
+          },
+          {
+            "id": 176,
+            "text": "ﯘ",
+            "location": "2:13:18"
+          },
+          {
+            "id": 177,
+            "text": "ﯙ",
+            "location": "2:13:19"
+          },
+          {
+            "id": 178,
+            "text": "ﯚ",
+            "location": "2:13:20"
+          },
+          {
+            "id": 179,
+            "text": "ﯛ",
+            "location": "2:14:1"
+          },
+          {
+            "id": 180,
+            "text": "ﯜ",
+            "location": "2:14:2"
+          }
+        ]
+      },
+      {
+        "lineNumber": 12,
+        "lineType": "ayah",
+        "isCentered": false,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 181,
+            "text": "ﯝ",
+            "location": "2:14:3"
+          },
+          {
+            "id": 182,
+            "text": "ﯞ",
+            "location": "2:14:4"
+          },
+          {
+            "id": 183,
+            "text": "ﯟ",
+            "location": "2:14:5"
+          },
+          {
+            "id": 184,
+            "text": "ﯠ",
+            "location": "2:14:6"
+          },
+          {
+            "id": 185,
+            "text": "ﯡ",
+            "location": "2:14:7"
+          },
+          {
+            "id": 186,
+            "text": "ﯢ",
+            "location": "2:14:8"
+          },
+          {
+            "id": 187,
+            "text": "ﯣ",
+            "location": "2:14:9"
+          },
+          {
+            "id": 188,
+            "text": "ﯤ",
+            "location": "2:14:10"
+          },
+          {
+            "id": 189,
+            "text": "ﯥ",
+            "location": "2:14:11"
+          },
+          {
+            "id": 190,
+            "text": "ﯦ",
+            "location": "2:14:12"
+          }
+        ]
+      },
+      {
+        "lineNumber": 13,
+        "lineType": "ayah",
+        "isCentered": false,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 191,
+            "text": "ﯧ",
+            "location": "2:14:13"
+          },
+          {
+            "id": 192,
+            "text": "ﯨ",
+            "location": "2:14:14"
+          },
+          {
+            "id": 193,
+            "text": "ﯩ",
+            "location": "2:14:15"
+          },
+          {
+            "id": 194,
+            "text": "ﯪ",
+            "location": "2:14:16"
+          },
+          {
+            "id": 195,
+            "text": "ﯫ",
+            "location": "2:14:17"
+          },
+          {
+            "id": 196,
+            "text": "ﯬ",
+            "location": "2:15:1"
+          },
+          {
+            "id": 197,
+            "text": "ﯭ",
+            "location": "2:15:2"
+          },
+          {
+            "id": 198,
+            "text": "ﯮ",
+            "location": "2:15:3"
+          },
+          {
+            "id": 199,
+            "text": "ﯯ",
+            "location": "2:15:4"
+          }
+        ]
+      },
+      {
+        "lineNumber": 14,
+        "lineType": "ayah",
+        "isCentered": false,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 200,
+            "text": "ﯰ",
+            "location": "2:15:5"
+          },
+          {
+            "id": 201,
+            "text": "ﯱ",
+            "location": "2:15:6"
+          },
+          {
+            "id": 202,
+            "text": "ﯲ",
+            "location": "2:15:7"
+          },
+          {
+            "id": 203,
+            "text": "ﯳ",
+            "location": "2:15:8"
+          },
+          {
+            "id": 204,
+            "text": "ﯴ",
+            "location": "2:16:1"
+          },
+          {
+            "id": 205,
+            "text": "ﯵ",
+            "location": "2:16:2"
+          },
+          {
+            "id": 206,
+            "text": "ﯶ",
+            "location": "2:16:3"
+          },
+          {
+            "id": 207,
+            "text": "ﯷ",
+            "location": "2:16:4"
+          }
+        ]
+      },
+      {
+        "lineNumber": 15,
+        "lineType": "ayah",
+        "isCentered": false,
+        "surahNumber": null,
+        "words": [
+          {
+            "id": 208,
+            "text": "ﯸ",
+            "location": "2:16:5"
+          },
+          {
+            "id": 209,
+            "text": "ﯹ",
+            "location": "2:16:6"
+          },
+          {
+            "id": 210,
+            "text": "ﯺ",
+            "location": "2:16:7"
+          },
+          {
+            "id": 211,
+            "text": "ﯻ",
+            "location": "2:16:8"
+          },
+          {
+            "id": 212,
+            "text": "ﯼ",
+            "location": "2:16:9"
+          },
+          {
+            "id": 213,
+            "text": "ﯽ",
+            "location": "2:16:10"
+          },
+          {
+            "id": 214,
+            "text": "ﯾ",
+            "location": "2:16:11"
+          },
+          {
+            "id": 215,
+            "text": "ﯿ",
+            "location": "2:16:12"
+          }
+        ]
+      }
+    ]
+  }
+]
