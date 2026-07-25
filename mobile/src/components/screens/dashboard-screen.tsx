@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, Pressable, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 import { useAuth } from '@/hooks/use-auth';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { useAnnouncementsFeed } from '@/hooks/use-announcements-feed';
@@ -47,17 +48,23 @@ export function DashboardScreen() {
             <Text className="text-lg font-semibold text-foreground">Opslag</Text>
           </View>
         }
-        renderItem={({ item }) => (
-          <Card>
-            <View className="mb-2 flex-row items-center gap-2">
-              {item.isNew && <Badge>Nyt</Badge>}
-              <Text className="text-xs uppercase text-muted-foreground">{item.type}</Text>
-            </View>
-            <CardTitle>{item.title}</CardTitle>
-            {item.content ? <CardDescription>{item.content}</CardDescription> : null}
-            {item.description ? <CardDescription>{item.description}</CardDescription> : null}
-          </Card>
-        )}
+        renderItem={({ item }) => {
+          const content = (
+            <Card>
+              <View className="mb-2 flex-row items-center gap-2">
+                {item.isNew && <Badge>Nyt</Badge>}
+                <Text className="text-xs uppercase text-muted-foreground">{item.type}</Text>
+              </View>
+              <CardTitle>{item.title}</CardTitle>
+              {item.content ? <CardDescription>{item.content}</CardDescription> : null}
+              {item.description ? <CardDescription>{item.description}</CardDescription> : null}
+            </Card>
+          );
+          if (item.type === 'event') {
+            return <Pressable onPress={() => router.push(`/events/${item.id}` as any)}>{content}</Pressable>;
+          }
+          return content;
+        }}
         ListEmptyComponent={
           isFeedLoading ? (
             <ActivityIndicator className="mt-8" />

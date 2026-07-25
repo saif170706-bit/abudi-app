@@ -15,6 +15,7 @@ export default function StudentLayout() {
     <Tabs screenOptions={{ headerShown: false }}>
       <Tabs.Screen name="dashboard" options={{ title: 'Dashboard' }} />
       <Tabs.Screen name="quran" options={{ title: 'Quran' }} />
+      <Tabs.Screen name="homework" options={{ title: 'Lektier' }} />
     </Tabs>
   );
 }

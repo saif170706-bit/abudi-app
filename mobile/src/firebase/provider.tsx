@@ -2,19 +2,21 @@ import React, { DependencyList, createContext, useContext, ReactNode, useMemo } 
 import { FirebaseApp } from 'firebase/app';
 import { Firestore } from 'firebase/firestore';
 import { Auth } from 'firebase/auth';
-import { firebaseApp, auth, firestore } from './client';
+import { FirebaseStorage } from 'firebase/storage';
+import { firebaseApp, auth, firestore, storage } from './client';
 
 export interface FirebaseContextState {
   firebaseApp: FirebaseApp;
   firestore: Firestore;
   auth: Auth;
+  storage: FirebaseStorage;
 }
 
 export const FirebaseContext = createContext<FirebaseContextState | undefined>(undefined);
 
 export function FirebaseProvider({ children }: { children: ReactNode }) {
   const contextValue = useMemo(
-    (): FirebaseContextState => ({ firebaseApp, firestore, auth }),
+    (): FirebaseContextState => ({ firebaseApp, firestore, auth, storage }),
     []
   );
 

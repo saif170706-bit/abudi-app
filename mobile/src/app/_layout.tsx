@@ -25,6 +25,7 @@ function RootNavigator() {
       <Stack.Screen name="(admin)" />
       <Stack.Screen name="(teacher)" />
       <Stack.Screen name="(student)" />
+      <Stack.Screen name="events/[eventId]" options={{ headerShown: true, title: 'Tilmelding', presentation: 'modal' }} />
     </Stack>
   );
 }

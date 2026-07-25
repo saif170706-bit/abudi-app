@@ -14,6 +14,7 @@ export default function TeacherLayout() {
     <Tabs screenOptions={{ headerShown: false }}>
       <Tabs.Screen name="dashboard" options={{ title: 'Dashboard' }} />
       <Tabs.Screen name="quran" options={{ title: 'Quran' }} />
+      <Tabs.Screen name="students" options={{ title: 'Elever' }} />
     </Tabs>
   );
 }
