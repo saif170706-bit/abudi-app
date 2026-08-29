@@ -11,6 +11,57 @@ if (admin.apps.length === 0) {
 const db = admin.firestore();
 const messaging = admin.messaging();
 
+/**
+ * MOBILE APP PUSH: Expo push tokens live in a separate `expoPushTokens`
+ * subcollection (sibling of `fcmTokens`) — see mobile/src/lib/push-notifications.ts.
+ * They're kept apart because an Expo token ("ExponentPushToken[...]") is not
+ * a valid FCM registration token, so mixing them into `fcmTokens` would make
+ * every fcmTokens-based send loop below fail on it and mistake it for a dead
+ * FCM token, deleting a token that was never actually invalid.
+ *
+ * Sends via Expo's push HTTP API (https://exp.host/--/api/v2/push/send) —
+ * Expo relays to real FCM/APNs on the client's behalf, so no native
+ * google-services.json / GoogleService-Info.plist config is required here.
+ */
+async function sendExpoPush({ to, title, body, data }) {
+  const res = await fetch("https://exp.host/--/api/v2/push/send", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Accept-Encoding": "gzip, deflate",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ to, title, body, data, sound: "default", priority: "high" }),
+  });
+  return res.json();
+}
+
+/**
+ * Reads `{col}/{uid}/expoPushTokens` and enqueues one `notificationRequests`
+ * doc per token (marked with `expoPushToken` instead of `fcmToken`) into the
+ * given batch — mirrors the existing fcmTokens enqueue pattern used
+ * throughout this file so notifyOnNotificationRequest can fan both out from
+ * one trigger. Call this right after the matching fcmTokens loop at each
+ * send site; it's purely additive and never touches fcmTokens.
+ */
+async function enqueueExpoPushRequests(batch, col, uid, title, body, dataPayload) {
+  const tokenSnap = await db.collection(col).doc(uid).collection("expoPushTokens").get();
+  let count = 0;
+  tokenSnap.forEach((tDoc) => {
+    const reqRef = db.collection("notificationRequests").doc();
+    batch.set(reqRef, {
+      toUid: uid,
+      expoPushToken: tDoc.id,
+      title,
+      body,
+      data: dataPayload,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    count++;
+  });
+  return count;
+}
+
 let serverClient = null;
 function getStreamClient() {
   if (serverClient) return serverClient;
@@ -146,6 +197,37 @@ exports.streamWebhook = onRequest({
     for (const col of ['students', 'teachers', 'admins']) {
       const tokensColRef = db.collection(col).doc(uid).collection('fcmTokens');
       const tokenSnap = await tokensColRef.get();
+      const expoTokensColRef = db.collection(col).doc(uid).collection('expoPushTokens');
+      const expoTokenSnap = await expoTokensColRef.get();
+
+      if (tokenSnap.empty && expoTokenSnap.empty) continue;
+
+      if (!expoTokenSnap.empty) {
+        console.log(`[StreamWebhook] Sending Expo push to ${expoTokenSnap.size} mobile device(s) for ${uid}`);
+        const expoChatData = {
+          type: 'chatMessage',
+          link: `/?view=chat&cid=${channelCid}&source=push`,
+          tag: message.id,
+          cid: channelCid,
+          'stream.channel_type': channel.type,
+          'stream.channel_id': channel.id,
+          'stream.message_id': message.id
+        };
+        await Promise.all(expoTokenSnap.docs.map(async (tDoc) => {
+          const expoToken = tDoc.id;
+          try {
+            const result = await sendExpoPush({ to: expoToken, title: finalTitle, body: finalBody, data: expoChatData });
+            const ticket = result?.data;
+            if (ticket?.status === 'error' && ticket.details?.error === 'DeviceNotRegistered') {
+              await expoTokensColRef.doc(expoToken).delete().catch(() => null);
+            } else {
+              count++;
+            }
+          } catch (err) {
+            console.error(`[StreamWebhook] Expo push FAIL:`, err.message);
+          }
+        }));
+      }
 
       if (!tokenSnap.empty) {
         const allTokens = tokenSnap.docs.map(d => ({
@@ -233,8 +315,8 @@ exports.streamWebhook = onRequest({
             }
           }
         }));
-        break;
       }
+      break;
     }
   }));
 
@@ -265,6 +347,17 @@ exports.sendChatPushOnRequest = onDocumentCreated("chatNotificationRequests/{mes
     for (const col of collections) {
       try {
         const tokenSnap = await db.collection(col).doc(uid).collection('fcmTokens').get();
+        const chatData = {
+          type: 'chatMessage',
+          link: `/?view=chat&cid=${channelCid}&source=push`,
+          tag: channelCid,
+          cid: channelCid,
+          'stream.channel_type': channelType,
+          'stream.channel_id': channelId,
+          'stream.message_id': messageId
+        };
+        const expoCount = await enqueueExpoPushRequests(batch, col, uid, title || 'Ny besked', messageText || 'Du har en ny besked.', chatData);
+        count += expoCount;
         if (!tokenSnap.empty) {
           tokenSnap.forEach(tDoc => {
             const reqRef = db.collection('notificationRequests').doc();
@@ -273,21 +366,14 @@ exports.sendChatPushOnRequest = onDocumentCreated("chatNotificationRequests/{mes
               fcmToken: tDoc.id,
               title: title || 'Ny besked',
               body: messageText || 'Du har en ny besked.',
-              data: {
-                type: 'chatMessage',
-                link: `/?view=chat&cid=${channelCid}&source=push`,
-                tag: channelCid,
-                cid: channelCid,
-                'stream.channel_type': channelType,
-                'stream.channel_id': channelId,
-                'stream.message_id': messageId
-              },
+              data: chatData,
               createdAt: admin.firestore.FieldValue.serverTimestamp()
             });
             count++;
           });
           return;
         }
+        if (expoCount > 0) return;
       } catch (e) { }
     }
   };
@@ -305,8 +391,35 @@ exports.sendChatPushOnRequest = onDocumentCreated("chatNotificationRequests/{mes
  */
 exports.notifyOnNotificationRequest = onDocumentCreated("notificationRequests/{id}", async (event) => {
   const data = event.data.data();
-  if (!data || !data.fcmToken) {
+  if (!data || (!data.fcmToken && !data.expoPushToken)) {
     console.log('[NotifyWorker] Skipping: No token found in request.');
+    return;
+  }
+
+  // Mobile app (Expo) push — separate delivery path, see sendExpoPush above.
+  if (data.expoPushToken) {
+    console.log(`[NotifyWorker] Sending Expo push to UID: ${data.toUid} using token: ${data.expoPushToken.substring(0, 18)}...`);
+    try {
+      const result = await sendExpoPush({
+        to: data.expoPushToken,
+        title: data.title,
+        body: data.body,
+        data: data.data || {},
+      });
+      const ticket = result?.data;
+      console.log('[NotifyWorker] Expo push ticket:', JSON.stringify(ticket));
+      if (ticket?.status === 'error' && (ticket.details?.error === 'DeviceNotRegistered')) {
+        console.log(`[NotifyWorker] Removing stale Expo token for user ${data.toUid}`);
+        const collections = ['students', 'teachers', 'admins'];
+        for (const col of collections) {
+          await db.doc(`${col}/${data.toUid}/expoPushTokens/${data.expoPushToken}`).delete().catch(() => null);
+        }
+      }
+    } catch (error) {
+      console.error('[NotifyWorker] Expo push delivery FAILED:', error.message);
+    } finally {
+      await event.data.ref.delete().catch(() => null);
+    }
     return;
   }
 
@@ -429,6 +542,7 @@ exports.sendAdminPostNotifications = onCall(async (request) => {
       const localizedBody = translations[type]?.[lang] || translations.announcement[lang];
       const localizedTitle = localizedTitles[lang] || localizedTitles.da;
 
+      const adminPostData = { type: 'adminPost', link, tag: 'global-post', source: 'push' };
       for (const colName of ['students', 'teachers', 'admins']) {
         const tokenSnap = await db.collection(colName).doc(uid).collection('fcmTokens').get();
         tokenSnap.forEach(tDoc => {
@@ -438,16 +552,12 @@ exports.sendAdminPostNotifications = onCall(async (request) => {
             fcmToken: tDoc.id,
             title: localizedTitle,
             body: localizedBody,
-            data: {
-              type: 'adminPost',
-              link,
-              tag: 'global-post',
-              source: 'push'
-            },
+            data: adminPostData,
             createdAt: admin.firestore.FieldValue.serverTimestamp()
           });
           count++;
         });
+        count += await enqueueExpoPushRequests(batch, colName, uid, localizedTitle, localizedBody, adminPostData);
       }
     }));
 
@@ -502,8 +612,7 @@ exports.sendTeacherCall = onCall(async (request) => {
 
     const link = type === 'virtual' ? `/audio/${callId}` : `/?view=homework-reading&source=push`;
     const tokensSnapshot = await studentRef.collection('fcmTokens').get();
-
-    if (tokensSnapshot.empty) return { success: false, message: 'No tokens' };
+    const callData = { type: 'teacherCall', link, tag: 'teacher-call', source: 'push' };
 
     const batch = db.batch();
     tokensSnapshot.forEach(tDoc => {
@@ -513,15 +622,13 @@ exports.sendTeacherCall = onCall(async (request) => {
         fcmToken: tDoc.id,
         title: messageTitle,
         body: messageBody,
-        data: {
-          type: 'teacherCall',
-          link,
-          tag: 'teacher-call',
-          source: 'push'
-        },
+        data: callData,
         createdAt: admin.firestore.FieldValue.serverTimestamp()
       });
     });
+    const expoCount = await enqueueExpoPushRequests(batch, 'students', studentId, messageTitle, messageBody, callData);
+
+    if (tokensSnapshot.empty && expoCount === 0) return { success: false, message: 'No tokens' };
 
     await batch.commit();
     return { success: true };
@@ -1338,6 +1445,7 @@ async function sendGroupNotification(filterFn, times, link = '/?view=homework-re
       const title = t.title;
       const body = t.body(times);
 
+      const reminderData = { type: 'reminder', link, tag: 'markaz-reminder' };
       const tokenSnap = await studentDoc.ref.collection('fcmTokens').get();
       tokenSnap.forEach(tDoc => {
         const reqRef = db.collection('notificationRequests').doc();
@@ -1346,15 +1454,12 @@ async function sendGroupNotification(filterFn, times, link = '/?view=homework-re
           fcmToken: tDoc.id,
           title,
           body,
-          data: {
-            type: 'reminder',
-            link,
-            tag: 'markaz-reminder'
-          },
+          data: reminderData,
           createdAt: admin.firestore.FieldValue.serverTimestamp()
         });
         count++;
       });
+      count += await enqueueExpoPushRequests(batch, 'students', studentDoc.id, title, body, reminderData);
     }
   }
 
@@ -1462,7 +1567,8 @@ exports.sendAbsenceReminders = onSchedule({
 
     // 3. Send notification (localized)
     const tokensSnap = await studentDoc.ref.collection('fcmTokens').get();
-    if (tokensSnap.empty) continue;
+    const expoTokensSnap = await studentDoc.ref.collection('expoPushTokens').get();
+    if (tokensSnap.empty && expoTokensSnap.empty) continue;
 
     const lang = studentDoc.data().language || 'da';
     const absenceTranslations = {
@@ -1485,6 +1591,7 @@ exports.sendAbsenceReminders = onSchedule({
     };
 
     const t = absenceTranslations[lang] || absenceTranslations.da;
+    const absenceData = { type: 'absence_reminder', link: '/?view=profile&open=absence', tag: 'absence-reminder' };
 
     tokensSnap.forEach(tDoc => {
       const reqRef = db.collection('notificationRequests').doc();
@@ -1493,11 +1600,19 @@ exports.sendAbsenceReminders = onSchedule({
         fcmToken: tDoc.id,
         title: t.title,
         body: t.body,
-        data: {
-          type: 'absence_reminder',
-          link: '/?view=profile&open=absence', // Direct deep link to the form
-          tag: 'absence-reminder'
-        },
+        data: absenceData,
+        createdAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+      sentCount++;
+    });
+    expoTokensSnap.forEach(tDoc => {
+      const reqRef = db.collection('notificationRequests').doc();
+      batch.set(reqRef, {
+        toUid: uid,
+        expoPushToken: tDoc.id,
+        title: t.title,
+        body: t.body,
+        data: absenceData,
         createdAt: admin.firestore.FieldValue.serverTimestamp()
       });
       sentCount++;
