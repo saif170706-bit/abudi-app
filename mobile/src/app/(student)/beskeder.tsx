@@ -1,3 +1,7 @@
-import { StudentMessagesScreen } from '@/components/screens/student-messages-screen';
+import { Redirect } from 'expo-router';
 
-export default StudentMessagesScreen;
+// The real chat screen lives at the root /chat stack (shared OverlayProvider/Chat
+// context with /chat/[cid] and /chat/new) so it isn't nested inside this tab.
+export default function StudentBeskederTab() {
+  return <Redirect href={'/chat' as any} />;
+}

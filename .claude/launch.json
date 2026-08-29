@@ -4,7 +4,7 @@
     {
       "name": "mobile-expo-web",
       "runtimeExecutable": "C:\\PROGRA~1\\nodejs\\npm.cmd",
-      "runtimeArgs": ["run", "web", "--prefix", "D:\\Ibn Amerr\\mobile", "--", "--port", "8081"],
+      "runtimeArgs": ["run", "web", "--prefix", "D:\\Ibn Amerr\\mobile", "--", "--port", "8081", "-c"],
       "port": 8081
     }
   ]

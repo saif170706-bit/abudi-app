@@ -10,7 +10,7 @@ import { EmailAuthProvider, reauthenticateWithCredential, updatePassword, update
 import { useFirebase } from '@/firebase';
 import { useAuth } from '@/hooks/use-auth';
 import { useUserProfile } from '@/hooks/use-user-profile';
-import { useLanguagePreference, LANGUAGES } from '@/hooks/use-language-preference';
+import { useLanguagePreference, LANGUAGES } from '@/context/language-context';
 import { LanguageMenu } from '@/components/ui/language-menu';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -149,7 +149,7 @@ export function StudentMoreScreen() {
   const { firestore } = useFirebase();
   const { profile, mutate } = useUserProfile();
   const { colorScheme, toggleColorScheme } = useColorScheme();
-  const { language } = useLanguagePreference();
+  const { language, tGlobal } = useLanguagePreference();
 
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
   const [personalOpen, setPersonalOpen] = useState(false);
@@ -187,7 +187,7 @@ export function StudentMoreScreen() {
       mutate();
     } catch (error) {
       console.error('Failed to toggle leaderboard visibility:', error);
-      Alert.alert('Fejl', 'Kunne ikke opdatere indstillingen.');
+      Alert.alert(tGlobal('Fejl'), tGlobal('Kunne ikke opdatere indstillingen.'));
     }
   };
 
@@ -202,7 +202,7 @@ export function StudentMoreScreen() {
       mutate();
     } catch (error) {
       console.error('Avatar upload failed:', error);
-      Alert.alert('Fejl', 'Kunne ikke uploade billedet.');
+      Alert.alert(tGlobal('Fejl'), tGlobal('Kunne ikke uploade billedet.'));
     } finally {
       setUploadingAvatar(false);
     }
@@ -215,12 +215,12 @@ export function StudentMoreScreen() {
       const credential = EmailAuthProvider.credential(user.email, currentPassword);
       await reauthenticateWithCredential(user, credential);
       await updatePassword(user, newPassword);
-      Alert.alert('Adgangskode ændret');
+      Alert.alert(tGlobal('Adgangskode ændret'));
       setCurrentPassword('');
       setNewPassword('');
     } catch (error) {
       console.error('Password update failed:', error);
-      Alert.alert('Fejl', 'Kunne ikke opdatere adgangskoden.');
+      Alert.alert(tGlobal('Fejl'), tGlobal('Kunne ikke opdatere adgangskoden.'));
     } finally {
       setUpdatingPassword(false);
     }
@@ -228,7 +228,7 @@ export function StudentMoreScreen() {
 
   const handleRequestDeletion = async () => {
     if (!user?.email || !deletePassword) {
-      Alert.alert('Fejl', 'Udfyld venligst adgangskode.');
+      Alert.alert(tGlobal('Fejl'), tGlobal('Udfyld venligst adgangskode.'));
       return;
     }
     setDeleting(true);
@@ -237,15 +237,17 @@ export function StudentMoreScreen() {
       await reauthenticateWithCredential(user, credential);
       await requestAccountDeletion(deleteReason.trim());
       Alert.alert(
-        'Anmodning modtaget',
-        'Din konto vil blive låst med det samme. Din anmodning vil blive behandlet af Ibn Amer inden for ca. 30 dage, hvorefter kontoen slettes permanent.'
+        tGlobal('Anmodning modtaget'),
+        tGlobal(
+          'Din konto vil blive låst med det samme. Din anmodning vil blive behandlet af Ibn Amer inden for ca. 30 dage, hvorefter kontoen slettes permanent.'
+        )
       );
       setDeleteOpen(false);
       setPersonalOpen(false);
       await logout();
     } catch (error) {
       console.error('Account deletion request failed:', error);
-      Alert.alert('Fejl', 'Der opstod en fejl. Prøv igen senere.');
+      Alert.alert(tGlobal('Fejl'), tGlobal('Der opstod en fejl. Prøv igen senere.'));
     } finally {
       setDeleting(false);
     }
@@ -263,14 +265,14 @@ export function StudentMoreScreen() {
         authorName: profile?.displayName || 'Elev',
         createdAt: serverTimestamp(),
       });
-      Alert.alert('Fravær registreret');
+      Alert.alert(tGlobal('Fravær registreret'));
       setFromDate(null);
       setToDate(null);
       setReason('');
       setAbsenceOpen(false);
     } catch (error) {
       console.error('Absence registration error:', error);
-      Alert.alert('Fejl', 'Der skete en fejl.');
+      Alert.alert(tGlobal('Fejl'), tGlobal('Der skete en fejl.'));
     } finally {
       setSavingAbsence(false);
     }
@@ -289,13 +291,13 @@ export function StudentMoreScreen() {
         createdAt: serverTimestamp(),
         isRead: false,
       });
-      Alert.alert('Besked sendt', 'Vi vender tilbage hurtigst muligt.');
+      Alert.alert(tGlobal('Besked sendt'), tGlobal('Vi vender tilbage hurtigst muligt.'));
       setSubject('');
       setMessage('');
       setContactOpen(false);
     } catch (error) {
       console.error('Failed to send contact message:', error);
-      Alert.alert('Fejl', 'Beskeden kunne ikke sendes.');
+      Alert.alert(tGlobal('Fejl'), tGlobal('Beskeden kunne ikke sendes.'));
     } finally {
       setSendingContact(false);
     }
@@ -314,35 +316,35 @@ export function StudentMoreScreen() {
               </View>
             )}
           </View>
-          <Text className="text-2xl font-bold text-foreground">{profile?.displayName ?? 'Elev'}</Text>
+          <Text className="text-2xl font-bold text-foreground">{profile?.displayName ?? tGlobal('Elev')}</Text>
           <Text className="text-muted-foreground">{profile?.email}</Text>
           {profile?.role === 'student' && profile?.studentNumber && (
             <View className="mt-1 rounded-full bg-primary px-4 py-1.5">
               <Text className="text-[10px] font-black uppercase tracking-[0.2em] text-primary-foreground">
-                Elev #{profile.studentNumber}
+                {tGlobal('Elev #')}{profile.studentNumber}
               </Text>
             </View>
           )}
         </View>
 
         <View className="gap-3">
-          <Text className="text-[10px] font-black uppercase tracking-widest text-accent">| Konto</Text>
-          <SettingsRow icon="person-outline" label="Personlige oplysninger" onPress={() => setPersonalOpen(true)} />
-          <SettingsRow icon="card-outline" label="Administrer medlemskab" onPress={() => setMembershipOpen(true)} />
-          <SettingsRow icon="calendar-outline" label="Meld Fravær" onPress={() => setAbsenceOpen(true)} />
+          <Text className="text-[10px] font-black uppercase tracking-widest text-accent">| {tGlobal('Konto')}</Text>
+          <SettingsRow icon="person-outline" label={tGlobal('Personlige oplysninger')} onPress={() => setPersonalOpen(true)} />
+          <SettingsRow icon="card-outline" label={tGlobal('Administrer medlemskab')} onPress={() => setMembershipOpen(true)} />
+          <SettingsRow icon="calendar-outline" label={tGlobal('Meld Fravær')} onPress={() => setAbsenceOpen(true)} />
           <SettingsRow
             icon="shield-outline"
-            label="Skjul fra Leaderboard"
+            label={tGlobal('Skjul fra Leaderboard')}
             right={<Switch value={!!profile?.hideFromLeaderboard} onValueChange={handleToggleLeaderboard} />}
           />
-          <SettingsRow icon="mail-outline" label="Kontakt os" onPress={() => setContactOpen(true)} />
+          <SettingsRow icon="mail-outline" label={tGlobal('Kontakt os')} onPress={() => setContactOpen(true)} />
         </View>
 
         <View className="gap-3">
-          <Text className="text-[10px] font-black uppercase tracking-widest text-accent">| Vælg sprog</Text>
+          <Text className="text-[10px] font-black uppercase tracking-widest text-accent">| {tGlobal('Vælg sprog')}</Text>
           <SettingsRow
             icon="language-outline"
-            label="Vælg sprog"
+            label={tGlobal('Vælg sprog')}
             onPress={() => setLanguageMenuOpen(true)}
             right={
               <View className="flex-row items-center gap-2">
@@ -355,7 +357,7 @@ export function StudentMoreScreen() {
           />
           <SettingsRow
             icon="sunny-outline"
-            label="Lyst Tema"
+            label={tGlobal('Lyst Tema')}
             onPress={toggleColorScheme}
             right={
               <View className="flex-row items-center gap-2">
@@ -373,7 +375,7 @@ export function StudentMoreScreen() {
         <Pressable onPress={logout} className="items-center justify-center rounded-full bg-red-50 py-4">
           <View className="flex-row items-center gap-2">
             <Ionicons name="log-out-outline" size={16} color="#dc2626" />
-            <Text className="text-xs font-black uppercase tracking-widest text-red-600">Log Ud</Text>
+            <Text className="text-xs font-black uppercase tracking-widest text-red-600">{tGlobal('Log ud')}</Text>
           </View>
         </Pressable>
       </ScrollView>
@@ -392,62 +394,62 @@ export function StudentMoreScreen() {
             )}
           </View>
           <Button variant="outline" loading={uploadingAvatar} onPress={handleChangePhoto} className="flex-row items-center gap-2 px-5 py-2">
-            {uploadingAvatar ? '' : '📷 skift billede'}
+            {uploadingAvatar ? '' : `📷 ${tGlobal('skift billede')}`}
           </Button>
-          <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Skift billede</Text>
+          <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{tGlobal('Skift billede')}</Text>
         </View>
 
         <View className="gap-4">
-          <Text className="text-[10px] font-black uppercase tracking-widest text-accent">| Personlige oplysninger</Text>
+          <Text className="text-[10px] font-black uppercase tracking-widest text-accent">| {tGlobal('Personlige oplysninger')}</Text>
           {!isAdmin && (
             <View className="rounded-[24px] border border-primary/10 bg-primary/5 p-5">
               <Text className="text-xs font-bold leading-relaxed text-primary/60">
-                Ændringer i dine profiloplysninger skal ske via Ibn Amers administration. Kontakt os{' '}
+                {tGlobal('Ændringer i dine profiloplysninger skal ske via Ibn Amers administration. Kontakt os')}{' '}
                 <Text className="font-black text-accent" onPress={() => { setPersonalOpen(false); setContactOpen(true); }}>
-                  her
+                  {tGlobal('her')}
                 </Text>
                 .
               </Text>
             </View>
           )}
           <View className="gap-3 rounded-[24px] border border-border bg-card p-5">
-            {profile?.role === 'student' && <FieldRow label="Elevnummer" value={profile?.studentNumber} />}
-            <FieldRow label="Fulde Navn" value={profile?.displayName} />
-            <FieldRow label="Telefonnummer" value={profile?.phoneNumber} />
+            {profile?.role === 'student' && <FieldRow label={tGlobal('Elevnummer')} value={profile?.studentNumber} />}
+            <FieldRow label={tGlobal('Fulde Navn')} value={profile?.displayName} />
+            <FieldRow label={tGlobal('Telefonnummer')} value={profile?.phoneNumber} />
           </View>
         </View>
 
         <View className="gap-4">
-          <Text className="text-[10px] font-black uppercase tracking-widest text-accent">| Skift adgangskode</Text>
+          <Text className="text-[10px] font-black uppercase tracking-widest text-accent">| {tGlobal('Skift adgangskode')}</Text>
           <View className="gap-4 rounded-[24px] border border-border bg-card p-5">
             <View className="gap-2">
               <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                Nuværende adgangskode
+                {tGlobal('Nuværende adgangskode')}
               </Text>
               <Input secureTextEntry value={currentPassword} onChangeText={setCurrentPassword} />
             </View>
             <View className="gap-2">
               <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                Ny adgangskode
+                {tGlobal('Ny adgangskode')}
               </Text>
-              <Input secureTextEntry placeholder="Mindst 6 tegn" value={newPassword} onChangeText={setNewPassword} />
+              <Input secureTextEntry placeholder={tGlobal('Mindst 6 tegn')} value={newPassword} onChangeText={setNewPassword} />
             </View>
             <Button variant="outline" loading={updatingPassword} onPress={handleUpdatePassword}>
-              Opdater adgangskode
+              {tGlobal('Opdater adgangskode')}
             </Button>
           </View>
         </View>
 
         <Pressable onPress={() => setDeleteOpen(true)} className="items-center py-4">
-          <Text className="text-[10px] font-black uppercase tracking-[0.25em] text-red-600/50">Slet konto</Text>
+          <Text className="text-[10px] font-black uppercase tracking-[0.25em] text-red-600/50">{tGlobal('Slet konto')}</Text>
         </Pressable>
       </BackSheet>
 
       <BackSheet visible={membershipOpen} onClose={() => setMembershipOpen(false)}>
         <View className="gap-2">
-          <Text className="text-3xl font-bold text-accent">Administrer Medlemskab</Text>
+          <Text className="text-3xl font-bold text-accent">{tGlobal('Administrer Medlemskab')}</Text>
           <Text className="leading-relaxed text-muted-foreground">
-            Administrer dit abonnement, betalingsmetoder og faktureringshistorik på en sikker måde.
+            {tGlobal('Administrer dit abonnement, betalingsmetoder og faktureringshistorik på en sikker måde.')}
           </Text>
         </View>
 
@@ -455,18 +457,18 @@ export function StudentMoreScreen() {
           <View className="flex-row items-start justify-between">
             <View className="flex-row items-center gap-2">
               <Ionicons name="shield-checkmark" size={18} color="#197670" />
-              <Text className="font-bold text-foreground">Aktivt Abonnement</Text>
+              <Text className="font-bold text-foreground">{tGlobal('Aktivt Abonnement')}</Text>
             </View>
             <View className="flex-row items-center gap-1 rounded-full bg-primary/10 px-3 py-1">
               <View className="h-1.5 w-1.5 rounded-full bg-primary" />
-              <Text className="text-[10px] font-black uppercase tracking-widest text-primary">Aktiv</Text>
+              <Text className="text-[10px] font-black uppercase tracking-widest text-primary">{tGlobal('Aktiv')}</Text>
             </View>
           </View>
-          <Text className="-mt-2 text-xs text-muted-foreground">Detaljer om din nuværende plan og næste betaling.</Text>
+          <Text className="-mt-2 text-xs text-muted-foreground">{tGlobal('Detaljer om din nuværende plan og næste betaling.')}</Text>
 
           <View className="flex-row items-center justify-between rounded-2xl border border-border bg-card px-5 py-4">
             <View>
-              <Text className="text-[10px] font-bold text-muted-foreground">Månedlig pris</Text>
+              <Text className="text-[10px] font-bold text-muted-foreground">{tGlobal('Månedlig pris')}</Text>
               <Text className="text-2xl font-bold text-foreground">
                 {profile?.subscriptionAmount ?? 0} <Text className="text-sm font-bold text-muted-foreground">DKK</Text>
               </Text>
@@ -479,8 +481,8 @@ export function StudentMoreScreen() {
 
         <View className="gap-4 rounded-[28px] border border-border bg-card p-6">
           <View>
-            <Text className="font-bold text-foreground">Betalingsmetoder</Text>
-            <Text className="text-xs text-muted-foreground">Vælg din foretrukne betalingsmetode.</Text>
+            <Text className="font-bold text-foreground">{tGlobal('Betalingsmetoder')}</Text>
+            <Text className="text-xs text-muted-foreground">{tGlobal('Vælg din foretrukne betalingsmetode.')}</Text>
           </View>
           <View className="flex-row flex-wrap gap-3">
             {[PAYMENT_METHODS.slice(0, 2), PAYMENT_METHODS.slice(2, 4)].map((row, i) => (
@@ -489,7 +491,7 @@ export function StudentMoreScreen() {
                   <Pressable
                     key={m.id}
                     onPress={() =>
-                      Alert.alert('Tjenesten er på vej! 🚀', 'Denne betalingsmetode er under integration og vil snart være tilgængelig.')
+                      Alert.alert(tGlobal('Tjenesten er på vej! 🚀'), tGlobal('Denne betalingsmetode er under integration og vil snart være tilgængelig.'))
                     }
                     style={{ backgroundColor: m.bg, borderWidth: m.border ? 1 : 0, borderColor: '#e5e7eb' }}
                     className="flex-1 flex-row items-center justify-center gap-2 rounded-2xl py-4"
@@ -505,7 +507,7 @@ export function StudentMoreScreen() {
           </View>
           <View className="flex-row items-center justify-center gap-2 border-t border-border pt-4">
             <Ionicons name="shield-checkmark-outline" size={12} color="#9ca3af" />
-            <Text className="text-[10px] font-medium text-muted-foreground">Sikker betaling via Nets</Text>
+            <Text className="text-[10px] font-medium text-muted-foreground">{tGlobal('Sikker betaling via Nets')}</Text>
           </View>
         </View>
       </BackSheet>
@@ -515,83 +517,84 @@ export function StudentMoreScreen() {
           <View className="w-full gap-4 rounded-[32px] bg-card p-6 shadow-2xl">
             <View className="flex-row items-center gap-3">
               <Ionicons name="warning" size={22} color="#dc2626" />
-              <Text className="text-xl font-bold text-red-600">Er du helt sikker?</Text>
+              <Text className="text-xl font-bold text-red-600">{tGlobal('Er du helt sikker?')}</Text>
             </View>
             <Text className="text-sm leading-relaxed text-muted-foreground">
-              Din konto vil blive låst med det samme. Din anmodning vil blive behandlet af Ibn Amer inden for ca. 30
-              dage, hvorefter kontoen slettes permanent.
+              {tGlobal(
+                'Din konto vil blive låst med det samme. Din anmodning vil blive behandlet af Ibn Amer inden for ca. 30 dage, hvorefter kontoen slettes permanent.'
+              )}
             </Text>
             <View className="gap-2">
               <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                Hvorfor ønsker du at slette din konto?
+                {tGlobal('Hvorfor ønsker du at slette din konto?')}
               </Text>
               <Input
                 multiline
                 numberOfLines={3}
                 value={deleteReason}
                 onChangeText={setDeleteReason}
-                placeholder="Hvorfor forlader du os?"
+                placeholder={tGlobal('Hvorfor forlader du os?')}
                 className="min-h-[80px]"
               />
             </View>
             <View className="gap-2">
               <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                Nuværende adgangskode
+                {tGlobal('Nuværende adgangskode')}
               </Text>
-              <Input secureTextEntry value={deletePassword} onChangeText={setDeletePassword} placeholder="Bekræft med adgangskode" />
+              <Input secureTextEntry value={deletePassword} onChangeText={setDeletePassword} placeholder={tGlobal('Bekræft med adgangskode')} />
             </View>
             <View className="flex-row gap-3 pt-2">
               <Button variant="outline" className="flex-1" onPress={() => setDeleteOpen(false)}>
-                Annuller
+                {tGlobal('Annuller')}
               </Button>
               <Button variant="destructive" className="flex-1" loading={deleting} onPress={handleRequestDeletion}>
-                Slet konto
+                {tGlobal('Slet konto')}
               </Button>
             </View>
           </View>
         </View>
       </Modal>
 
-      <InfoModal visible={absenceOpen} title="Meld Fravær" onClose={() => setAbsenceOpen(false)}>
+      <InfoModal visible={absenceOpen} title={tGlobal('Meld Fravær')} onClose={() => setAbsenceOpen(false)}>
         <View className="flex-row gap-3">
-          <CompactDateField label="Fra dato" value={fromDate} onChange={setFromDate} />
-          <CompactDateField label="Til dato" value={toDate} onChange={setToDate} />
+          <CompactDateField label={tGlobal('Fra dato')} value={fromDate} onChange={setFromDate} />
+          <CompactDateField label={tGlobal('Til dato')} value={toDate} onChange={setToDate} />
         </View>
         <View className="gap-2">
-          <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Årsag til fravær</Text>
+          <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{tGlobal('Årsag til fravær')}</Text>
           <Input
             multiline
             numberOfLines={4}
             value={reason}
             onChangeText={setReason}
-            placeholder="Skriv hvorfor du ikke kan komme (fx sygdom, ferie)..."
+            placeholder={tGlobal('Skriv hvorfor du ikke kan komme (fx sygdom, ferie)...')}
             className="min-h-[100px]"
           />
         </View>
         <Button loading={savingAbsence} onPress={handleSubmitAbsence}>
-          {savingAbsence ? '' : '✓ Indsend'}
+          {savingAbsence ? '' : `✓ ${tGlobal('Indsend')}`}
         </Button>
       </InfoModal>
 
-      <InfoModal visible={contactOpen} title="Kontakt os" onClose={() => setContactOpen(false)}>
-        <Text className="text-lg font-bold text-foreground">Send en besked til Ibn Amer Instituttet.</Text>
+      <InfoModal visible={contactOpen} title={tGlobal('Kontakt os')} onClose={() => setContactOpen(false)}>
+        <Text className="text-lg font-bold text-foreground">{tGlobal('Send en besked til Ibn Amer Instituttet.')}</Text>
         <View className="gap-2">
-          <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Emne</Text>
-          <Input value={subject} onChangeText={setSubject} placeholder="Fx: Spørgsmål om betaling" />
+          <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{tGlobal('Emne')}</Text>
+          <Input value={subject} onChangeText={setSubject} placeholder={tGlobal('Fx: Spørgsmål om betaling')} />
         </View>
         <View className="gap-2">
-          <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Besked</Text>
+          <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{tGlobal('Besked')}</Text>
           <Input
             multiline
             numberOfLines={6}
             value={message}
             onChangeText={setMessage}
-            placeholder="Skriv din besked her..."
+            placeholder={tGlobal('Skriv din besked her...')}
             className="min-h-[140px]"
           />
         </View>
         <Button loading={sendingContact} onPress={handleSendContact}>
-          Send
+          {tGlobal('Send')}
         </Button>
       </InfoModal>
     </SafeAreaView>

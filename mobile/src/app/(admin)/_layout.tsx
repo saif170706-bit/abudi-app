@@ -2,6 +2,7 @@ import { Tabs, Redirect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/hooks/use-auth';
 import { useUserProfile } from '@/hooks/use-user-profile';
+import { useLanguagePreference } from '@/context/language-context';
 
 function TabIcon(name: keyof typeof Ionicons.glyphMap) {
   return ({ color, size }: { color: string; size: number }) => <Ionicons name={name} size={size} color={color} />;
@@ -10,6 +11,7 @@ function TabIcon(name: keyof typeof Ionicons.glyphMap) {
 export default function AdminLayout() {
   const { user, loading } = useAuth();
   const { role, isLoading } = useUserProfile();
+  const { tGlobal } = useLanguagePreference();
 
   if (loading || isLoading) return null;
   if (!user) return <Redirect href="/(auth)/login" />;
@@ -17,14 +19,14 @@ export default function AdminLayout() {
 
   return (
     <Tabs screenOptions={{ headerShown: false }}>
-      <Tabs.Screen name="members" options={{ title: 'Medlemmer', tabBarIcon: TabIcon('people-outline') }} />
-      <Tabs.Screen name="absence" options={{ title: 'Fravær', tabBarIcon: TabIcon('time-outline') }} />
-      <Tabs.Screen name="home" options={{ title: 'Hjem', tabBarIcon: TabIcon('home') }} />
+      <Tabs.Screen name="members" options={{ title: tGlobal('Medlemmer'), tabBarIcon: TabIcon('people-outline') }} />
+      <Tabs.Screen name="absence" options={{ title: tGlobal('Fravær'), tabBarIcon: TabIcon('time-outline') }} />
+      <Tabs.Screen name="home" options={{ title: tGlobal('Hjem'), tabBarIcon: TabIcon('home') }} />
       <Tabs.Screen
         name="announcements"
-        options={{ title: 'Opslag', tabBarIcon: TabIcon('add-circle-outline') }}
+        options={{ title: tGlobal('Opslag'), tabBarIcon: TabIcon('add-circle-outline') }}
       />
-      <Tabs.Screen name="mail" options={{ title: 'Mail', tabBarIcon: TabIcon('mail-outline') }} />
+      <Tabs.Screen name="mail" options={{ title: tGlobal('Mail'), tabBarIcon: TabIcon('mail-outline') }} />
 
       {/* Reachable, but not shown in the tab bar */}
       <Tabs.Screen name="dashboard" options={{ href: null }} />

@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { InviteUserForm } from './invite-user-form';
 import { LanguageMenu } from '@/components/ui/language-menu';
+import { useLanguagePreference } from '@/context/language-context';
 
 function HeaderIconButton({ name, color, onPress }: { name: keyof typeof Ionicons.glyphMap; color?: string; onPress: () => void }) {
   return (
@@ -25,13 +26,14 @@ export function AdminHubScreen() {
   const { profile } = useUserProfile();
   const { colorScheme, toggleColorScheme } = useColorScheme();
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
+  const { tGlobal } = useLanguagePreference();
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
       <ScrollView contentContainerClassName="gap-6 p-4">
         <View className="flex-row items-start justify-between">
           <View className="flex-1 pr-4">
-            <Text className="text-sm text-muted-foreground">Admin</Text>
+            <Text className="text-sm text-muted-foreground">{tGlobal('Admin')}</Text>
             <Text className="text-3xl font-bold leading-tight text-foreground">
               Assalamu alaikum {profile?.displayName ?? ''} 👋
             </Text>
@@ -48,12 +50,12 @@ export function AdminHubScreen() {
 
         <View className="flex-row gap-3">
           <Pressable onPress={() => router.push('/terminal/queue')} className="flex-1 rounded-2xl border-2 border-border p-4">
-            <Text className="font-bold text-foreground">Terminal: Træk Nummer</Text>
-            <Text className="mt-1 text-xs text-muted-foreground">Kø-skærm for iPad</Text>
+            <Text className="font-bold text-foreground">{tGlobal('Terminal: Træk Nummer')}</Text>
+            <Text className="mt-1 text-xs text-muted-foreground">{tGlobal('Kø-skærm for iPad')}</Text>
           </Pressable>
           <Pressable onPress={() => router.push('/terminal/tv')} className="flex-1 rounded-2xl border-2 border-border p-4">
-            <Text className="font-bold text-foreground">Terminal: TV Visning</Text>
-            <Text className="mt-1 text-xs text-muted-foreground">Oversigt for infoskærm</Text>
+            <Text className="font-bold text-foreground">{tGlobal('Terminal: TV Visning')}</Text>
+            <Text className="mt-1 text-xs text-muted-foreground">{tGlobal('Oversigt for infoskærm')}</Text>
           </Pressable>
         </View>
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable, Modal } from 'react-native';
-import { LANGUAGES, useLanguagePreference } from '@/hooks/use-language-preference';
+import { LANGUAGES, useLanguagePreference } from '@/context/language-context';
 
 export function LanguageMenu({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const { language, setLanguage } = useLanguagePreference();

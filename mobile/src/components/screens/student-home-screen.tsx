@@ -15,6 +15,7 @@ import {
   calculateStreakPoints,
 } from '@/lib/student-logic';
 import { getDailyVerse } from '@/lib/daily-verses';
+import { useLanguagePreference } from '@/context/language-context';
 import type { Assignment } from '@/shared/types';
 
 const TOTAL_PAGES = 604;
@@ -22,7 +23,7 @@ const TOTAL_PAGES = 604;
 const QUICK_ACCESS = [
   { id: 'view-homework', title: 'Lektie Liste', desc: 'Alle opgaver', icon: 'document-text-outline', color: '#ea580c' },
   { id: 'progress-journey', title: 'Hifz Rejse', desc: 'Se dit kort', icon: 'map-outline', color: '#197670' },
-  { id: 'quran-index', title: 'Koran', desc: 'Find Surah', icon: 'book-outline', color: '#2563eb' },
+  { id: 'quran-index', title: 'Quran', desc: 'Find Surah', icon: 'book-outline', color: '#2563eb' },
   { id: 'leaderboard', title: 'Leaderboard', desc: 'Vind over venner', icon: 'trophy-outline', color: '#b8860b' },
 ] as const;
 
@@ -30,6 +31,7 @@ export function StudentHomeScreen() {
   const { user } = useAuth();
   const { profile } = useUserProfile();
   const { firestore } = useFirebase();
+  const { tGlobal } = useLanguagePreference();
 
   const assignmentsQuery = useMemoFirebase(
     () => (user ? query(collection(firestore, 'students', user.uid, 'assignments'), orderBy('assignedAt', 'desc')) : null),
@@ -51,7 +53,7 @@ export function StudentHomeScreen() {
     else if (id === 'view-homework') router.push('/(student)/homework');
     else if (id === 'leaderboard') router.push('/leaderboard');
     else if (id === 'progress-journey') router.push('/progress-journey');
-    else Alert.alert('Kommer snart', 'Den side er ikke bygget endnu.');
+    else Alert.alert(tGlobal('Kommer snart'), 'Den side er ikke bygget endnu.');
   };
 
   return (
@@ -64,7 +66,7 @@ export function StudentHomeScreen() {
           <View>
             <Text className="mb-1 text-sm font-bold text-primary/40">Assalamu Alaikum 👋</Text>
             <Text className="text-3xl font-bold tracking-tight text-primary">
-              {profile?.displayName?.split(' ')[0] ?? 'Elev'}
+              {profile?.displayName?.split(' ')[0] ?? tGlobal('Elev')}
             </Text>
           </View>
           <Pressable
@@ -83,17 +85,17 @@ export function StudentHomeScreen() {
 
         <View className="flex-row">
           <View className="flex-1">
-            <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Sider</Text>
+            <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{tGlobal('Sider')}</Text>
             <Text className="mt-1 text-xl font-bold text-foreground">{totalPagesCount}</Text>
           </View>
           <View className="mx-3 w-px bg-border" />
           <View className="flex-1">
-            <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Mål</Text>
+            <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{tGlobal('Mål')}</Text>
             <Text className="mt-1 text-xl font-bold text-foreground">{TOTAL_PAGES}</Text>
           </View>
           <View className="mx-3 w-px bg-border" />
           <View className="flex-1">
-            <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Procent</Text>
+            <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{tGlobal('Procent')}</Text>
             <Text className="mt-1 text-xl font-bold text-foreground">
               {((totalPagesCount / TOTAL_PAGES) * 100).toFixed(1)}%
             </Text>
@@ -105,13 +107,13 @@ export function StudentHomeScreen() {
           className="flex-row items-center justify-between overflow-hidden rounded-[28px] border-2 border-accent/40 bg-card p-6 shadow-sm"
         >
           <View>
-            <Text className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Session</Text>
-            <Text className="mt-1 text-3xl font-bold text-primary">Læs Lektie</Text>
+            <Text className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">{tGlobal('Session')}</Text>
+            <Text className="mt-1 text-3xl font-bold text-primary">{tGlobal('Læs Lektie')}</Text>
             <Text className="mt-1 text-[10px] font-black uppercase tracking-widest text-accent">
-              Dagens Kø &amp; Evaluering
+              {tGlobal('Dagens Kø & Evaluering')}
             </Text>
             <View className="mt-6 flex-row items-center gap-2">
-              <Text className="text-[11px] font-black uppercase tracking-widest text-primary">Tilmeld Kø</Text>
+              <Text className="text-[11px] font-black uppercase tracking-widest text-primary">{tGlobal('Tilmeld Kø')}</Text>
               <View className="h-4 w-4 items-center justify-center rounded-full bg-foreground">
                 <Ionicons name="chevron-forward" size={10} color="#fff" />
               </View>
@@ -121,7 +123,7 @@ export function StudentHomeScreen() {
         </Pressable>
 
         <View className="gap-4">
-          <Text className="text-[10px] font-black uppercase tracking-widest text-accent">| Hurtig adgang</Text>
+          <Text className="text-[10px] font-black uppercase tracking-widest text-accent">| {tGlobal('Hurtig adgang')}</Text>
           <View className="gap-4">
             {[QUICK_ACCESS.slice(0, 2), QUICK_ACCESS.slice(2, 4)].map((row, rowIdx) => (
               <View key={rowIdx} className="flex-row gap-4">
@@ -135,9 +137,9 @@ export function StudentHomeScreen() {
                       <Ionicons name={feat.icon as any} size={24} color={feat.color} />
                     </View>
                     <View className="items-center">
-                      <Text className="text-sm font-black leading-tight text-foreground">{feat.title}</Text>
+                      <Text className="text-sm font-black leading-tight text-foreground">{tGlobal(feat.title)}</Text>
                       <Text className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                        {feat.desc}
+                        {tGlobal(feat.desc)}
                       </Text>
                     </View>
                   </Pressable>
@@ -152,7 +154,7 @@ export function StudentHomeScreen() {
         {!profile?.hideFromLeaderboard && user && <LeaderboardPreview userId={user.uid} />}
 
         <View className="gap-4">
-          <Text className="text-[10px] font-black uppercase tracking-widest text-accent">| Dagens Vers</Text>
+          <Text className="text-[10px] font-black uppercase tracking-widest text-accent">| {tGlobal('Dagens Vers')}</Text>
           <View className="items-center rounded-[28px] border border-border bg-card p-8">
             <Text className="mb-6 text-center text-2xl leading-relaxed text-primary">{dailyVerse.arabic}</Text>
             <Text className="mb-4 text-center text-xs italic leading-relaxed text-primary/60">
@@ -160,7 +162,7 @@ export function StudentHomeScreen() {
             </Text>
             <View className="mb-4 h-px w-12 bg-accent/20" />
             <Text className="text-[10px] font-black uppercase tracking-[0.2em] text-accent">
-              Surah {dailyVerse.reference}
+              {tGlobal('surah')} {dailyVerse.reference}
             </Text>
           </View>
         </View>

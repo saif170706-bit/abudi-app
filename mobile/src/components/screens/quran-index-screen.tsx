@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { View, Text, Pressable, FlatList, TextInput, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useSegments } from 'expo-router';
 import { surahs, type Surah } from '@/shared/surahs';
 import { findPageForVerse } from '@/lib/quran-page-lookup';
 import { useRecentQuranVisits } from '@/hooks/use-recent-quran-visits';
@@ -16,8 +16,10 @@ export function QuranIndexScreen() {
   const [searchTerm, setSearchTerm] = useState('');
   const [pageInput, setPageInput] = useState('');
   const { visits } = useRecentQuranVisits();
+  const segments = useSegments();
+  const basePath = segments[0] === '(teacher)' ? '/(teacher)/quran' : '/(student)/quran';
 
-  const navigateToPage = (page: number) => router.push(`/(student)/quran?page=${page}` as any);
+  const navigateToPage = (page: number) => router.push(`${basePath}?page=${page}` as any);
 
   const filteredSurahs = useMemo(() => {
     if (!searchTerm) return surahs;
