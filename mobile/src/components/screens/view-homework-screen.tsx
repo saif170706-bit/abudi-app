@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
-import { View, Text, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { collection, orderBy, query } from 'firebase/firestore';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { useAuth } from '@/hooks/use-auth';
@@ -92,8 +93,22 @@ export function ViewHomeworkScreen() {
         data={previous}
         keyExtractor={(a) => a.id}
         ListHeaderComponent={
-          <View className="gap-6">
-            <Text className="text-2xl font-bold text-foreground">Lektie Liste</Text>
+          <View className="gap-10">
+            <View className="flex-row items-center gap-4">
+              <Pressable
+                onPress={() => router.back()}
+                className="h-14 w-14 items-center justify-center rounded-2xl border border-border bg-card shadow-sm"
+              >
+                <Ionicons name="chevron-back" size={24} color="#197670" />
+              </Pressable>
+              <View>
+                <Text className="text-4xl font-bold tracking-tight text-foreground">Lektie Liste</Text>
+                <Text className="text-[10px] font-black uppercase tracking-[0.3em] text-accent">
+                  Følg dine fremskridt
+                </Text>
+              </View>
+            </View>
+
             {upcoming ? (
               <Card>
                 <View className="mb-2 flex-row items-center gap-2">
@@ -106,9 +121,13 @@ export function ViewHomeworkScreen() {
                 </View>
               </Card>
             ) : (
-              <Text className="text-center text-muted-foreground">Du har ingen kommende lektier.</Text>
+              <Text className="py-6 text-center text-sm font-bold uppercase tracking-widest text-primary/40">
+                Du har ingen kommende lektier.
+              </Text>
             )}
-            {previous.length > 0 && <Text className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Historik</Text>}
+            {previous.length > 0 && (
+              <Text className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Historik</Text>
+            )}
           </View>
         }
         renderItem={({ item }) => (
@@ -121,7 +140,14 @@ export function ViewHomeworkScreen() {
           </Card>
         )}
         ListEmptyComponent={
-          !upcoming ? <Text className="text-center text-muted-foreground">Du har ingen tidligere lektier.</Text> : null
+          !isLoading ? (
+            <View className="items-center py-20 opacity-20">
+              <Ionicons name="document-text-outline" size={48} color="#9ca3af" />
+              <Text className="mt-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                Du har ingen tidligere lektier.
+              </Text>
+            </View>
+          ) : null
         }
       />
     </SafeAreaView>

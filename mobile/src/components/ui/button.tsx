@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, Text, ActivityIndicator, type PressableProps } from 'react-native';
 
-type Variant = 'primary' | 'secondary' | 'outline' | 'ghost';
+type Variant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive';
 
 interface ButtonProps extends Omit<PressableProps, 'children'> {
   children: string;
@@ -14,6 +14,7 @@ const variantStyles: Record<Variant, { container: string; text: string }> = {
   secondary: { container: 'bg-secondary', text: 'text-secondary-foreground' },
   outline: { container: 'border border-border bg-transparent', text: 'text-foreground' },
   ghost: { container: 'bg-transparent', text: 'text-foreground' },
+  destructive: { container: 'bg-destructive', text: 'text-destructive-foreground' },
 };
 
 export function Button({ children, variant = 'primary', loading, disabled, className, ...props }: ButtonProps & { className?: string }) {

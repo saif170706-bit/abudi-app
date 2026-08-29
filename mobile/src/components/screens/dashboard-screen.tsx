@@ -8,6 +8,7 @@ import { useAnnouncementsFeed } from '@/hooks/use-announcements-feed';
 import { Card, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { htmlToPlainText } from '@/lib/html-text';
 
 const roleLabel: Record<string, string> = {
   admin: 'Administrator',
@@ -40,7 +41,7 @@ export function DashboardScreen() {
                   {profile?.role && <Badge className="mt-3">{roleLabel[profile.role] ?? profile.role}</Badge>}
                 </>
               )}
-              <Button variant="outline" className="mt-4" onPress={logout}>
+              <Button variant="destructive" className="mt-4" onPress={logout}>
                 Log Ud
               </Button>
             </Card>
@@ -56,8 +57,12 @@ export function DashboardScreen() {
                 <Text className="text-xs uppercase text-muted-foreground">{item.type}</Text>
               </View>
               <CardTitle>{item.title}</CardTitle>
-              {item.content ? <CardDescription>{item.content}</CardDescription> : null}
-              {item.description ? <CardDescription>{item.description}</CardDescription> : null}
+              {item.content ? (
+                <CardDescription numberOfLines={3}>{htmlToPlainText(item.content)}</CardDescription>
+              ) : null}
+              {item.description ? (
+                <CardDescription numberOfLines={3}>{htmlToPlainText(item.description)}</CardDescription>
+              ) : null}
             </Card>
           );
           if (item.type === 'event') {

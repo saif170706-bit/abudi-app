@@ -26,6 +26,14 @@ function RootNavigator() {
       <Stack.Screen name="(teacher)" />
       <Stack.Screen name="(student)" />
       <Stack.Screen name="events/[eventId]" options={{ headerShown: true, title: 'Tilmelding', presentation: 'modal' }} />
+      <Stack.Screen name="terminal/queue" options={{ presentation: 'fullScreenModal' }} />
+      <Stack.Screen name="terminal/tv" options={{ presentation: 'fullScreenModal' }} />
+      <Stack.Screen name="admin-waiting-list" />
+      <Stack.Screen name="queue-system" />
+      <Stack.Screen name="queue-teacher-list" />
+      <Stack.Screen name="queue-waiting" />
+      <Stack.Screen name="leaderboard" />
+      <Stack.Screen name="progress-journey" />
     </Stack>
   );
 }

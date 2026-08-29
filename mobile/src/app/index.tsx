@@ -19,5 +19,7 @@ export default function Index() {
 
   if (!role) return <Redirect href="/(auth)/login" />;
 
+  if (role === 'admin') return <Redirect href="/(admin)/home" />;
+
   return <Redirect href={`/(${role})/dashboard`} />;
 }

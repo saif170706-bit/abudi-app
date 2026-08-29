@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getApps, getApp, initializeApp, type FirebaseApp } from 'firebase/app';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
+import { getFunctions, type Functions } from 'firebase/functions';
 import { firebaseConfig } from './config';
 // The `firebase/auth` umbrella subpath does not expose a "react-native"
 // export condition in this SDK version, so getReactNativePersistence would
@@ -34,3 +35,4 @@ export const firebaseApp = initializeFirebaseApp();
 export const auth = initializeFirebaseAuth(firebaseApp);
 export const firestore: Firestore = getFirestore(firebaseApp);
 export const storage: FirebaseStorage = getStorage(firebaseApp);
+export const functions: Functions = getFunctions(firebaseApp);

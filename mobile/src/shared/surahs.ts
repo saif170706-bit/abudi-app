@@ -4,7 +4,7 @@ export interface Surah {
   englishName: string;
   englishNameTranslation: string;
   numberOfAyahs: number;
-  revelationType: 'Meccan' | 'Medinan';
+  revelationType: "Meccan" | "Medinan";
 }
 
 export const surahs: Surah[] = [

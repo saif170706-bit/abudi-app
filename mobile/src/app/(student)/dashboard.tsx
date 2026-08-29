@@ -1,3 +1,3 @@
-import { DashboardScreen } from '@/components/screens/dashboard-screen';
+import { StudentHomeScreen } from '@/components/screens/student-home-screen';
 
-export default DashboardScreen;
+export default StudentHomeScreen;

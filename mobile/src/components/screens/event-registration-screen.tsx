@@ -6,6 +6,7 @@ import { useFirebase, useDoc, useMemoFirebase } from '@/firebase';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { RichText } from '@/components/ui/rich-text';
 import { EventFormFieldRenderer, validateEventFormFields, type FormFieldValue } from '@/components/ui/event-form-field-renderer';
 import type { Event, Registration } from '@/shared/types';
 
@@ -74,7 +75,9 @@ export function EventRegistrationScreen({ eventId }: { eventId: string }) {
     <ScrollView className="flex-1 bg-background" contentContainerClassName="gap-6 p-4">
       <View>
         <Text className="text-2xl font-bold text-foreground">{event.title}</Text>
-        <Text className="mt-2 text-muted-foreground">{event.description}</Text>
+        <View className="mt-2">
+          <RichText html={event.description ?? ''} />
+        </View>
       </View>
 
       {isRegistered ? (

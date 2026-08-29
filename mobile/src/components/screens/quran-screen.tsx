@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, Pressable, FlatList, ActivityIndicator, useWindowDimensions, type ViewToken } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useFirebase } from '@/firebase';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuranPage } from '@/hooks/use-quran-page';
@@ -136,7 +138,10 @@ function SelectionBar({
   );
 }
 
-export function QuranScreen({ initialPageOverride }: { initialPageOverride?: number } = {}) {
+export function QuranScreen({
+  initialPageOverride,
+  backHref,
+}: { initialPageOverride?: number; backHref?: string } = {}) {
   const { width } = useWindowDimensions();
   const { firestore } = useFirebase();
   const { user } = useAuth();
@@ -200,6 +205,14 @@ export function QuranScreen({ initialPageOverride }: { initialPageOverride?: num
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      {backHref && (
+        <Pressable
+          onPress={() => router.replace(backHref as any)}
+          className="absolute left-4 top-4 z-10 h-11 w-11 items-center justify-center rounded-2xl border border-border bg-card/90 shadow-sm"
+        >
+          <Ionicons name="arrow-back" size={20} color="#374151" />
+        </Pressable>
+      )}
       <FlatList
         ref={listRef}
         data={PAGES}

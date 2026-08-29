@@ -2,7 +2,10 @@
 module.exports = {
   content: ['./src/app/**/*.{js,jsx,ts,tsx}', './src/components/**/*.{js,jsx,ts,tsx}'],
   presets: [require('nativewind/preset')],
-  darkMode: 'media',
+  // 'class' (not 'media') because we support a manual dark/light toggle —
+  // NativeWind throws if you call setColorScheme()/toggleColorScheme() while
+  // darkMode is 'media' (system-only, no manual override allowed).
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
