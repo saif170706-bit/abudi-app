@@ -11,6 +11,7 @@ import { AnnouncementForm } from './announcement-form';
 import { EventForm } from './event-form';
 import { SurveyForm } from './survey-form';
 import { MeetingForm } from './meeting-form';
+import { useLanguagePreference } from '@/context/language-context';
 import type { Announcement, Event, Survey, Livestream } from '@/shared/types';
 
 type PostType = 'announcement' | 'event' | 'survey' | 'meeting';
@@ -38,6 +39,7 @@ const TYPE_LABEL: Record<string, string> = {
 export function AdminPostsScreen() {
   const { firestore } = useFirebase();
   const { feedItems, isLoading } = useAnnouncementsFeed();
+  const { tGlobal } = useLanguagePreference();
   const [creating, setCreating] = useState<PostType | null>(null);
   const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
@@ -57,16 +59,16 @@ export function AdminPostsScreen() {
 
   const handleDelete = (item: any) => {
     const collectionName = item.type === 'event' ? 'events' : item.type === 'survey' ? 'surveys' : item.type === 'livestream' ? 'livestreams' : 'announcements';
-    Alert.alert('Slet opslag', `Er du sikker på at du vil slette "${item.title}"?`, [
-      { text: 'Annuller', style: 'cancel' },
-      { text: 'Slet', style: 'destructive', onPress: () => deleteDoc(doc(firestore, collectionName, item.id)) },
+    Alert.alert(tGlobal('Slet opslag'), `${tGlobal('Er du sikker på at du vil slette')} "${item.title}"?`, [
+      { text: tGlobal('Annuller'), style: 'cancel' },
+      { text: tGlobal('Slet'), style: 'destructive', onPress: () => deleteDoc(doc(firestore, collectionName, item.id)) },
     ]);
   };
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
       <View className="gap-3 p-4">
-        <Text className="text-2xl font-bold text-foreground">Opslag</Text>
+        <Text className="text-2xl font-bold text-foreground">{tGlobal('Opslag')}</Text>
         <View className="flex-row gap-2">
           {CREATE_TABS.map((tab) => (
             <Pressable
@@ -81,7 +83,7 @@ export function AdminPostsScreen() {
                 <Ionicons name={tab.icon} size={18} color={tab.iconColor} />
               </View>
               <Text className="text-center text-[10px] font-bold uppercase tracking-wide text-card-foreground">
-                {tab.label}
+                {tGlobal(tab.label)}
               </Text>
             </Pressable>
           ))}
@@ -99,7 +101,7 @@ export function AdminPostsScreen() {
                 <Image source={{ uri: item.imageUrl }} className="mb-3 h-32 w-full rounded-xl" resizeMode="cover" />
               )}
               <Text className="text-xs font-bold uppercase tracking-widest text-accent">
-                {TYPE_LABEL[item.type] ?? item.type}
+                {tGlobal(TYPE_LABEL[item.type] ?? item.type)}
               </Text>
               <CardTitle>{item.title}</CardTitle>
               {(item.content || item.description) && (
@@ -107,10 +109,10 @@ export function AdminPostsScreen() {
               )}
               <View className="mt-3 flex-row gap-3">
                 <Text className="text-sm font-medium text-primary" onPress={() => handleItemPress(item)}>
-                  Rediger
+                  {tGlobal('Rediger')}
                 </Text>
                 <Text className="text-sm font-medium text-destructive" onPress={() => handleDelete(item)}>
-                  Slet
+                  {tGlobal('Slet')}
                 </Text>
               </View>
             </Card>
@@ -120,7 +122,7 @@ export function AdminPostsScreen() {
           isLoading ? (
             <ActivityIndicator className="mt-8" />
           ) : (
-            <Text className="mt-8 text-center text-muted-foreground">Ingen opslag endnu.</Text>
+            <Text className="mt-8 text-center text-muted-foreground">{tGlobal('Ingen opslag endnu.')}</Text>
           )
         }
       />

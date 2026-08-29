@@ -8,6 +8,7 @@ import { restoreAccount, deleteUser } from '@/lib/user-admin-actions';
 import { Card, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useLanguagePreference } from '@/context/language-context';
 
 interface ContactMessage {
   id: string;
@@ -22,6 +23,7 @@ interface ContactMessage {
 
 export function AdminMailScreen() {
   const { firestore } = useFirebase();
+  const { tGlobal } = useLanguagePreference();
   const [tab, setTab] = useState<'inbox' | 'requests'>('inbox');
   const [selected, setSelected] = useState<ContactMessage | null>(null);
 
@@ -46,10 +48,10 @@ export function AdminMailScreen() {
   };
 
   const handleDelete = (msg: ContactMessage) => {
-    Alert.alert('Slet besked', `Slet beskeden fra ${msg.userName ?? 'afsender'}?`, [
-      { text: 'Annuller', style: 'cancel' },
+    Alert.alert(tGlobal('Slet besked'), `${tGlobal('Slet beskeden fra')} ${msg.userName ?? tGlobal('afsender')}?`, [
+      { text: tGlobal('Annuller'), style: 'cancel' },
       {
-        text: 'Slet',
+        text: tGlobal('Slet'),
         style: 'destructive',
         onPress: async () => {
           await deleteDoc(doc(firestore, 'contactMessages', msg.id));
@@ -62,21 +64,21 @@ export function AdminMailScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
       <View className="gap-3 p-4">
-        <Text className="text-sm text-muted-foreground">Admin</Text>
-        <Text className="text-2xl font-bold text-foreground">{tab === 'inbox' ? 'Indbakke' : 'Anmodninger'}</Text>
+        <Text className="text-sm text-muted-foreground">{tGlobal('Admin')}</Text>
+        <Text className="text-2xl font-bold text-foreground">{tab === 'inbox' ? tGlobal('Indbakke') : tGlobal('Anmodninger')}</Text>
         <View className="flex-row rounded-2xl bg-muted p-1">
           <Pressable
             onPress={() => setTab('inbox')}
             className={`flex-1 items-center rounded-xl py-2 ${tab === 'inbox' ? 'bg-card shadow-sm' : ''}`}
           >
-            <Text className={tab === 'inbox' ? 'font-semibold text-foreground' : 'text-muted-foreground'}>Indbakke</Text>
+            <Text className={tab === 'inbox' ? 'font-semibold text-foreground' : 'text-muted-foreground'}>{tGlobal('Indbakke')}</Text>
           </Pressable>
           <Pressable
             onPress={() => setTab('requests')}
             className={`flex-1 items-center rounded-xl py-2 ${tab === 'requests' ? 'bg-card shadow-sm' : ''}`}
           >
             <Text className={tab === 'requests' ? 'font-semibold text-foreground' : 'text-muted-foreground'}>
-              Anmodninger{deletionRequests.length > 0 ? ` (${deletionRequests.length})` : ''}
+              {tGlobal('Anmodninger')}{deletionRequests.length > 0 ? ` (${deletionRequests.length})` : ''}
             </Text>
           </Pressable>
         </View>
@@ -95,15 +97,15 @@ export function AdminMailScreen() {
                 <Card>
                   <View className="flex-row items-center justify-between">
                     <Text className={item.isRead ? 'font-medium text-card-foreground' : 'font-extrabold text-card-foreground'}>
-                      {item.userName ?? 'Ukendt'}
+                      {item.userName ?? tGlobal('Ukendt')}
                     </Text>
-                    {!item.isRead && <Badge>Ny</Badge>}
+                    {!item.isRead && <Badge>{tGlobal('Ny')}</Badge>}
                   </View>
-                  <CardDescription>{item.subject ?? 'Intet emne'}</CardDescription>
+                  <CardDescription>{item.subject ?? tGlobal('Intet emne')}</CardDescription>
                 </Card>
               </Pressable>
             )}
-            ListEmptyComponent={<Text className="mt-8 text-center text-muted-foreground">Ingen beskeder endnu.</Text>}
+            ListEmptyComponent={<Text className="mt-8 text-center text-muted-foreground">{tGlobal('Ingen beskeder endnu.')}</Text>}
           />
         )
       ) : isLoadingMembers ? (
@@ -116,7 +118,7 @@ export function AdminMailScreen() {
           renderItem={({ item }) => (
             <DeletionRequestRow member={item} onChanged={mutateMembers} />
           )}
-          ListEmptyComponent={<Text className="mt-8 text-center text-muted-foreground">Ingen anmodninger.</Text>}
+          ListEmptyComponent={<Text className="mt-8 text-center text-muted-foreground">{tGlobal('Ingen anmodninger.')}</Text>}
         />
       )}
 
@@ -124,20 +126,20 @@ export function AdminMailScreen() {
         {selected && (
           <SafeAreaView className="flex-1 bg-background">
             <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
-              <Text className="text-lg font-semibold text-foreground">Besked</Text>
+              <Text className="text-lg font-semibold text-foreground">{tGlobal('Besked')}</Text>
               <Pressable onPress={() => setSelected(null)} className="px-2 py-1">
-                <Text className="text-muted-foreground">Luk</Text>
+                <Text className="text-muted-foreground">{tGlobal('Luk')}</Text>
               </Pressable>
             </View>
             <View className="gap-4 p-4">
               <Card>
-                <CardTitle>{selected.userName ?? 'Ukendt'}</CardTitle>
+                <CardTitle>{selected.userName ?? tGlobal('Ukendt')}</CardTitle>
                 <CardDescription>{selected.userEmail ?? selected.email}</CardDescription>
               </Card>
-              <Text className="text-base font-semibold text-foreground">{selected.subject ?? 'Intet emne'}</Text>
-              <Text className="text-base leading-relaxed text-foreground/80">{selected.message ?? 'Ingen besked'}</Text>
+              <Text className="text-base font-semibold text-foreground">{selected.subject ?? tGlobal('Intet emne')}</Text>
+              <Text className="text-base leading-relaxed text-foreground/80">{selected.message ?? tGlobal('Ingen besked')}</Text>
               <Button variant="destructive" onPress={() => handleDelete(selected)}>
-                Slet Besked
+                {tGlobal('Slet Besked')}
               </Button>
             </View>
           </SafeAreaView>
@@ -150,6 +152,7 @@ export function AdminMailScreen() {
 function DeletionRequestRow({ member, onChanged }: { member: CombinedUser; onChanged: () => void }) {
   const [isRestoring, setIsRestoring] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { tGlobal } = useLanguagePreference();
 
   const handleRestore = async () => {
     setIsRestoring(true);
@@ -158,32 +161,36 @@ function DeletionRequestRow({ member, onChanged }: { member: CombinedUser; onCha
       onChanged();
     } catch (error) {
       console.error('Failed to restore account:', error);
-      Alert.alert('Fejl', 'Kunne ikke gendanne kontoen.');
+      Alert.alert(tGlobal('Fejl'), tGlobal('Kunne ikke gendanne kontoen.'));
     } finally {
       setIsRestoring(false);
     }
   };
 
   const handleDelete = () => {
-    Alert.alert('Slet konto permanent', `Er du sikker på at du vil slette ${member.displayName || member.email} permanent? Dette kan ikke fortrydes.`, [
-      { text: 'Annuller', style: 'cancel' },
-      {
-        text: 'Slet permanent',
-        style: 'destructive',
-        onPress: async () => {
-          setIsDeleting(true);
-          try {
-            await deleteUser(member.uid);
-            onChanged();
-          } catch (error) {
-            console.error('Failed to delete account:', error);
-            Alert.alert('Fejl', 'Kunne ikke slette kontoen.');
-          } finally {
-            setIsDeleting(false);
-          }
+    Alert.alert(
+      tGlobal('Slet konto permanent'),
+      `${tGlobal('Er du sikker på at du vil slette')} ${member.displayName || member.email} ${tGlobal('permanent? Dette kan ikke fortrydes.')}`,
+      [
+        { text: tGlobal('Annuller'), style: 'cancel' },
+        {
+          text: tGlobal('Slet permanent'),
+          style: 'destructive',
+          onPress: async () => {
+            setIsDeleting(true);
+            try {
+              await deleteUser(member.uid);
+              onChanged();
+            } catch (error) {
+              console.error('Failed to delete account:', error);
+              Alert.alert(tGlobal('Fejl'), tGlobal('Kunne ikke slette kontoen.'));
+            } finally {
+              setIsDeleting(false);
+            }
+          },
         },
-      },
-    ]);
+      ]
+    );
   };
 
   return (
@@ -192,10 +199,10 @@ function DeletionRequestRow({ member, onChanged }: { member: CombinedUser; onCha
       <CardDescription>{member.email}</CardDescription>
       <View className="mt-3 flex-row gap-3">
         <Button variant="outline" className="flex-1" loading={isRestoring} onPress={handleRestore}>
-          Gendan
+          {tGlobal('Gendan')}
         </Button>
         <Button variant="destructive" className="flex-1" loading={isDeleting} onPress={handleDelete}>
-          Slet permanent
+          {tGlobal('Slet permanent')}
         </Button>
       </View>
     </Card>

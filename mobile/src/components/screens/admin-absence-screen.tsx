@@ -9,6 +9,7 @@ import { useAbsenceReport } from '@/hooks/use-absence-report';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardDescription } from '@/components/ui/card';
+import { useLanguagePreference, LOCALE_MAP } from '@/context/language-context';
 import type { CombinedUser } from '@/hooks/use-members-data';
 
 const PERIODS = [
@@ -28,10 +29,10 @@ function getWeekBoundaries(offsetWeeks: number) {
   return { start, end };
 }
 
-function formatDateRange(offsetWeeks: number) {
+function formatDateRange(offsetWeeks: number, locale: string, tGlobal: (s: string) => string) {
   const { start, end } = getWeekBoundaries(offsetWeeks);
-  const fmt = (d: Date) => d.toLocaleDateString('da-DK', { day: 'numeric', month: 'short' }).toUpperCase();
-  return `${fmt(start)} TIL ${fmt(end)}`;
+  const fmt = (d: Date) => d.toLocaleDateString(locale, { day: 'numeric', month: 'short' }).toUpperCase();
+  return `${fmt(start)} ${tGlobal('til').toUpperCase()} ${fmt(end)}`;
 }
 
 function initials(name?: string) {
@@ -57,6 +58,8 @@ function StudentAvatar({ student }: { student: CombinedUser }) {
 
 export function AdminAbsenceScreen() {
   const { reportData, students, isLoading } = useAbsenceReport();
+  const { tGlobal, language } = useLanguagePreference();
+  const locale = LOCALE_MAP[language];
   const [tab, setTab] = useState<'report' | 'history'>('report');
   const [period, setPeriod] = useState<0 | 1>(0);
   const [noteStudent, setNoteStudent] = useState<CombinedUser | null>(null);
@@ -72,8 +75,8 @@ export function AdminAbsenceScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
       <View className="gap-3 p-4">
-        <Text className="text-sm text-muted-foreground">Admin</Text>
-        <Text className="text-2xl font-bold text-foreground">Fravær</Text>
+        <Text className="text-sm text-muted-foreground">{tGlobal('Admin')}</Text>
+        <Text className="text-2xl font-bold text-foreground">{tGlobal('Fravær')}</Text>
 
         <View className="flex-row rounded-2xl bg-muted p-1">
           <Pressable
@@ -81,7 +84,7 @@ export function AdminAbsenceScreen() {
             className={`flex-1 items-center rounded-xl py-2 ${tab === 'report' ? 'bg-card shadow-sm' : ''}`}
           >
             <Text className={tab === 'report' ? 'font-semibold text-foreground' : 'text-muted-foreground'}>
-              Ugentlig Rapport
+              {tGlobal('Ugentlig Rapport')}
             </Text>
           </Pressable>
           <Pressable
@@ -89,7 +92,7 @@ export function AdminAbsenceScreen() {
             className={`flex-1 items-center rounded-xl py-2 ${tab === 'history' ? 'bg-card shadow-sm' : ''}`}
           >
             <Text className={tab === 'history' ? 'font-semibold text-foreground' : 'text-muted-foreground'}>
-              Historik &amp; Søgning
+              {tGlobal('Historik & Søgning')}
             </Text>
           </Pressable>
         </View>
@@ -104,13 +107,13 @@ export function AdminAbsenceScreen() {
                   className={`flex-1 items-center rounded-xl py-2 ${period === p.value ? 'bg-foreground' : ''}`}
                 >
                   <Text className={period === p.value ? 'font-semibold text-background' : 'text-muted-foreground'}>
-                    {p.label}
+                    {tGlobal(p.label)}
                   </Text>
                 </Pressable>
               ))}
             </View>
             <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-              {formatDateRange(period)}
+              {formatDateRange(period, locale, tGlobal)}
             </Text>
           </>
         )}
@@ -118,7 +121,7 @@ export function AdminAbsenceScreen() {
 
       {tab === 'history' ? (
         <View className="flex-1 items-center justify-center px-8">
-          <Text className="text-center text-muted-foreground">Historik & søgning kommer snart.</Text>
+          <Text className="text-center text-muted-foreground">{tGlobal('Historik & søgning kommer snart.')}</Text>
         </View>
       ) : isLoading ? (
         <ActivityIndicator className="mt-8" />
@@ -133,7 +136,7 @@ export function AdminAbsenceScreen() {
               <View className="flex-1">
                 <Text className="font-semibold text-card-foreground">{item.student.displayName || item.student.email}</Text>
                 <Text className={item.status?.attended ? 'text-xs font-bold text-primary' : 'text-xs font-bold text-destructive'}>
-                  {item.status?.attended ? 'MØDT' : 'IKKE MØDT'}
+                  {item.status?.attended ? tGlobal('MØDT') : tGlobal('IKKE MØDT')}
                 </Text>
               </View>
               <Pressable
@@ -150,7 +153,7 @@ export function AdminAbsenceScreen() {
               </Pressable>
             </View>
           )}
-          ListEmptyComponent={<Text className="mt-8 text-center text-muted-foreground">Ingen elever fundet.</Text>}
+          ListEmptyComponent={<Text className="mt-8 text-center text-muted-foreground">{tGlobal('Ingen elever fundet.')}</Text>}
         />
       )}
 
@@ -164,6 +167,7 @@ export function AdminAbsenceScreen() {
 function AbsenceNoteModal({ student, onClose }: { student: CombinedUser; onClose: () => void }) {
   const { firestore } = useFirebase();
   const { user } = useAuth();
+  const { tGlobal } = useLanguagePreference();
   const [notes, setNotes] = useState<{ id: string; text: string; createdAt?: any }[]>([]);
   const [isLoadingNotes, setIsLoadingNotes] = useState(true);
   const [noteText, setNoteText] = useState('');
@@ -194,13 +198,13 @@ function AbsenceNoteModal({ student, onClose }: { student: CombinedUser; onClose
       await addDoc(collection(firestore, 'students', student.uid, 'absenceNotes'), {
         text: noteText.trim(),
         createdAt: serverTimestamp(),
-        authorName: user.displayName || 'Admin',
+        authorName: user.displayName || tGlobal('Admin'),
       });
       setNoteText('');
       onClose();
     } catch (error) {
       console.error('Failed to save absence note:', error);
-      Alert.alert('Fejl', 'Kunne ikke gemme noten.');
+      Alert.alert(tGlobal('Fejl'), tGlobal('Kunne ikke gemme noten.'));
     } finally {
       setIsSaving(false);
     }
@@ -211,7 +215,7 @@ function AbsenceNoteModal({ student, onClose }: { student: CombinedUser; onClose
       <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
         <Text className="text-lg font-semibold text-foreground">{student.displayName || student.email}</Text>
         <Pressable onPress={onClose} className="px-2 py-1">
-          <Text className="text-muted-foreground">Luk</Text>
+          <Text className="text-muted-foreground">{tGlobal('Luk')}</Text>
         </Pressable>
       </View>
       <View className="gap-4 p-4">
@@ -225,11 +229,11 @@ function AbsenceNoteModal({ student, onClose }: { student: CombinedUser; onClose
           ))
         )}
         <View className="gap-2">
-          <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Ny note</Text>
+          <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Ny note')}</Text>
           <Input multiline numberOfLines={4} value={noteText} onChangeText={setNoteText} className="min-h-[100px]" />
         </View>
         <Button loading={isSaving} onPress={handleSave}>
-          Gem Note
+          {tGlobal('Gem Note')}
         </Button>
       </View>
     </SafeAreaView>

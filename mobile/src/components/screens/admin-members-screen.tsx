@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChipPicker } from '@/components/ui/chip-picker';
+import { useLanguagePreference } from '@/context/language-context';
 import type { UserGender, UserRole } from '@/shared/types';
 
 interface CombinedUser {
@@ -33,6 +34,7 @@ const GENDER_OPTIONS: { value: UserGender; label: string }[] = [
 
 export function AdminMembersScreen() {
   const { firestore } = useFirebase();
+  const { tGlobal } = useLanguagePreference();
   const [members, setMembers] = useState<CombinedUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchInput, setSearchInput] = useState('');
@@ -147,7 +149,7 @@ export function AdminMembersScreen() {
       fetchUsers(limitCount, searchInput);
     } catch (error) {
       console.error('Failed to update member:', error);
-      Alert.alert('Fejl', 'Kunne ikke opdatere brugeren.');
+      Alert.alert(tGlobal('Fejl'), tGlobal('Kunne ikke opdatere brugeren.'));
     }
   };
 
@@ -155,8 +157,8 @@ export function AdminMembersScreen() {
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
       <View className="flex-row items-start justify-between px-4 pt-4">
         <View>
-          <Text className="text-sm text-muted-foreground">Admin</Text>
-          <Text className="text-3xl font-bold text-foreground">Medlemmer</Text>
+          <Text className="text-sm text-muted-foreground">{tGlobal('Admin')}</Text>
+          <Text className="text-3xl font-bold text-foreground">{tGlobal('Medlemmer')}</Text>
         </View>
         <Pressable
           onPress={() => router.push('/admin-waiting-list')}
@@ -167,13 +169,13 @@ export function AdminMembersScreen() {
       </View>
       <View className="gap-3 p-4">
         <Input
-          placeholder="Søg efter navn, email eller elevnummer..."
+          placeholder={tGlobal('Søg efter navn, email eller elevnummer...')}
           value={searchInput}
           onChangeText={setSearchInput}
           onSubmitEditing={handleSearch}
         />
         <Button variant="outline" onPress={handleSearch} className="self-start px-4 py-2">
-          Søg
+          {tGlobal('Søg')}
         </Button>
       </View>
 
@@ -188,7 +190,7 @@ export function AdminMembersScreen() {
             <Pressable onPress={() => setEditing(item)} className="rounded-xl border border-border bg-card p-4">
               <View className="flex-row items-center justify-between">
                 <Text className="font-semibold text-card-foreground">{item.displayName || item.email}</Text>
-                <Badge>{item.status}</Badge>
+                <Badge>{tGlobal(item.status)}</Badge>
               </View>
               <Text className="text-xs text-muted-foreground">
                 {item.email} · {item.role}
@@ -198,11 +200,11 @@ export function AdminMembersScreen() {
           ListFooterComponent={
             limitCount !== 'all' ? (
               <Button variant="outline" onPress={() => setLimitCount('all')} className="mt-2">
-                Vis alle
+                {tGlobal('Vis alle')}
               </Button>
             ) : null
           }
-          ListEmptyComponent={<Text className="mt-8 text-center text-muted-foreground">Ingen medlemmer fundet.</Text>}
+          ListEmptyComponent={<Text className="mt-8 text-center text-muted-foreground">{tGlobal('Ingen medlemmer fundet.')}</Text>}
         />
       )}
 
@@ -226,22 +228,23 @@ function MemberEditForm({
 }) {
   const [form, setForm] = useState<CombinedUser>(member);
   const [isSaving, setIsSaving] = useState(false);
+  const { tGlobal } = useLanguagePreference();
 
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
-        <Text className="text-lg font-semibold text-foreground">Rediger medlem</Text>
+        <Text className="text-lg font-semibold text-foreground">{tGlobal('Rediger medlem')}</Text>
         <Pressable onPress={onCancel} className="px-2 py-1">
-          <Text className="text-muted-foreground">Luk</Text>
+          <Text className="text-muted-foreground">{tGlobal('Luk')}</Text>
         </Pressable>
       </View>
       <View className="gap-4 p-4">
         <View className="gap-2">
-          <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Navn</Text>
+          <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Navn')}</Text>
           <Input value={form.displayName || ''} onChangeText={(v) => setForm((f) => ({ ...f, displayName: v }))} />
         </View>
         <View className="gap-2">
-          <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Telefonnummer</Text>
+          <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Telefonnummer')}</Text>
           <Input
             keyboardType="phone-pad"
             value={form.phoneNumber || ''}
@@ -249,15 +252,15 @@ function MemberEditForm({
           />
         </View>
         <View className="gap-2">
-          <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Køn</Text>
+          <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Køn')}</Text>
           <ChipPicker
-            options={GENDER_OPTIONS}
+            options={GENDER_OPTIONS.map((o) => ({ ...o, label: tGlobal(o.label) }))}
             value={form.gender || 'man'}
             onChange={(v) => setForm((f) => ({ ...f, gender: v }))}
           />
         </View>
         <View className="gap-2">
-          <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Abonnement (DKK)</Text>
+          <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Abonnement (DKK)')}</Text>
           <Input
             keyboardType="number-pad"
             value={String(form.subscriptionAmount ?? 0)}
@@ -266,7 +269,7 @@ function MemberEditForm({
         </View>
         {form.role === 'student' && (
           <View className="gap-2">
-            <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Elevnummer</Text>
+            <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Elevnummer')}</Text>
             <Input
               value={form.studentNumber || ''}
               onChangeText={(v) => setForm((f) => ({ ...f, studentNumber: v }))}
@@ -281,7 +284,7 @@ function MemberEditForm({
             setIsSaving(false);
           }}
         >
-          Gem
+          {tGlobal('Gem')}
         </Button>
       </View>
     </SafeAreaView>
