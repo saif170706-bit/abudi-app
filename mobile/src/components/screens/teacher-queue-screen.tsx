@@ -8,12 +8,14 @@ import { httpsCallable } from 'firebase/functions';
 import { useFirebase } from '@/firebase';
 import { functions } from '@/firebase/client';
 import { useAuth } from '@/hooks/use-auth';
+import { useLanguagePreference } from '@/context/language-context';
 
 type QueuedStudent = { id: string; name: string; joinedAt?: any };
 
 export function TeacherQueueScreen() {
   const { firestore } = useFirebase();
   const { user } = useAuth();
+  const { tGlobal } = useLanguagePreference();
   const [students, setStudents] = useState<QueuedStudent[]>([]);
   const [currentlyCalling, setCurrentlyCalling] = useState<any>(null);
   const [calling, setCalling] = useState<'physical' | 'virtual' | null>(null);
@@ -42,10 +44,10 @@ export function TeacherQueueScreen() {
       await fn({ callType });
     } catch (error: any) {
       if (error?.code === 'functions/not-found') {
-        Alert.alert('Køen er tom', 'Der er ingen elever i køen lige nu.');
+        Alert.alert(tGlobal('Køen er tom'), tGlobal('Der er ingen elever i køen lige nu.'));
       } else {
         console.error('Failed to call next student:', error);
-        Alert.alert('Fejl', 'Kunne ikke kalde næste elev.');
+        Alert.alert(tGlobal('Fejl'), tGlobal('Kunne ikke kalde næste elev.'));
       }
     } finally {
       setCalling(null);
@@ -62,15 +64,17 @@ export function TeacherQueueScreen() {
           <Ionicons name="chevron-back" size={22} color="#197670" />
         </Pressable>
         <View>
-          <Text className="text-2xl font-bold text-primary">Lektiehjælp Kø</Text>
-          <Text className="text-[10px] font-black uppercase tracking-widest text-accent">Administrer din elev kø</Text>
+          <Text className="text-2xl font-bold text-primary">{tGlobal('Lektiehjælp Kø')}</Text>
+          <Text className="text-[10px] font-black uppercase tracking-widest text-accent">{tGlobal('Administrer din elev kø')}</Text>
         </View>
       </View>
 
       {currentlyCalling && (
         <View className="mx-6 mt-6 flex-row items-center gap-3 rounded-2xl border border-accent/30 bg-accent/5 p-4">
           <Ionicons name="megaphone" size={18} color="#b8860b" />
-          <Text className="flex-1 text-sm font-bold text-foreground">Kalder: {currentlyCalling.studentName}</Text>
+          <Text className="flex-1 text-sm font-bold text-foreground">
+            {tGlobal('Kalder:')} {currentlyCalling.studentName}
+          </Text>
         </View>
       )}
 

@@ -7,16 +7,19 @@ import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { useFirebase } from '@/firebase';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { useAuth } from '@/hooks/use-auth';
+import { useLanguagePreference } from '@/context/language-context';
 
-function availabilityText(count: number) {
-  if (count === 0) return 'Ingen lærere';
-  return count === 1 ? '1 lærer er klar' : `${count} lærere er klar`;
+function availabilityText(count: number, tGlobal: (s: string) => string) {
+  if (count === 0) return tGlobal('ingen lærere');
+  const key = count === 1 ? 'lærer er klar' : 'lærere er klar';
+  return tGlobal(key).replace('{count}', String(count));
 }
 
 export function QueueSystemScreen() {
   const { firestore } = useFirebase();
   const { profile } = useUserProfile();
   const { user } = useAuth();
+  const { tGlobal } = useLanguagePreference();
   const [physicalRaw, setPhysicalRaw] = useState<any[]>([]);
   const [virtualRaw, setVirtualRaw] = useState<any[]>([]);
 
@@ -55,9 +58,9 @@ export function QueueSystemScreen() {
             <Ionicons name="chevron-back" size={24} color="#197670" />
           </Pressable>
           <View>
-            <Text className="text-4xl font-bold tracking-tight text-foreground">Kø System</Text>
+            <Text className="text-4xl font-bold tracking-tight text-foreground">{tGlobal('Kø System')}</Text>
             <Text className="text-[10px] font-black uppercase tracking-[0.3em] text-accent">
-              Tilmeld dig dagens kø
+              {tGlobal('Tilmeld dig dagens kø')}
             </Text>
           </View>
         </View>
@@ -72,9 +75,9 @@ export function QueueSystemScreen() {
                 <Ionicons name="book" size={36} color="#DEA93E" />
               </View>
               <View>
-                <Text className="text-2xl font-bold text-primary">Læs Fysisk</Text>
+                <Text className="text-2xl font-bold text-primary">{tGlobal('Læs Fysisk')}</Text>
                 <Text className="mt-1 text-[10px] font-black uppercase tracking-widest text-accent">
-                  {availabilityText(physicalTeachers.length)}
+                  {availabilityText(physicalTeachers.length, tGlobal)}
                 </Text>
               </View>
             </View>
@@ -89,9 +92,9 @@ export function QueueSystemScreen() {
                 <Ionicons name="call" size={34} color="#DEA93E" />
               </View>
               <View>
-                <Text className="text-2xl font-bold text-primary">Læs Virtuelt</Text>
+                <Text className="text-2xl font-bold text-primary">{tGlobal('Læs Virtuelt')}</Text>
                 <Text className="mt-1 text-[10px] font-black uppercase tracking-widest text-accent">
-                  {availabilityText(virtualTeachers.length)}
+                  {availabilityText(virtualTeachers.length, tGlobal)}
                 </Text>
               </View>
             </View>

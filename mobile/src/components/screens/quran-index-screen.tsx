@@ -6,6 +6,7 @@ import { router, useSegments } from 'expo-router';
 import { surahs, type Surah } from '@/shared/surahs';
 import { findPageForVerse } from '@/lib/quran-page-lookup';
 import { useRecentQuranVisits } from '@/hooks/use-recent-quran-visits';
+import { useLanguagePreference } from '@/context/language-context';
 
 function firstPageOf(surahNumber: number): number {
   return findPageForVerse(surahNumber, 1) ?? 1;
@@ -16,6 +17,7 @@ export function QuranIndexScreen() {
   const [searchTerm, setSearchTerm] = useState('');
   const [pageInput, setPageInput] = useState('');
   const { visits } = useRecentQuranVisits();
+  const { tGlobal } = useLanguagePreference();
   const segments = useSegments();
   const basePath = segments[0] === '(teacher)' ? '/(teacher)/quran' : '/(student)/quran';
 
@@ -35,7 +37,7 @@ export function QuranIndexScreen() {
   const handlePageSearch = () => {
     const pageNum = parseInt(pageInput, 10);
     if (isNaN(pageNum) || pageNum < 1 || pageNum > 604) {
-      Alert.alert('Ugyldig side', 'Vælg venligst en side mellem 1 og 604.');
+      Alert.alert(tGlobal('Ugyldig side'), tGlobal('Vælg venligst en side mellem 1 og 604.'));
       return;
     }
     navigateToPage(pageNum);
@@ -45,9 +47,9 @@ export function QuranIndexScreen() {
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
       <View className="flex-row items-start justify-between px-4 pt-4">
         <View>
-          <Text className="text-4xl font-bold tracking-tight text-foreground">Koran</Text>
+          <Text className="text-4xl font-bold tracking-tight text-foreground">{tGlobal('Quran')}</Text>
           <Text className="mt-2 text-[10px] font-black uppercase tracking-[0.25em] text-accent">
-            Udforsk de hellige skrifter
+            {tGlobal('Udforsk de hellige skrifter')}
           </Text>
         </View>
         <Pressable
@@ -63,13 +65,13 @@ export function QuranIndexScreen() {
           onPress={() => setTab('surah')}
           className={`flex-1 items-center rounded-xl py-3 ${tab === 'surah' ? 'bg-card shadow-sm' : ''}`}
         >
-          <Text className="text-[10px] font-black uppercase tracking-widest text-foreground">Surah</Text>
+          <Text className="text-[10px] font-black uppercase tracking-widest text-foreground">{tGlobal('surah')}</Text>
         </Pressable>
         <Pressable
           onPress={() => setTab('page')}
           className={`flex-1 items-center rounded-xl py-3 ${tab === 'page' ? 'bg-card shadow-sm' : ''}`}
         >
-          <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Side</Text>
+          <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{tGlobal('Side')}</Text>
         </Pressable>
       </View>
 
@@ -78,9 +80,9 @@ export function QuranIndexScreen() {
           <View className="mb-6 h-24 w-24 items-center justify-center rounded-[40px] bg-accent/10">
             <Ionicons name="book" size={44} color="#b8860b" />
           </View>
-          <Text className="text-2xl font-bold text-foreground">Gå til side</Text>
+          <Text className="text-2xl font-bold text-foreground">{tGlobal('goToPage')}</Text>
           <Text className="mt-2 text-[10px] font-black uppercase tracking-widest text-primary/30">
-            Vælg en side mellem 1 og 604
+            {tGlobal('Vælg en side mellem 1 og 604')}
           </Text>
           <TextInput
             value={pageInput}
@@ -90,7 +92,7 @@ export function QuranIndexScreen() {
             className="mt-8 h-20 w-full rounded-[32px] border border-border bg-card text-center text-4xl font-bold text-foreground"
           />
           <Pressable onPress={handlePageSearch} className="mt-6 h-16 w-full items-center justify-center rounded-[32px] bg-primary">
-            <Text className="text-lg font-black uppercase tracking-[0.2em] text-primary-foreground">Gå</Text>
+            <Text className="text-lg font-black uppercase tracking-[0.2em] text-primary-foreground">{tGlobal('go')}</Text>
           </Pressable>
         </View>
       ) : (
@@ -105,7 +107,7 @@ export function QuranIndexScreen() {
                 <TextInput
                   value={searchTerm}
                   onChangeText={setSearchTerm}
-                  placeholder="Find din surah..."
+                  placeholder={tGlobal('Find din surah...')}
                   className="h-14 rounded-[24px] bg-primary/5 pl-12 pr-4 text-base font-bold text-foreground"
                 />
               </View>
@@ -115,7 +117,7 @@ export function QuranIndexScreen() {
                   <View className="flex-row items-center gap-2">
                     <Ionicons name="time-outline" size={12} color="#9ca3af" />
                     <Text className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
-                      Nyligt besøgt
+                      {tGlobal('Nyligt besøgt')}
                     </Text>
                   </View>
                   <View className="flex-row gap-3">
@@ -126,10 +128,10 @@ export function QuranIndexScreen() {
                         className="flex-1 items-center rounded-2xl border border-border bg-card p-4"
                       >
                         <Text numberOfLines={1} className="text-sm font-bold text-foreground">
-                          {v.surahName ?? `Side ${v.page}`}
+                          {v.surahName ?? `${tGlobal('Side')} ${v.page}`}
                         </Text>
                         <Text className="mt-1 text-[10px] font-black uppercase tracking-widest text-accent">
-                          Side {v.page}
+                          {tGlobal('Side')} {v.page}
                         </Text>
                       </Pressable>
                     ))}
@@ -149,7 +151,8 @@ export function QuranIndexScreen() {
               <View className="flex-1">
                 <Text className="text-[17px] font-bold text-foreground">{item.englishName}</Text>
                 <Text className="mt-1 text-[10px] font-black uppercase tracking-widest text-primary/30">
-                  {item.revelationType === 'Meccan' ? 'Makki' : 'Madani'} • {item.numberOfAyahs} vers
+                  {item.revelationType === 'Meccan' ? tGlobal('Makki') : tGlobal('Madani')} • {item.numberOfAyahs}{' '}
+                  {tGlobal('vers')}
                 </Text>
               </View>
               <Text className="text-3xl text-primary">{item.name}</Text>
@@ -158,7 +161,9 @@ export function QuranIndexScreen() {
           ListEmptyComponent={
             <View className="items-center py-20">
               <Ionicons name="search" size={32} color="#d1d5db" />
-              <Text className="mt-4 font-bold text-primary/40">Ingen resultater for "{searchTerm}"</Text>
+              <Text className="mt-4 font-bold text-primary/40">
+                {tGlobal('Ingen resultater for')} "{searchTerm}"
+              </Text>
             </View>
           }
         />

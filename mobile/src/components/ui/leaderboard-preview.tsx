@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { collection, getDocs, limit, orderBy, query } from 'firebase/firestore';
 import { useFirebase } from '@/firebase';
+import { useLanguagePreference } from '@/context/language-context';
 
 function openLeaderboard() {
   router.push('/leaderboard');
@@ -28,6 +29,7 @@ function initials(name?: string) {
 
 export function LeaderboardPreview({ userId }: { userId: string }) {
   const { firestore } = useFirebase();
+  const { tGlobal } = useLanguagePreference();
   const [loading, setLoading] = useState(true);
   const [topStudents, setTopStudents] = useState<LeaderboardEntry[]>([]);
   const [userRank, setUserRank] = useState<number | null>(null);
@@ -55,17 +57,17 @@ export function LeaderboardPreview({ userId }: { userId: string }) {
   }
 
   const headline =
-    userRank === 1 ? 'Du fører!' : userRank && userRank <= 3 ? 'Du er i Top 3!' : 'Top 3 er tæt!';
+    userRank === 1 ? tGlobal('Du fører!') : userRank && userRank <= 3 ? tGlobal('Du er i Top 3!') : tGlobal('Top 3 er tæt!');
 
   return (
     <View className="gap-4">
       <View className="flex-row items-center justify-between px-1">
         <View className="flex-row items-center gap-2">
           <Ionicons name="trophy" size={16} color="#b8860b" />
-          <Text className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30">Leaderboard</Text>
+          <Text className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30">{tGlobal('Leaderboard')}</Text>
         </View>
         <Pressable onPress={openLeaderboard}>
-          <Text className="text-[10px] font-black uppercase tracking-widest text-accent">Se alle →</Text>
+          <Text className="text-[10px] font-black uppercase tracking-widest text-accent">{tGlobal('Se alle →')}</Text>
         </Pressable>
       </View>
 
@@ -88,13 +90,13 @@ export function LeaderboardPreview({ userId }: { userId: string }) {
           <View>
             <Text className="text-[11px] font-black uppercase tracking-tight text-primary">{headline}</Text>
             <Text className="text-[9px] font-bold uppercase text-primary/30">
-              {userRank ? `Du er nummer ${userRank}` : 'Se hvem der fører'}
+              {userRank ? `${tGlobal('Du er nummer')} ${userRank}` : tGlobal('Se hvem der fører')}
             </Text>
           </View>
         </View>
         <View className="flex-row items-center gap-3">
           <View className="items-end">
-            <Text className="text-[9px] font-black uppercase tracking-widest text-primary/30">Din plads</Text>
+            <Text className="text-[9px] font-black uppercase tracking-widest text-primary/30">{tGlobal('Din plads')}</Text>
             <View className="flex-row items-center gap-1">
               <Ionicons name="sparkles" size={12} color="#b8860b" />
               <Text className="text-xl font-bold text-primary">#{userRank ?? '?'}</Text>

@@ -13,6 +13,14 @@ export const LANGUAGES: { code: LanguageCode; label: string }[] = [
 
 const STORAGE_KEY = 'language_preference_v1';
 
+/** Maps our language codes to Intl/toLocaleDateString locale identifiers. */
+export const LOCALE_MAP: Record<LanguageCode, string> = {
+  da: 'da-DK',
+  en: 'en-US',
+  ar: 'ar-SA',
+  so: 'so-SO',
+};
+
 interface LanguageContextValue {
   language: LanguageCode;
   setLanguage: (code: LanguageCode) => void;

@@ -3,6 +3,7 @@ import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { TOTAL_PAGES, TOTAL_JUZ, getJuzPageRange } from '@/lib/student-logic';
 import { surahs } from '@/shared/surahs';
+import { useLanguagePreference } from '@/context/language-context';
 
 type MapView = 'pages' | 'juz' | 'surahs';
 
@@ -16,6 +17,7 @@ export function QuranProgressMap({
   completedJuz?: Set<number>;
 }) {
   const [mapView, setMapView] = useState<MapView>('pages');
+  const { tGlobal } = useLanguagePreference();
   const overallPct = Math.round((completedPages.size / TOTAL_PAGES) * 100);
 
   const tabs: { key: MapView; label: string }[] = [
@@ -32,9 +34,9 @@ export function QuranProgressMap({
             <Ionicons name="map-outline" size={24} color="#b8860b" />
           </View>
           <View>
-            <Text className="text-xl font-black tracking-tight text-primary">Quran kortet</Text>
+            <Text className="text-xl font-black tracking-tight text-primary">{tGlobal('Quran kortet')}</Text>
             <Text className="mt-0.5 text-[10px] font-black uppercase tracking-[0.2em] text-accent">
-              {overallPct}% af Quranen fuldført
+              {overallPct}% {tGlobal('af Quranen fuldført')}
             </Text>
           </View>
         </View>
@@ -52,7 +54,7 @@ export function QuranProgressMap({
                 mapView === tab.key ? 'text-background' : 'text-primary/40'
               }`}
             >
-              {tab.label}
+              {tGlobal(tab.label)}
             </Text>
           </Pressable>
         ))}
@@ -76,11 +78,11 @@ export function QuranProgressMap({
           <View className="flex-row gap-6 border-t border-primary/5 pt-4">
             <View className="flex-row items-center gap-2">
               <View className="h-3 w-3 rounded-sm bg-primary" />
-              <Text className="text-[10px] font-black uppercase tracking-widest text-primary/40">Færdig</Text>
+              <Text className="text-[10px] font-black uppercase tracking-widest text-primary/40">{tGlobal('Færdig')}</Text>
             </View>
             <View className="flex-row items-center gap-2">
               <View className="h-3 w-3 rounded-sm border border-primary/5 bg-primary/5" />
-              <Text className="text-[10px] font-black uppercase tracking-widest text-primary/40">Mangler</Text>
+              <Text className="text-[10px] font-black uppercase tracking-widest text-primary/40">{tGlobal('Mangler')}</Text>
             </View>
           </View>
         </View>
@@ -106,7 +108,7 @@ export function QuranProgressMap({
                 className={`rounded-2xl border p-3 ${isDone ? 'border-accent/30 bg-accent/5' : 'border-border bg-card'}`}
               >
                 <View className="mb-2 flex-row items-center justify-between">
-                  <Text className="text-[9px] font-black uppercase tracking-widest text-primary/40">Juz {juzNum}</Text>
+                  <Text className="text-[9px] font-black uppercase tracking-widest text-primary/40">{tGlobal('Juz')} {juzNum}</Text>
                   <Text className={`text-xs font-bold ${isDone ? 'text-accent' : 'text-primary'}`}>
                     {Math.round(progress)}%
                   </Text>
@@ -147,7 +149,7 @@ export function QuranProgressMap({
           </View>
           <View className="flex-row items-center gap-4 border-t border-primary/5 pt-4">
             <Text className="text-2xl font-bold text-accent">{completedSurahs.size}</Text>
-            <Text className="text-[10px] font-black uppercase tracking-widest text-primary/30">/ 114 suraher</Text>
+            <Text className="text-[10px] font-black uppercase tracking-widest text-primary/30">/ 114 {tGlobal('suraher')}</Text>
           </View>
         </View>
       )}

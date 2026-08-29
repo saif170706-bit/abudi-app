@@ -7,6 +7,7 @@ import { collection, doc, getCountFromServer, getDoc, getDocs, limit, orderBy, q
 import { useFirebase } from '@/firebase';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
+import { useLanguagePreference } from '@/context/language-context';
 
 interface LeaderboardEntry {
   id: string;
@@ -52,7 +53,17 @@ function Avatar({ entry, size, ringColor }: { entry: LeaderboardEntry; size: num
   );
 }
 
-function Podium({ top3, filter, currentUserId }: { top3: LeaderboardEntry[]; filter: Filter; currentUserId?: string }) {
+function Podium({
+  top3,
+  filter,
+  currentUserId,
+  tGlobal,
+}: {
+  top3: LeaderboardEntry[];
+  filter: Filter;
+  currentUserId?: string;
+  tGlobal: (s: string) => string;
+}) {
   const order = [top3[1], top3[0], top3[2]];
   const ranks = [2, 1, 3];
   const heights = [96, 160, 72];
@@ -93,7 +104,7 @@ function Podium({ top3, filter, currentUserId }: { top3: LeaderboardEntry[]; fil
             >
               <Text className={`text-lg font-bold ${isFirst ? 'text-primary-foreground' : 'text-primary'}`}>{value ?? 0}</Text>
               <Text className={`text-[8px] font-black uppercase tracking-widest opacity-50 ${isFirst ? 'text-primary-foreground' : 'text-primary'}`}>
-                {filter === 'streak' ? 'Pts' : 'Score'}
+                {filter === 'streak' ? tGlobal('Pts') : tGlobal('Score')}
               </Text>
             </View>
           </View>
@@ -106,6 +117,7 @@ function Podium({ top3, filter, currentUserId }: { top3: LeaderboardEntry[]; fil
 export function LeaderboardScreen() {
   const { firestore } = useFirebase();
   const { user } = useAuth();
+  const { tGlobal } = useLanguagePreference();
   const [filter, setFilter] = useState<Filter>('monthly');
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -182,11 +194,11 @@ export function LeaderboardScreen() {
             <Ionicons name="chevron-back" size={18} color="#197670" />
           </Pressable>
           <View>
-            <Text className="text-2xl font-bold text-primary">Leaderboard</Text>
+            <Text className="text-2xl font-bold text-primary">{tGlobal('Leaderboard')}</Text>
             <View className="mt-1 flex-row items-center gap-2">
               <View className="h-1.5 w-1.5 rounded-full bg-accent" />
               <Text className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40">
-                Konkurrér med andre
+                {tGlobal('Konkurrér med andre')}
               </Text>
             </View>
           </View>
@@ -213,7 +225,7 @@ export function LeaderboardScreen() {
                   filter === f.id ? 'text-primary' : 'text-primary/40'
                 }`}
               >
-                {f.label}
+                {tGlobal(f.label)}
               </Text>
             </Pressable>
           ))}
@@ -228,7 +240,7 @@ export function LeaderboardScreen() {
           keyExtractor={(e) => e.id}
           contentContainerClassName="gap-2 px-6 pb-8"
           ListHeaderComponent={
-            top3.length > 0 ? <Podium top3={top3} filter={filter} currentUserId={user?.uid} /> : null
+            top3.length > 0 ? <Podium top3={top3} filter={filter} currentUserId={user?.uid} tGlobal={tGlobal} /> : null
           }
           renderItem={({ item, index }) => {
             const rank = index + 4;
@@ -251,18 +263,18 @@ export function LeaderboardScreen() {
                     </Text>
                     {isMe && (
                       <View className="rounded bg-primary px-1 py-0.5">
-                        <Text className="text-[8px] font-black text-primary-foreground">DIG</Text>
+                        <Text className="text-[8px] font-black text-primary-foreground">{tGlobal('DIG')}</Text>
                       </View>
                     )}
                   </View>
                   <Text className="text-[9px] font-bold uppercase tracking-widest text-primary/30">
-                    {item.plan ?? '?'} års plan • {item.frequency ?? '?'} dage/uge
+                    {item.plan ?? '?'} {tGlobal('års plan')} • {item.frequency ?? '?'} {tGlobal('dage/uge')}
                   </Text>
                 </View>
                 <View className="items-end">
                   <Text className="text-sm font-bold text-primary">{value ?? 0}</Text>
                   <Text className="text-[8px] font-black uppercase tracking-widest text-primary/30">
-                    {filter === 'streak' ? 'Pts' : 'Score'}
+                    {filter === 'streak' ? tGlobal('Pts') : tGlobal('Score')}
                   </Text>
                 </View>
               </View>
@@ -272,17 +284,17 @@ export function LeaderboardScreen() {
             limitCount !== 'all' && entries.length === limitCount ? (
               <View className="gap-3 pt-6">
                 <Button variant="outline" onPress={() => setLimitCount((prev) => (typeof prev === 'number' ? prev + 10 : prev))}>
-                  Vis 10 mere
+                  {tGlobal('Vis 10 mere')}
                 </Button>
                 <Button variant="ghost" onPress={() => setLimitCount('all')}>
-                  Vis alle
+                  {tGlobal('Vis alle')}
                 </Button>
               </View>
             ) : null
           }
           ListEmptyComponent={
             top3.length === 0 ? (
-              <Text className="mt-16 text-center text-muted-foreground">Ingen placeringer endnu.</Text>
+              <Text className="mt-16 text-center text-muted-foreground">{tGlobal('Ingen placeringer endnu.')}</Text>
             ) : null
           }
         />
@@ -295,13 +307,13 @@ export function LeaderboardScreen() {
               <Text className="text-lg font-bold text-accent">#{myRank}</Text>
             </View>
             <View className="flex-1">
-              <Text className="text-[10px] font-black uppercase tracking-widest text-white/60">Din placering</Text>
-              <Text className="text-base font-bold text-white">Fortsæt det gode arbejde!</Text>
+              <Text className="text-[10px] font-black uppercase tracking-widest text-white/60">{tGlobal('Din placering')}</Text>
+              <Text className="text-base font-bold text-white">{tGlobal('Fortsæt det gode arbejde!')}</Text>
             </View>
             <View className="items-end">
               <Text className="text-lg font-bold text-white">{me[scoreKey]}</Text>
               <Text className="text-[8px] font-black uppercase text-white/60">
-                {filter === 'streak' ? 'Streak Pts' : 'Hifz Score'}
+                {filter === 'streak' ? tGlobal('Streak Pts') : tGlobal('Hifz Score')}
               </Text>
             </View>
           </View>

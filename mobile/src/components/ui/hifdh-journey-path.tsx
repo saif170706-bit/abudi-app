@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useLanguagePreference } from '@/context/language-context';
 
 type Milestone = {
   id: string;
@@ -34,6 +35,7 @@ const MILESTONES: Milestone[] = [
 // unlocked/locked states without the custom hand-drawn icon set or curved route.
 export function HifdhJourneyPath({ completedPages }: { completedPages: number }) {
   const milestones = useMemo(() => MILESTONES, []);
+  const { tGlobal } = useLanguagePreference();
 
   return (
     <View className="gap-1">
@@ -54,8 +56,8 @@ export function HifdhJourneyPath({ completedPages }: { completedPages: number })
               {!isLast && <View className="my-1 h-8 w-[2px]" style={{ backgroundColor: unlocked ? '#DEA93E' : '#e5e7eb' }} />}
             </View>
             <View className="flex-1 justify-center pb-3">
-              <Text className={`text-sm font-bold ${unlocked ? 'text-foreground' : 'text-muted-foreground'}`}>{m.label}</Text>
-              <Text className="text-xs text-muted-foreground">{m.sublabel}</Text>
+              <Text className={`text-sm font-bold ${unlocked ? 'text-foreground' : 'text-muted-foreground'}`}>{tGlobal(m.label)}</Text>
+              <Text className="text-xs text-muted-foreground">{tGlobal(m.sublabel)}</Text>
             </View>
           </View>
         );

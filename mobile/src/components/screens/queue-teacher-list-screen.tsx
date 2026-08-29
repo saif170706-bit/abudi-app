@@ -10,6 +10,7 @@ import { useFirebase } from '@/firebase';
 import { functions } from '@/firebase/client';
 import { useAuth } from '@/hooks/use-auth';
 import { useUserProfile } from '@/hooks/use-user-profile';
+import { useLanguagePreference } from '@/context/language-context';
 
 function initials(name?: string) {
   if (!name) return '?';
@@ -22,17 +23,17 @@ function initials(name?: string) {
 }
 
 /** Resolves the student's current location for a physical queue join. Returns null (and alerts) if unavailable. */
-async function resolveLocation(): Promise<{ lat: number; lon: number } | null> {
+async function resolveLocation(tGlobal: (s: string) => string): Promise<{ lat: number; lon: number } | null> {
   const { status } = await Location.requestForegroundPermissionsAsync();
   if (status !== 'granted') {
-    Alert.alert('Lokation påkrævet', 'Appen skal bruge din lokation for at bekræfte fysisk fremmøde.');
+    Alert.alert(tGlobal('Lokation påkrævet'), tGlobal('Appen skal bruge din lokation for at bekræfte fysisk fremmøde.'));
     return null;
   }
   try {
     const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
     return { lat: pos.coords.latitude, lon: pos.coords.longitude };
   } catch {
-    Alert.alert('Lokation påkrævet', 'Kunne ikke hente din lokation. Prøv igen.');
+    Alert.alert(tGlobal('Lokation påkrævet'), tGlobal('Kunne ikke hente din lokation. Prøv igen.'));
     return null;
   }
 }
@@ -43,6 +44,7 @@ export function QueueTeacherListScreen() {
   const { firestore } = useFirebase();
   const { user } = useAuth();
   const { profile } = useUserProfile();
+  const { tGlobal } = useLanguagePreference();
   const [teachersRaw, setTeachersRaw] = useState<any[]>([]);
   const [joining, setJoining] = useState<string | null>(null);
 
@@ -71,7 +73,7 @@ export function QueueTeacherListScreen() {
     let lat: number | undefined;
     let lon: number | undefined;
     if (!isVirtual) {
-      const loc = await resolveLocation();
+      const loc = await resolveLocation(tGlobal);
       if (!loc) return;
       lat = loc.lat;
       lon = loc.lon;
@@ -101,11 +103,11 @@ export function QueueTeacherListScreen() {
     } catch (err: any) {
       const code = err?.code;
       if (code === 'functions/permission-denied') {
-        Alert.alert('For langt væk', 'Du skal være til stede på instituttet for at tilmelde dig fysisk kø.');
+        Alert.alert(tGlobal('For langt væk'), tGlobal('Du skal være til stede på instituttet for at tilmelde dig fysisk kø.'));
       } else if (code === 'functions/already-exists') {
-        Alert.alert('Allerede i kø', 'Du er allerede tilmeldt en kø.');
+        Alert.alert(tGlobal('Allerede i kø'), tGlobal('Du er allerede tilmeldt en kø.'));
       } else {
-        Alert.alert('Fejl', 'Kunne ikke tilmelde dig køen.');
+        Alert.alert(tGlobal('Fejl'), tGlobal('Kunne ikke tilmelde dig køen.'));
       }
     } finally {
       setJoining(null);
@@ -128,7 +130,7 @@ export function QueueTeacherListScreen() {
                 <Ionicons name="chevron-back" size={24} color="#197670" />
               </Pressable>
               <Text className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
-                Vælg Lærer
+                {tGlobal('Vælg Lærer')}
               </Text>
             </View>
 
@@ -140,8 +142,8 @@ export function QueueTeacherListScreen() {
                 <Ionicons name="sparkles" size={26} color="#0f2e20" />
               </View>
               <View className="flex-1">
-                <Text className="text-xl font-bold text-white">Hurtig Tilmelding</Text>
-                <Text className="text-[10px] font-black uppercase tracking-widest text-white/60">Find hurtigste</Text>
+                <Text className="text-xl font-bold text-white">{tGlobal('Hurtig Tilmelding')}</Text>
+                <Text className="text-[10px] font-black uppercase tracking-widest text-white/60">{tGlobal('Find hurtigste')}</Text>
               </View>
               {joining === 'fastest' ? (
                 <ActivityIndicator color="#fff" />
@@ -162,7 +164,7 @@ export function QueueTeacherListScreen() {
             <View className="flex-1">
               <Text className="text-lg font-bold text-primary">{item.displayName}</Text>
               <Text className="mt-1 text-[10px] font-black uppercase tracking-widest text-accent">
-                {isVirtual ? 'Virtuelt' : `Lokale ${item.room ?? ''}`}
+                {isVirtual ? tGlobal('Virtuelt') : `${tGlobal('Lokale')} ${item.room ?? ''}`}
               </Text>
             </View>
             <View className="h-12 w-12 items-center justify-center rounded-2xl bg-foreground">
@@ -175,7 +177,7 @@ export function QueueTeacherListScreen() {
           </Pressable>
         )}
         ListEmptyComponent={
-          <Text className="mt-10 text-center text-muted-foreground">Ingen lærere tilgængelige lige nu.</Text>
+          <Text className="mt-10 text-center text-muted-foreground">{tGlobal('Ingen lærere tilgængelige lige nu.')}</Text>
         }
       />
     </SafeAreaView>

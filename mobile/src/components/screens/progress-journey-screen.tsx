@@ -11,12 +11,14 @@ import { QuranProgressMap } from '@/components/ui/quran-progress-map';
 import { HifdhJourneyPath } from '@/components/ui/hifdh-journey-path';
 import { PlanForecastCard } from '@/components/ui/plan-forecast-card';
 import { calculateCompletedPages, calculateCompletedSurahs, calculateCompletedJuz } from '@/lib/student-logic';
+import { useLanguagePreference } from '@/context/language-context';
 import type { Assignment } from '@/shared/types';
 
 export function ProgressJourneyScreen() {
   const { user } = useAuth();
   const { profile } = useUserProfile();
   const { firestore } = useFirebase();
+  const { tGlobal } = useLanguagePreference();
 
   const assignmentsQuery = useMemoFirebase(
     () => (user ? query(collection(firestore, 'students', user.uid, 'assignments'), orderBy('assignedAt', 'desc')) : null),
@@ -39,9 +41,9 @@ export function ProgressJourneyScreen() {
             <Ionicons name="chevron-back" size={22} color="#197670" />
           </Pressable>
           <View>
-            <Text className="text-3xl font-bold text-primary">Hifz Rejse</Text>
+            <Text className="text-3xl font-bold text-primary">{tGlobal('Hifz Rejse')}</Text>
             <Text className="text-[10px] font-black uppercase tracking-[0.25em] text-accent">
-              Din personlige oversigt
+              {tGlobal('Din personlige oversigt')}
             </Text>
           </View>
         </View>
@@ -51,14 +53,14 @@ export function ProgressJourneyScreen() {
         ) : (
           <>
             <View className="gap-3">
-              <Text className="text-[10px] font-black uppercase tracking-widest text-accent">| Quran kortet</Text>
+              <Text className="text-[10px] font-black uppercase tracking-widest text-accent">| {tGlobal('Quran kortet')}</Text>
               <QuranProgressMap completedPages={completedPages} completedSurahs={completedSurahs} completedJuz={completedJuz} />
             </View>
 
             <HifdhJourneyPath completedPages={completedPages.size} />
 
             <View className="gap-3">
-              <Text className="text-[10px] font-black uppercase tracking-widest text-accent">| Prognose</Text>
+              <Text className="text-[10px] font-black uppercase tracking-widest text-accent">| {tGlobal('Prognose')}</Text>
               <PlanForecastCard assignments={assignments || []} courseDuration={profile?.courseDuration || '3'} />
             </View>
           </>
