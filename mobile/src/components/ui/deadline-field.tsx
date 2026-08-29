@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Text } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Button } from './button';
+import { useLanguagePreference, LOCALE_MAP } from '@/context/language-context';
 
 export function DeadlineField({
   value,
@@ -12,12 +13,14 @@ export function DeadlineField({
   onChange: (date: Date) => void;
   mode?: 'date' | 'datetime';
 }) {
+  const { language } = useLanguagePreference();
+  const locale = LOCALE_MAP[language];
   const [show, setShow] = useState(false);
 
   const label =
     mode === 'datetime'
-      ? value.toLocaleString('da-DK', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-      : value.toLocaleDateString('da-DK', { day: 'numeric', month: 'long', year: 'numeric' });
+      ? value.toLocaleString(locale, { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+      : value.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
     <>

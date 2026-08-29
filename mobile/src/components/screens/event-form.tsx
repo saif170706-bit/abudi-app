@@ -11,6 +11,7 @@ import { DeadlineField } from '@/components/ui/deadline-field';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { EventFieldBuilder } from '@/components/ui/event-field-builder';
 import { pickAndUploadBanner } from '@/lib/upload-image';
+import { useLanguagePreference } from '@/context/language-context';
 import type { Event, EventFormField } from '@/shared/types';
 
 const AUDIENCE_OPTIONS = [
@@ -24,6 +25,7 @@ const AUDIENCE_OPTIONS = [
 export function EventForm({ event, onDone }: { event?: Event; onDone: () => void }) {
   const { firestore } = useFirebase();
   const { user } = useAuth();
+  const { tGlobal } = useLanguagePreference();
   const [title, setTitle] = useState(event?.title ?? '');
   const [description, setDescription] = useState(event?.description ?? '');
   const [capacity, setCapacity] = useState(String(event?.capacity ?? 0));
@@ -46,7 +48,7 @@ export function EventForm({ event, onDone }: { event?: Event; onDone: () => void
       if (url) setImageUrl(url);
     } catch (error) {
       console.error('Image upload failed:', error);
-      Alert.alert('Fejl', 'Kunne ikke uploade billedet.');
+      Alert.alert(tGlobal('Fejl'), tGlobal('Kunne ikke uploade billedet.'));
     } finally {
       setIsUploading(false);
     }
@@ -77,7 +79,7 @@ export function EventForm({ event, onDone }: { event?: Event; onDone: () => void
       onDone();
     } catch (error) {
       console.error('Failed to save event:', error);
-      Alert.alert('Fejl', 'Kunne ikke gemme eventet.');
+      Alert.alert(tGlobal('Fejl'), tGlobal('Kunne ikke gemme eventet.'));
     } finally {
       setIsSaving(false);
     }
@@ -86,9 +88,9 @@ export function EventForm({ event, onDone }: { event?: Event; onDone: () => void
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
-        <Text className="text-lg font-semibold text-foreground">{event ? 'Rediger event' : 'Nyt event'}</Text>
+        <Text className="text-lg font-semibold text-foreground">{event ? tGlobal('Rediger event') : tGlobal('Nyt event')}</Text>
         <Pressable onPress={onDone} className="px-2 py-1">
-          <Text className="text-muted-foreground">Luk</Text>
+          <Text className="text-muted-foreground">{tGlobal('Luk')}</Text>
         </Pressable>
       </View>
       <FlatList
@@ -98,44 +100,44 @@ export function EventForm({ event, onDone }: { event?: Event; onDone: () => void
         renderItem={() => (
           <View className="gap-4">
             <View className="gap-2">
-              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Titel</Text>
+              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Titel')}</Text>
               <Input value={title} onChangeText={setTitle} />
             </View>
             <View className="gap-2">
-              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Beskrivelse</Text>
+              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Beskrivelse')}</Text>
               <RichTextEditor value={description} onChange={setDescription} />
             </View>
             <View className="gap-2">
-              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Tilmeldingsfrist</Text>
+              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Tilmeldingsfrist')}</Text>
               <DeadlineField value={deadline} onChange={setDeadline} />
             </View>
             <View className="gap-2">
               <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                Kapacitet (0 = ubegrænset)
+                {tGlobal('Kapacitet (0 = ubegrænset)')}
               </Text>
               <Input keyboardType="number-pad" value={capacity} onChangeText={setCapacity} />
             </View>
             <View className="gap-2">
-              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Målgruppe</Text>
-              <ChipPicker options={AUDIENCE_OPTIONS as any} value={audience} onChange={setAudience} />
+              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Målgruppe')}</Text>
+              <ChipPicker options={AUDIENCE_OPTIONS.map((o) => ({ ...o, label: tGlobal(o.label) })) as any} value={audience} onChange={setAudience} />
             </View>
             <View className="flex-row items-center justify-between rounded-xl border border-border bg-card px-4 py-3">
-              <Text className="flex-1 pr-3 font-semibold text-card-foreground">Tillad eksterne tilmeldinger</Text>
+              <Text className="flex-1 pr-3 font-semibold text-card-foreground">{tGlobal('Tillad eksterne tilmeldinger')}</Text>
               <Switch value={allowExternal} onValueChange={setAllowExternal} />
             </View>
             <View className="gap-2">
-              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Billede</Text>
+              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Billede')}</Text>
               {imageUrl && <Image source={{ uri: imageUrl }} className="h-32 w-full rounded-xl" resizeMode="cover" />}
               <Button variant="outline" loading={isUploading} onPress={handlePickImage}>
-                {imageUrl ? 'Skift billede' : 'Vælg billede'}
+                {imageUrl ? tGlobal('Skift billede') : tGlobal('Vælg billede')}
               </Button>
             </View>
             <View className="gap-2">
-              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Tilmeldingsformular</Text>
+              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Tilmeldingsformular')}</Text>
               <EventFieldBuilder fields={formFields} onChange={setFormFields} />
             </View>
             <Button loading={isSaving} onPress={handleSave}>
-              Gem
+              {tGlobal('Gem')}
             </Button>
           </View>
         )}

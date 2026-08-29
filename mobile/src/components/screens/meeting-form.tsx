@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { ChipPicker } from '@/components/ui/chip-picker';
 import { DeadlineField } from '@/components/ui/deadline-field';
 import { pickAndUploadBanner } from '@/lib/upload-image';
+import { useLanguagePreference } from '@/context/language-context';
 import type { Livestream } from '@/shared/types';
 
 const AUDIENCE_OPTIONS = [
@@ -22,6 +23,7 @@ const AUDIENCE_OPTIONS = [
 export function MeetingForm({ meeting, onDone }: { meeting?: Livestream; onDone: () => void }) {
   const { firestore } = useFirebase();
   const { user } = useAuth();
+  const { tGlobal } = useLanguagePreference();
   const [title, setTitle] = useState(meeting?.title ?? '');
   const [description, setDescription] = useState(meeting?.description ?? '');
   const [scheduledAt, setScheduledAt] = useState<Date>(
@@ -41,7 +43,7 @@ export function MeetingForm({ meeting, onDone }: { meeting?: Livestream; onDone:
       if (url) setImageUrl(url);
     } catch (error) {
       console.error('Image upload failed:', error);
-      Alert.alert('Fejl', 'Kunne ikke uploade billedet.');
+      Alert.alert(tGlobal('Fejl'), tGlobal('Kunne ikke uploade billedet.'));
     } finally {
       setIsUploading(false);
     }
@@ -75,7 +77,7 @@ export function MeetingForm({ meeting, onDone }: { meeting?: Livestream; onDone:
       onDone();
     } catch (error) {
       console.error('Failed to save meeting:', error);
-      Alert.alert('Fejl', 'Kunne ikke gemme mødet.');
+      Alert.alert(tGlobal('Fejl'), tGlobal('Kunne ikke gemme mødet.'));
     } finally {
       setIsSaving(false);
     }
@@ -84,9 +86,9 @@ export function MeetingForm({ meeting, onDone }: { meeting?: Livestream; onDone:
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
-        <Text className="text-lg font-semibold text-foreground">{meeting ? 'Rediger møde' : 'Nyt Møde'}</Text>
+        <Text className="text-lg font-semibold text-foreground">{meeting ? tGlobal('Rediger møde') : tGlobal('Nyt Møde')}</Text>
         <Pressable onPress={onDone} className="px-2 py-1">
-          <Text className="text-muted-foreground">Luk</Text>
+          <Text className="text-muted-foreground">{tGlobal('Luk')}</Text>
         </Pressable>
       </View>
       <FlatList
@@ -96,37 +98,37 @@ export function MeetingForm({ meeting, onDone }: { meeting?: Livestream; onDone:
         renderItem={() => (
           <View className="gap-4">
             <View className="gap-2">
-              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Titel</Text>
-              <Input placeholder="Mødets navn" value={title} onChangeText={setTitle} />
+              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Titel')}</Text>
+              <Input placeholder={tGlobal('Mødets navn')} value={title} onChangeText={setTitle} />
             </View>
             <View className="gap-2">
-              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Banner Billede</Text>
+              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Banner Billede')}</Text>
               {imageUrl && <Image source={{ uri: imageUrl }} className="h-32 w-full rounded-xl" resizeMode="cover" />}
               <Button variant="outline" loading={isUploading} onPress={handlePickImage}>
-                {imageUrl ? 'Skift billede' : 'Upload Banner'}
+                {imageUrl ? tGlobal('Skift billede') : tGlobal('Upload Banner')}
               </Button>
             </View>
             <View className="gap-2">
-              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Mødetidspunkt</Text>
+              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Mødetidspunkt')}</Text>
               <DeadlineField value={scheduledAt} onChange={setScheduledAt} mode="datetime" />
             </View>
             <View className="gap-2">
-              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Beskrivelse</Text>
+              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Beskrivelse')}</Text>
               <Input
                 multiline
                 numberOfLines={3}
-                placeholder="Kort beskrivelse af mødets indhold..."
+                placeholder={tGlobal('Kort beskrivelse af mødets indhold...')}
                 value={description}
                 onChangeText={setDescription}
                 className="min-h-[80px]"
               />
             </View>
             <View className="gap-2">
-              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Målgruppe</Text>
-              <ChipPicker options={AUDIENCE_OPTIONS as any} value={audience} onChange={setAudience} />
+              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Målgruppe')}</Text>
+              <ChipPicker options={AUDIENCE_OPTIONS.map((o) => ({ ...o, label: tGlobal(o.label) })) as any} value={audience} onChange={setAudience} />
             </View>
             <Button loading={isSaving} onPress={handleSave}>
-              {meeting ? 'Gem ændring' : 'Opret Møde'}
+              {meeting ? tGlobal('Gem ændring') : tGlobal('Opret Møde')}
             </Button>
           </View>
         )}

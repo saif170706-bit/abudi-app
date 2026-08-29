@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { Input } from '@/components/ui/input';
+import { useLanguagePreference } from '@/context/language-context';
 
 interface StudentRow {
   id: string;
@@ -15,6 +16,7 @@ interface StudentRow {
 
 export function StudentPickerScreen() {
   const { firestore } = useFirebase();
+  const { tGlobal } = useLanguagePreference();
   const [search, setSearch] = useState('');
 
   const studentsQuery = useMemoFirebase(
@@ -36,8 +38,8 @@ export function StudentPickerScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
       <View className="p-4">
-        <Text className="mb-4 text-2xl font-bold text-foreground">Elever</Text>
-        <Input placeholder="Søg efter elev..." value={search} onChangeText={setSearch} />
+        <Text className="mb-4 text-2xl font-bold text-foreground">{tGlobal('Elever')}</Text>
+        <Input placeholder={tGlobal('Søg efter elev...')} value={search} onChangeText={setSearch} />
       </View>
       {isLoading ? (
         <ActivityIndicator className="mt-8" />
@@ -57,7 +59,7 @@ export function StudentPickerScreen() {
               {item.studentNumber && <Text className="text-xs text-muted-foreground">#{item.studentNumber}</Text>}
             </Pressable>
           )}
-          ListEmptyComponent={<Text className="mt-8 text-center text-muted-foreground">Ingen elever fundet.</Text>}
+          ListEmptyComponent={<Text className="mt-8 text-center text-muted-foreground">{tGlobal('Ingen elever fundet.')}</Text>}
         />
       )}
     </SafeAreaView>

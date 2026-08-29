@@ -8,6 +8,7 @@ import { useFirebase } from '@/firebase';
 import { useAuth } from '@/hooks/use-auth';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { createOrFindChat } from '@/lib/stream-chat-actions';
+import { useLanguagePreference } from '@/context/language-context';
 
 interface SearchableUser {
   uid: string;
@@ -31,6 +32,7 @@ export default function NewChatRoute() {
   const { user } = useAuth();
   const { profile } = useUserProfile();
   const { firestore } = useFirebase();
+  const { tGlobal } = useLanguagePreference();
   const [users, setUsers] = useState<SearchableUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -74,14 +76,14 @@ export default function NewChatRoute() {
         members: [user.uid, other.uid],
         createdBy: user.uid,
         memberProfiles: [
-          { id: profile.id, name: profile.displayName || 'Bruger', image: profile.photoURL || undefined },
+          { id: profile.id, name: profile.displayName || tGlobal('Bruger'), image: profile.photoURL || undefined },
           { id: other.uid, name: other.displayName, image: other.photoURL || undefined },
         ],
       });
       router.replace(`/chat/${encodeURIComponent(channel.cid!)}` as any);
     } catch (error) {
       console.error('Failed to start chat:', error);
-      Alert.alert('Fejl', 'Kunne ikke starte samtalen.');
+      Alert.alert(tGlobal('Fejl'), tGlobal('Kunne ikke starte samtalen.'));
     } finally {
       setCreating(null);
     }
@@ -96,14 +98,14 @@ export default function NewChatRoute() {
         >
           <Ionicons name="close" size={20} color="#197670" />
         </Pressable>
-        <Text className="text-xl font-bold text-foreground">Ny samtale</Text>
+        <Text className="text-xl font-bold text-foreground">{tGlobal('Ny samtale')}</Text>
       </View>
 
       <View className="px-6 pt-4">
         <TextInput
           value={search}
           onChangeText={setSearch}
-          placeholder="Søg efter navn..."
+          placeholder={tGlobal('Søg efter navn...')}
           className="h-12 rounded-2xl border border-border bg-card px-4 text-base text-foreground"
         />
       </View>
@@ -131,7 +133,7 @@ export default function NewChatRoute() {
               {creating === item.uid ? <ActivityIndicator /> : <Ionicons name="chevron-forward" size={18} color="#9ca3af" />}
             </Pressable>
           )}
-          ListEmptyComponent={<Text className="mt-10 text-center text-muted-foreground">Ingen brugere fundet.</Text>}
+          ListEmptyComponent={<Text className="mt-10 text-center text-muted-foreground">{tGlobal('Ingen brugere fundet.')}</Text>}
         />
       )}
     </SafeAreaView>

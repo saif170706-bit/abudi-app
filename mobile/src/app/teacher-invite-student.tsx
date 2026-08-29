@@ -5,10 +5,12 @@ import { router, Redirect } from 'expo-router';
 import { useAuth } from '@/hooks/use-auth';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { InviteUserForm } from '@/components/screens/invite-user-form';
+import { useLanguagePreference } from '@/context/language-context';
 
 export default function TeacherInviteStudentRoute() {
   const { user, loading } = useAuth();
   const { role, isLoading } = useUserProfile();
+  const { tGlobal } = useLanguagePreference();
 
   if (loading || isLoading) return null;
   if (!user) return <Redirect href="/(auth)/login" />;
@@ -23,7 +25,7 @@ export default function TeacherInviteStudentRoute() {
         >
           <Ionicons name="chevron-back" size={22} color="#197670" />
         </Pressable>
-        <Text className="text-2xl font-bold text-foreground">Tilføj elev</Text>
+        <Text className="text-2xl font-bold text-foreground">{tGlobal('Tilføj elev')}</Text>
       </View>
       <View className="p-6">
         <InviteUserForm />

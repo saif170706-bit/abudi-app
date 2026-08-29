@@ -7,10 +7,12 @@ import { Card, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AssignmentForm } from './assignment-form';
+import { useLanguagePreference } from '@/context/language-context';
 import type { Assignment } from '@/shared/types';
 
 export function StudentAssignmentsScreen({ studentId }: { studentId: string }) {
   const { firestore } = useFirebase();
+  const { tGlobal } = useLanguagePreference();
   const [editing, setEditing] = useState<Assignment | 'new' | null>(null);
 
   const assignmentsQuery = useMemoFirebase(
@@ -28,9 +30,9 @@ export function StudentAssignmentsScreen({ studentId }: { studentId: string }) {
         keyExtractor={(a) => a.id}
         ListHeaderComponent={
           <View className="mb-2 flex-row items-center justify-between">
-            <Text className="text-xl font-bold text-foreground">Lektier</Text>
+            <Text className="text-xl font-bold text-foreground">{tGlobal('Lektier')}</Text>
             <Button className="px-4 py-2" onPress={() => setEditing('new')}>
-              + Ny lektie
+              {tGlobal('+ Ny lektie')}
             </Button>
           </View>
         }
@@ -38,8 +40,8 @@ export function StudentAssignmentsScreen({ studentId }: { studentId: string }) {
           <Pressable onPress={() => setEditing(item)}>
             <Card>
               <View className="flex-row items-center justify-between">
-                <CardTitle>{item.hifz.surahName || item.murajara.surahName || 'Lektie'}</CardTitle>
-                {(item.gradeHifz || item.gradeMurajara) && <Badge>{item.gradeHifz || item.gradeMurajara}</Badge>}
+                <CardTitle>{item.hifz.surahName || item.murajara.surahName || tGlobal('Lektie')}</CardTitle>
+                {(item.gradeHifz || item.gradeMurajara) && <Badge>{tGlobal(item.gradeHifz || item.gradeMurajara || '')}</Badge>}
               </View>
               <CardDescription>{item.dueDate}</CardDescription>
             </Card>
@@ -49,7 +51,7 @@ export function StudentAssignmentsScreen({ studentId }: { studentId: string }) {
           isLoading ? (
             <ActivityIndicator className="mt-8" />
           ) : (
-            <Text className="mt-8 text-center text-muted-foreground">Ingen lektier endnu.</Text>
+            <Text className="mt-8 text-center text-muted-foreground">{tGlobal('Ingen lektier endnu.')}</Text>
           )
         }
       />
@@ -58,10 +60,10 @@ export function StudentAssignmentsScreen({ studentId }: { studentId: string }) {
         <SafeAreaView className="flex-1 bg-background">
           <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
             <Text className="text-lg font-semibold text-foreground">
-              {editing === 'new' ? 'Ny lektie' : 'Ret lektie'}
+              {editing === 'new' ? tGlobal('Ny lektie') : tGlobal('Ret lektie')}
             </Text>
             <Pressable onPress={() => setEditing(null)} className="px-2 py-1">
-              <Text className="text-muted-foreground">Luk</Text>
+              <Text className="text-muted-foreground">{tGlobal('Luk')}</Text>
             </Pressable>
           </View>
           {editing && (

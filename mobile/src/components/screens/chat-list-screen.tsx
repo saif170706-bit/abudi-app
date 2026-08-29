@@ -9,6 +9,7 @@ import { streamClient } from '@/lib/stream-client';
 import { useStreamChat } from '@/hooks/use-stream-chat';
 import { useAuth } from '@/hooks/use-auth';
 import { useUserProfile } from '@/hooks/use-user-profile';
+import { useLanguagePreference } from '@/context/language-context';
 
 const sort: ChannelSort = { last_message_at: -1 };
 const options = { limit: 20, presence: true, state: true, watch: true };
@@ -17,6 +18,7 @@ export function ChatListScreen() {
   const { user, loading } = useAuth();
   const { isLoading: profileLoading } = useUserProfile();
   const { isConnected } = useStreamChat();
+  const { tGlobal } = useLanguagePreference();
 
   if (loading || profileLoading) return null;
   if (!user) return <Redirect href="/(auth)/login" />;
@@ -33,7 +35,7 @@ export function ChatListScreen() {
           >
             <Ionicons name="chevron-back" size={20} color="#197670" />
           </Pressable>
-          <Text className="text-2xl font-bold text-foreground">Beskeder</Text>
+          <Text className="text-2xl font-bold text-foreground">{tGlobal('Beskeder')}</Text>
         </View>
         <Pressable
           onPress={() => router.push('/chat/new' as any)}

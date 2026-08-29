@@ -3,6 +3,7 @@ import { View, Text, Pressable } from 'react-native';
 import { Input } from './input';
 import { SurahSelect } from './surah-select';
 import { surahs, type Surah } from '@/shared/surahs';
+import { useLanguagePreference } from '@/context/language-context';
 
 export function clamp(n: number, min: number, max: number) {
   if (Number.isNaN(n)) return min;
@@ -30,6 +31,7 @@ export function AyahRangeFields({
   onEndSurahChange,
   label = 'Ayah-interval',
 }: AyahRangeFieldsProps) {
+  const { tGlobal } = useLanguagePreference();
   const selectedStart = useMemo(() => findByName(surahName), [surahName]);
   const selectedEnd = useMemo(
     () => (endSurahName ? surahs.find((s) => String(s.number) === endSurahName) ?? null : null),
@@ -82,7 +84,7 @@ export function AyahRangeFields({
       <View className="flex-row gap-3">
         <View className="flex-1 gap-1.5">
           <Text className="ml-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-            Fra Ayah
+            {tGlobal('Fra Ayah')}
           </Text>
           <Input
             keyboardType="number-pad"
@@ -94,7 +96,7 @@ export function AyahRangeFields({
         <View className="flex-1 gap-1.5">
           <View className="flex-row items-center justify-between">
             <Text className="ml-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-              Til Ayah
+              {tGlobal('Til Ayah')}
             </Text>
             <Pressable
               onPress={toggleCrossSurah}
@@ -117,9 +119,9 @@ export function AyahRangeFields({
       {isCrossSurah && (
         <View className="gap-1.5 rounded-2xl border border-primary/10 bg-primary/5 p-4">
           <Text className="ml-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-            Vælg slut-surah
+            {tGlobal('Vælg slut-surah')}
           </Text>
-          <SurahSelect value={endSurahName ?? null} onChange={onEndSurahChange} placeholder="Vælg til surah..." />
+          <SurahSelect value={endSurahName ?? null} onChange={onEndSurahChange} placeholder={tGlobal('Vælg til surah...')} />
         </View>
       )}
     </View>

@@ -3,6 +3,7 @@ import { View, Text, Pressable, Modal, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Input } from './input';
 import { surahs, type Surah } from '@/shared/surahs';
+import { useLanguagePreference } from '@/context/language-context';
 
 interface SurahSelectProps {
   value: string | null | undefined; // surah number as string
@@ -10,9 +11,11 @@ interface SurahSelectProps {
   placeholder?: string;
 }
 
-export function SurahSelect({ value, onChange, placeholder = 'Vælg surah…' }: SurahSelectProps) {
+export function SurahSelect({ value, onChange, placeholder }: SurahSelectProps) {
+  const { tGlobal } = useLanguagePreference();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const resolvedPlaceholder = placeholder ?? tGlobal('Vælg surah…');
 
   const selected = useMemo(() => surahs.find((s) => String(s.number) === value) ?? null, [value]);
 
@@ -31,20 +34,20 @@ export function SurahSelect({ value, onChange, placeholder = 'Vælg surah…' }:
         className="flex-row items-center justify-between rounded-xl border border-border bg-background px-4 py-3"
       >
         <Text className={selected ? 'text-base text-foreground' : 'text-base text-muted-foreground'}>
-          {selected ? `${selected.number}. ${selected.englishName}` : placeholder}
+          {selected ? `${selected.number}. ${selected.englishName}` : resolvedPlaceholder}
         </Text>
       </Pressable>
 
       <Modal visible={open} animationType="slide" onRequestClose={() => setOpen(false)}>
         <SafeAreaView className="flex-1 bg-background">
           <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
-            <Text className="text-lg font-semibold text-foreground">Vælg surah</Text>
+            <Text className="text-lg font-semibold text-foreground">{tGlobal('Vælg surah')}</Text>
             <Pressable onPress={() => setOpen(false)} className="px-2 py-1">
-              <Text className="text-muted-foreground">Luk</Text>
+              <Text className="text-muted-foreground">{tGlobal('Luk')}</Text>
             </Pressable>
           </View>
           <View className="p-4">
-            <Input placeholder="Søg..." value={search} onChangeText={setSearch} autoFocus />
+            <Input placeholder={tGlobal('Søg...')} value={search} onChangeText={setSearch} autoFocus />
           </View>
           <FlatList
             data={filtered}

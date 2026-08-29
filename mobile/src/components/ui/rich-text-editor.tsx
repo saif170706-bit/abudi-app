@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { View, Text, Pressable, Platform, TextInput } from 'react-native';
 import { RichEditor, RichToolbar, actions } from 'react-native-pell-rich-editor';
+import { useLanguagePreference } from '@/context/language-context';
 
 const COLOR_SWATCHES = ['#111827', '#dc2626', '#2563eb', '#197670', '#b8860b'];
 
@@ -15,6 +16,7 @@ export function RichTextEditor({
   placeholder?: string;
   minHeight?: number;
 }) {
+  const { tGlobal } = useLanguagePreference();
   const richText = useRef<RichEditor>(null);
   const [showColors, setShowColors] = useState(false);
 
@@ -32,7 +34,7 @@ export function RichTextEditor({
           style={{ minHeight, padding: 12, textAlignVertical: 'top' }}
         />
         <Text className="border-t border-border px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-          Formatering (fed/kursiv/farve) er kun tilgængelig i appen
+          {tGlobal('Formatering (fed/kursiv/farve) er kun tilgængelig i appen')}
         </Text>
       </View>
     );
@@ -78,7 +80,7 @@ export function RichTextEditor({
         style={{ minHeight }}
       />
       <Text className="border-t border-border px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-        Marker tekst for at formatere
+        {tGlobal('Marker tekst for at formatere')}
       </Text>
     </View>
   );

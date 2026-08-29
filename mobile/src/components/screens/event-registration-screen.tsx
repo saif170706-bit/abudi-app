@@ -8,11 +8,13 @@ import { Card, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RichText } from '@/components/ui/rich-text';
 import { EventFormFieldRenderer, validateEventFormFields, type FormFieldValue } from '@/components/ui/event-form-field-renderer';
+import { useLanguagePreference } from '@/context/language-context';
 import type { Event, Registration } from '@/shared/types';
 
 export function EventRegistrationScreen({ eventId }: { eventId: string }) {
   const { firestore } = useFirebase();
   const { user, loading: isAuthLoading } = useAuth();
+  const { tGlobal } = useLanguagePreference();
   const [values, setValues] = useState<Record<string, FormFieldValue>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -37,7 +39,7 @@ export function EventRegistrationScreen({ eventId }: { eventId: string }) {
     if (!event || !user) return;
     const error = validateEventFormFields(event.formFields ?? [], values);
     if (error) {
-      Alert.alert('Udfyld venligst', error);
+      Alert.alert(tGlobal('Udfyld venligst'), tGlobal(error));
       return;
     }
 
@@ -54,7 +56,7 @@ export function EventRegistrationScreen({ eventId }: { eventId: string }) {
       router.back();
     } catch (err) {
       console.error('Event registration failed:', err);
-      Alert.alert('Fejl', 'Kunne ikke gennemføre tilmelding.');
+      Alert.alert(tGlobal('Fejl'), tGlobal('Kunne ikke gennemføre tilmelding.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -82,16 +84,16 @@ export function EventRegistrationScreen({ eventId }: { eventId: string }) {
 
       {isRegistered ? (
         <Card>
-          <CardTitle>Du er tilmeldt</CardTitle>
-          <CardDescription>Vi glæder os til at se dig.</CardDescription>
+          <CardTitle>{tGlobal('Du er tilmeldt')}</CardTitle>
+          <CardDescription>{tGlobal('Vi glæder os til at se dig.')}</CardDescription>
         </Card>
       ) : isDeadlinePassed ? (
         <Card>
-          <CardTitle>Tilmeldingsfristen er udløbet</CardTitle>
+          <CardTitle>{tGlobal('Tilmeldingsfristen er udløbet')}</CardTitle>
         </Card>
       ) : isFull ? (
         <Card>
-          <CardTitle>Arrangementet er fuldt booket</CardTitle>
+          <CardTitle>{tGlobal('Arrangementet er fuldt booket')}</CardTitle>
         </Card>
       ) : (
         <View className="gap-6">
@@ -104,7 +106,7 @@ export function EventRegistrationScreen({ eventId }: { eventId: string }) {
             />
           ))}
           <Button onPress={handleSubmit} loading={isSubmitting}>
-            Tilmeld
+            {tGlobal('Tilmeld')}
           </Button>
         </View>
       )}

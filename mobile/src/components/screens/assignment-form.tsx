@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { SurahSelect } from '@/components/ui/surah-select';
 import { AyahRangeFields } from '@/components/ui/ayah-range-fields';
 import { surahs as allSurahs } from '@/shared/surahs';
+import { useLanguagePreference } from '@/context/language-context';
 import type { Assignment } from '@/shared/types';
 
 const GRADE_OPTIONS = ['Perfekt', 'Meget godt', 'Godt', 'Ikke læst'] as const;
@@ -46,7 +47,15 @@ const formSchema = z
 
 type FormValues = z.infer<typeof formSchema>;
 
-function GradePicker({ value, onChange }: { value: string | null | undefined; onChange: (v: string) => void }) {
+function GradePicker({
+  value,
+  onChange,
+  tGlobal,
+}: {
+  value: string | null | undefined;
+  onChange: (v: string) => void;
+  tGlobal: (text: string) => string;
+}) {
   return (
     <View className="flex-row flex-wrap gap-2">
       {GRADE_OPTIONS.map((g) => (
@@ -56,7 +65,7 @@ function GradePicker({ value, onChange }: { value: string | null | undefined; on
           onPress={() => onChange(g)}
           className="px-4 py-2"
         >
-          {g}
+          {tGlobal(g)}
         </Button>
       ))}
     </View>
@@ -74,6 +83,7 @@ export function AssignmentForm({
 }) {
   const { firestore } = useFirebase();
   const { user: teacher } = useAuth();
+  const { tGlobal } = useLanguagePreference();
   const [isLoading, setIsLoading] = useState(false);
 
   const initialSurahNumber = (name: string | null | undefined) => {
@@ -188,7 +198,7 @@ export function AssignmentForm({
       onDone();
     } catch (error) {
       console.error('Error saving assignment:', error);
-      Alert.alert('Fejl', 'Kunne ikke gemme lektien.');
+      Alert.alert(tGlobal('Fejl'), tGlobal('Kunne ikke gemme lektien.'));
     } finally {
       setIsLoading(false);
     }
@@ -197,7 +207,7 @@ export function AssignmentForm({
   return (
     <ScrollView contentContainerClassName="gap-8 p-4">
       <View className="gap-4 rounded-2xl border border-border bg-card p-4">
-        <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Memorering (Hifz)</Text>
+        <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Memorering (Hifz)')}</Text>
         <Controller
           name="hifzSurahName"
           control={control}
@@ -220,19 +230,19 @@ export function AssignmentForm({
         {assignment && (
           <View className="gap-2">
             <Text className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-              Karakter (Hifz)
+              {tGlobal('Karakter (Hifz)')}
             </Text>
             <Controller
               name="gradeHifz"
               control={control}
-              render={({ field }) => <GradePicker value={field.value} onChange={field.onChange} />}
+              render={({ field }) => <GradePicker value={field.value} onChange={field.onChange} tGlobal={tGlobal} />}
             />
           </View>
         )}
       </View>
 
       <View className="gap-4 rounded-2xl border border-border bg-card p-4">
-        <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Repetition (Murajara)</Text>
+        <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Repetition (Murajara)')}</Text>
         <Controller
           name="murajaraSurahName"
           control={control}
@@ -255,12 +265,12 @@ export function AssignmentForm({
         {assignment && (
           <View className="gap-2">
             <Text className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-              Karakter (Murajara)
+              {tGlobal('Karakter (Murajara)')}
             </Text>
             <Controller
               name="gradeMurajara"
               control={control}
-              render={({ field }) => <GradePicker value={field.value} onChange={field.onChange} />}
+              render={({ field }) => <GradePicker value={field.value} onChange={field.onChange} tGlobal={tGlobal} />}
             />
           </View>
         )}
@@ -269,7 +279,7 @@ export function AssignmentForm({
       {assignment && (
         <View className="gap-2 rounded-2xl border border-border bg-card p-4">
           <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-            Rettelse &amp; Feedback
+            {tGlobal('Rettelse & Feedback')}
           </Text>
           <Controller
             name="notes"
@@ -280,7 +290,7 @@ export function AssignmentForm({
                 numberOfLines={4}
                 value={field.value || ''}
                 onChangeText={field.onChange}
-                placeholder="Skriv feedback..."
+                placeholder={tGlobal('Skriv feedback...')}
                 className="min-h-[100px]"
               />
             )}
@@ -290,12 +300,12 @@ export function AssignmentForm({
 
       {(errors.hifzSurahName || errors.hifzFromAyah || errors.murajaraFromAyah) && (
         <Text className="text-sm text-destructive">
-          {errors.hifzSurahName?.message || errors.hifzFromAyah?.message || errors.murajaraFromAyah?.message}
+          {tGlobal(errors.hifzSurahName?.message || errors.hifzFromAyah?.message || errors.murajaraFromAyah?.message || '')}
         </Text>
       )}
 
       <Button onPress={handleSubmit(onSubmit)} loading={isLoading}>
-        {assignment ? 'Gem ændring' : 'Opret lektie'}
+        {assignment ? tGlobal('Gem ændring') : tGlobal('Opret lektie')}
       </Button>
     </ScrollView>
   );

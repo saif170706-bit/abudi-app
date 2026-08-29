@@ -11,6 +11,7 @@ import { DeadlineField } from '@/components/ui/deadline-field';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { SurveyQuestionBuilder } from '@/components/ui/survey-question-builder';
 import { pickAndUploadBanner } from '@/lib/upload-image';
+import { useLanguagePreference } from '@/context/language-context';
 import type { Survey, SurveyQuestion } from '@/shared/types';
 
 const AUDIENCE_OPTIONS = [
@@ -24,6 +25,7 @@ const AUDIENCE_OPTIONS = [
 export function SurveyForm({ survey, onDone }: { survey?: Survey; onDone: () => void }) {
   const { firestore } = useFirebase();
   const { user } = useAuth();
+  const { tGlobal } = useLanguagePreference();
   const [title, setTitle] = useState(survey?.title ?? '');
   const [description, setDescription] = useState(survey?.description ?? '');
   const [hasDeadline, setHasDeadline] = useState(!!survey?.deadline);
@@ -45,7 +47,7 @@ export function SurveyForm({ survey, onDone }: { survey?: Survey; onDone: () => 
       if (url) setImageUrl(url);
     } catch (error) {
       console.error('Image upload failed:', error);
-      Alert.alert('Fejl', 'Kunne ikke uploade billedet.');
+      Alert.alert(tGlobal('Fejl'), tGlobal('Kunne ikke uploade billedet.'));
     } finally {
       setIsUploading(false);
     }
@@ -53,7 +55,7 @@ export function SurveyForm({ survey, onDone }: { survey?: Survey; onDone: () => 
 
   const handleSave = async () => {
     if (!title.trim() || questions.length === 0 || !user) {
-      Alert.alert('Udfyld venligst', 'Titel og mindst ét spørgsmål er påkrævet.');
+      Alert.alert(tGlobal('Udfyld venligst'), tGlobal('Titel og mindst ét spørgsmål er påkrævet.'));
       return;
     }
     setIsSaving(true);
@@ -79,7 +81,7 @@ export function SurveyForm({ survey, onDone }: { survey?: Survey; onDone: () => 
       onDone();
     } catch (error) {
       console.error('Failed to save survey:', error);
-      Alert.alert('Fejl', 'Kunne ikke gemme undersøgelsen.');
+      Alert.alert(tGlobal('Fejl'), tGlobal('Kunne ikke gemme undersøgelsen.'));
     } finally {
       setIsSaving(false);
     }
@@ -88,9 +90,9 @@ export function SurveyForm({ survey, onDone }: { survey?: Survey; onDone: () => 
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
-        <Text className="text-lg font-semibold text-foreground">{survey ? 'Rediger undersøgelse' : 'Ny Undersøgelse'}</Text>
+        <Text className="text-lg font-semibold text-foreground">{survey ? tGlobal('Rediger undersøgelse') : tGlobal('Ny Undersøgelse')}</Text>
         <Pressable onPress={onDone} className="px-2 py-1">
-          <Text className="text-muted-foreground">Luk</Text>
+          <Text className="text-muted-foreground">{tGlobal('Luk')}</Text>
         </Pressable>
       </View>
       <FlatList
@@ -100,40 +102,40 @@ export function SurveyForm({ survey, onDone }: { survey?: Survey; onDone: () => 
         renderItem={() => (
           <View className="gap-4">
             <View className="gap-2">
-              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Titel</Text>
-              <Input placeholder="Fx: Trivselsmåling Marts" value={title} onChangeText={setTitle} />
+              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Titel')}</Text>
+              <Input placeholder={tGlobal('Fx: Trivselsmåling Marts')} value={title} onChangeText={setTitle} />
             </View>
             <View className="gap-2">
-              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Banner Billede</Text>
+              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Banner Billede')}</Text>
               {imageUrl && <Image source={{ uri: imageUrl }} className="h-32 w-full rounded-xl" resizeMode="cover" />}
               <Button variant="outline" loading={isUploading} onPress={handlePickImage}>
-                {imageUrl ? 'Skift billede' : 'Upload Banner'}
+                {imageUrl ? tGlobal('Skift billede') : tGlobal('Upload Banner')}
               </Button>
             </View>
             <View className="gap-2">
-              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Beskrivelse</Text>
+              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Beskrivelse')}</Text>
               <RichTextEditor value={description} onChange={setDescription} />
             </View>
             <View className="gap-2">
-              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Målgruppe</Text>
-              <ChipPicker options={AUDIENCE_OPTIONS as any} value={audience} onChange={setAudience} />
+              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Målgruppe')}</Text>
+              <ChipPicker options={AUDIENCE_OPTIONS.map((o) => ({ ...o, label: tGlobal(o.label) })) as any} value={audience} onChange={setAudience} />
             </View>
             <Pressable onPress={() => setHasDeadline((v) => !v)} className="flex-row items-center gap-2">
               <View className={`h-4 w-4 rounded ${hasDeadline ? 'bg-primary' : 'border border-border'}`} />
-              <Text className="text-sm text-foreground">Sæt tidsfrist</Text>
+              <Text className="text-sm text-foreground">{tGlobal('Sæt tidsfrist')}</Text>
             </Pressable>
             {hasDeadline && (
               <View className="gap-2">
-                <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Frist</Text>
+                <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Frist')}</Text>
                 <DeadlineField value={deadline} onChange={setDeadline} />
               </View>
             )}
             <View className="gap-2">
-              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Spørgsmål</Text>
+              <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Spørgsmål')}</Text>
               <SurveyQuestionBuilder questions={questions} onChange={setQuestions} />
             </View>
             <Button loading={isSaving} onPress={handleSave}>
-              Gem
+              {tGlobal('Gem')}
             </Button>
           </View>
         )}

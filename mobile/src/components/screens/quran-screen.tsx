@@ -10,6 +10,7 @@ import { useQuranProgress, getQuranProgress } from '@/hooks/use-quran-progress';
 import { useRecentQuranVisits } from '@/hooks/use-recent-quran-visits';
 import { useQuranAudioPlayer } from '@/hooks/use-quran-audio-player';
 import { fontFamilyForPage, type QuranPageWord } from '@/lib/quran-asset-cache';
+import { useLanguagePreference } from '@/context/language-context';
 
 const TOTAL_PAGES = 604;
 const PAGES = Array.from({ length: TOTAL_PAGES }, (_, i) => i + 1);
@@ -38,11 +39,13 @@ function QuranPageView({
   width,
   selected,
   onSelectAyah,
+  tGlobal,
 }: {
   pageNumber: number;
   width: number;
   selected: SelectedAyah;
   onSelectAyah: (surah: number, ayah: number) => void;
+  tGlobal: (text: string) => string;
 }) {
   const { data, isLoading, error } = useQuranPage(pageNumber);
 
@@ -57,7 +60,7 @@ function QuranPageView({
   if (error) {
     return (
       <View style={{ width }} className="flex-1 items-center justify-center px-6">
-        <Text className="text-center text-muted-foreground">Kunne ikke indlæse side {pageNumber}.</Text>
+        <Text className="text-center text-muted-foreground">{tGlobal('Kunne ikke indlæse side')} {pageNumber}.</Text>
       </View>
     );
   }
@@ -95,7 +98,7 @@ function QuranPageView({
           </Text>
         );
       })}
-      <Text className="mt-6 text-center text-xs text-muted-foreground">Side {pageNumber}</Text>
+      <Text className="mt-6 text-center text-xs text-muted-foreground">{tGlobal('side')} {pageNumber}</Text>
     </View>
   );
 }
@@ -107,6 +110,7 @@ function SelectionBar({
   onPlay,
   onTogglePlayPause,
   onDismiss,
+  tGlobal,
 }: {
   selected: NonNullable<SelectedAyah>;
   playing: boolean;
@@ -114,11 +118,12 @@ function SelectionBar({
   onPlay: () => void;
   onTogglePlayPause: () => void;
   onDismiss: () => void;
+  tGlobal: (text: string) => string;
 }) {
   return (
     <View className="flex-row items-center justify-between border-t border-border bg-card px-4 py-3">
       <Text className="text-sm text-card-foreground">
-        Vers {selected.surah}:{selected.ayah}
+        {tGlobal('verseLabel')} {selected.surah}:{selected.ayah}
       </Text>
       <View className="flex-row items-center gap-3">
         <Pressable
@@ -127,7 +132,7 @@ function SelectionBar({
           className="rounded-full bg-primary px-4 py-2"
         >
           <Text className="text-sm font-medium text-primary-foreground">
-            {isLoading ? '…' : playing ? 'Pause' : 'Afspil'}
+            {isLoading ? '…' : playing ? tGlobal('Pause') : tGlobal('Afspil')}
           </Text>
         </Pressable>
         <Pressable onPress={onDismiss} className="px-2 py-2">
@@ -147,6 +152,7 @@ export function QuranScreen({
   const { user } = useAuth();
   const { saveProgress } = useQuranProgress();
   const { addVisit } = useRecentQuranVisits();
+  const { tGlobal } = useLanguagePreference();
 
   const [initialPage, setInitialPage] = useState<number | null>(null);
   const [selected, setSelected] = useState<SelectedAyah>(null);
@@ -228,7 +234,7 @@ export function QuranScreen({
         maxToRenderPerBatch={2}
         initialNumToRender={1}
         renderItem={({ item }) => (
-          <QuranPageView pageNumber={item} width={width} selected={selected} onSelectAyah={onSelectAyah} />
+          <QuranPageView pageNumber={item} width={width} selected={selected} onSelectAyah={onSelectAyah} tGlobal={tGlobal} />
         )}
       />
       {selected && (
@@ -239,6 +245,7 @@ export function QuranScreen({
           onPlay={onPlaySelected}
           onTogglePlayPause={audio.togglePlayPause}
           onDismiss={onDismiss}
+          tGlobal={tGlobal}
         />
       )}
     </SafeAreaView>

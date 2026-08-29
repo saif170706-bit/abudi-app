@@ -8,6 +8,7 @@ import * as Clipboard from 'expo-clipboard';
 import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useLanguagePreference, LOCALE_MAP } from '@/context/language-context';
 
 interface WaitingListEntry {
   id: string;
@@ -32,14 +33,16 @@ function initials(name?: string) {
     .join('');
 }
 
-function formatDate(entry: WaitingListEntry, withYear = false) {
+function formatDate(entry: WaitingListEntry, locale: string, withYear = false) {
   const d = entry.createdAt?.toDate?.();
   if (!d) return '...';
-  return d.toLocaleDateString('da-DK', withYear ? { day: 'numeric', month: 'long', year: 'numeric' } : { day: 'numeric', month: 'short' });
+  return d.toLocaleDateString(locale, withYear ? { day: 'numeric', month: 'long', year: 'numeric' } : { day: 'numeric', month: 'short' });
 }
 
 export function AdminWaitingListScreen() {
   const { firestore } = useFirebase();
+  const { tGlobal, language } = useLanguagePreference();
+  const locale = LOCALE_MAP[language];
   const [tab, setTab] = useState<'man' | 'woman'>('man');
   const [selected, setSelected] = useState<WaitingListEntry | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -69,7 +72,7 @@ export function AdminWaitingListScreen() {
       setSelected(null);
     } catch (error) {
       console.error('Failed to remove from waiting list:', error);
-      Alert.alert('Fejl', 'Kunne ikke fjerne personen.');
+      Alert.alert(tGlobal('Fejl'), tGlobal('Kunne ikke fjerne personen.'));
     } finally {
       setIsDeleting(false);
     }
@@ -86,8 +89,8 @@ export function AdminWaitingListScreen() {
             <Ionicons name="arrow-back" size={20} color="#374151" />
           </Pressable>
           <View>
-            <Text className="text-sm text-muted-foreground">Admin</Text>
-            <Text className="text-3xl font-bold text-foreground">Venteliste</Text>
+            <Text className="text-sm text-muted-foreground">{tGlobal('Admin')}</Text>
+            <Text className="text-3xl font-bold text-foreground">{tGlobal('Venteliste')}</Text>
           </View>
         </View>
         <Pressable
@@ -103,14 +106,14 @@ export function AdminWaitingListScreen() {
           onPress={() => setTab('man')}
           className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl py-2 ${tab === 'man' ? 'bg-card shadow-sm' : ''}`}
         >
-          <Text className="font-bold text-foreground">Mænd</Text>
+          <Text className="font-bold text-foreground">{tGlobal('Mænd')}</Text>
           <Badge className="bg-black/5">{String(menQueue.length)}</Badge>
         </Pressable>
         <Pressable
           onPress={() => setTab('woman')}
           className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl py-2 ${tab === 'woman' ? 'bg-card shadow-sm' : ''}`}
         >
-          <Text className="font-bold text-foreground">Kvinder</Text>
+          <Text className="font-bold text-foreground">{tGlobal('Kvinder')}</Text>
           <Badge className="bg-black/5">{String(womenQueue.length)}</Badge>
         </Pressable>
       </View>
@@ -143,14 +146,14 @@ export function AdminWaitingListScreen() {
                   <View>
                     <Text className="text-base font-bold text-foreground">{item.name}</Text>
                     <Text className="text-[11px] font-bold uppercase tracking-tight text-muted-foreground">
-                      {formatDate(item)}
+                      {formatDate(item, locale)}
                     </Text>
                   </View>
                 </View>
                 <View className="flex-row items-center gap-2">
                   {isFirst && (
                     <Badge className="bg-primary/10">
-                      <Text className="text-[10px] font-bold text-primary">NÆSTE</Text>
+                      <Text className="text-[10px] font-bold text-primary">{tGlobal('NÆSTE')}</Text>
                     </Badge>
                   )}
                   <Ionicons name="chevron-forward" size={18} color="#9ca3af" />
@@ -160,7 +163,7 @@ export function AdminWaitingListScreen() {
           }}
           ListEmptyComponent={
             <Text className="mt-16 text-center text-muted-foreground">
-              {tab === 'man' ? 'Ingen mænd på ventelisten.' : 'Ingen kvinder på ventelisten.'}
+              {tGlobal(tab === 'man' ? 'Ingen mænd på ventelisten.' : 'Ingen kvinder på ventelisten.')}
             </Text>
           }
         />
@@ -191,12 +194,12 @@ export function AdminWaitingListScreen() {
                       <View className="mt-2 flex-row gap-2">
                         <Badge className={selected.gender === 'man' ? 'bg-blue-50' : 'bg-pink-50'}>
                           <Text className={`text-[9px] font-bold uppercase tracking-widest ${selected.gender === 'man' ? 'text-blue-600' : 'text-pink-600'}`}>
-                            {selected.gender === 'man' ? 'Mand' : 'Kvinde'}
+                            {selected.gender === 'man' ? tGlobal('Mand') : tGlobal('Kvinde')}
                           </Text>
                         </Badge>
                         <Badge className="border border-border bg-transparent">
                           <Text className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
-                            {formatDate(selected, true)}
+                            {formatDate(selected, locale, true)}
                           </Text>
                         </Badge>
                       </View>
@@ -204,25 +207,25 @@ export function AdminWaitingListScreen() {
                   </View>
 
                   <View className="gap-4 rounded-3xl border border-border bg-card p-5 shadow-sm">
-                    <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Niveau</Text>
+                    <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Niveau')}</Text>
                     <View className="flex-row gap-4">
                       <View className="flex-1">
-                        <Text className="mb-1 text-[10px] font-bold uppercase text-muted-foreground">Læsning</Text>
+                        <Text className="mb-1 text-[10px] font-bold uppercase text-muted-foreground">{tGlobal('Læsning')}</Text>
                         <Text className="text-sm font-bold leading-tight text-foreground">
-                          {selected.readingLevel || 'Ikke angivet'}
+                          {selected.readingLevel || tGlobal('Ikke angivet')}
                         </Text>
                       </View>
                       <View className="flex-1">
-                        <Text className="mb-1 text-[10px] font-bold uppercase text-muted-foreground">Memorering</Text>
+                        <Text className="mb-1 text-[10px] font-bold uppercase text-muted-foreground">{tGlobal('Memorering')}</Text>
                         <Text className="text-sm font-bold leading-tight text-foreground">
-                          {selected.memorizingLevel || 'Ikke angivet'}
+                          {selected.memorizingLevel || tGlobal('Ikke angivet')}
                         </Text>
                       </View>
                     </View>
                   </View>
 
                   <View className="gap-4 rounded-3xl border border-border bg-card p-5 shadow-sm">
-                    <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Kontakt</Text>
+                    <Text className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{tGlobal('Kontakt')}</Text>
                     <Pressable onPress={() => Linking.openURL(`tel:${selected.phoneNumber}`)} className="flex-row items-center gap-4">
                       <View className="h-10 w-10 items-center justify-center rounded-xl bg-blue-50">
                         <Ionicons name="call" size={18} color="#2563eb" />
@@ -238,7 +241,7 @@ export function AdminWaitingListScreen() {
                   </View>
 
                   <Button variant="destructive" loading={isDeleting} onPress={handleDelete}>
-                    Fjern fra venteliste
+                    {tGlobal('Fjern fra venteliste')}
                   </Button>
                 </View>
               )}

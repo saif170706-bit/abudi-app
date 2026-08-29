@@ -8,11 +8,13 @@ import type { Channel as StreamChannel } from 'stream-chat';
 import { streamClient } from '@/lib/stream-client';
 import { useStreamChat } from '@/hooks/use-stream-chat';
 import { useAuth } from '@/hooks/use-auth';
+import { useLanguagePreference } from '@/context/language-context';
 
 export function ChatChannelScreen() {
   const { cid } = useLocalSearchParams<{ cid: string }>();
   const { user, loading } = useAuth();
   const { isConnected } = useStreamChat();
+  const { tGlobal } = useLanguagePreference();
   const [channel, setChannel] = useState<StreamChannel | null>(null);
   const [error, setError] = useState(false);
 
@@ -39,8 +41,8 @@ export function ChatChannelScreen() {
         .filter((m) => m.user?.id !== user.uid)
         .map((m) => m.user?.name)
         .join(', ') ||
-      'Samtale'
-    : 'Samtale';
+      tGlobal('Samtale')
+    : tGlobal('Samtale');
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
@@ -56,7 +58,7 @@ export function ChatChannelScreen() {
       {!isConnected || (!channel && !error) ? (
         <ActivityIndicator className="mt-10" />
       ) : error || !channel ? (
-        <Text className="mt-10 text-center text-muted-foreground">Kunne ikke åbne samtalen.</Text>
+        <Text className="mt-10 text-center text-muted-foreground">{tGlobal('Kunne ikke åbne samtalen.')}</Text>
       ) : (
         <OverlayProvider>
           <Chat client={streamClient}>

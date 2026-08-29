@@ -7,6 +7,7 @@ import { httpsCallable } from 'firebase/functions';
 import { useFirebase } from '@/firebase';
 import { functions } from '@/firebase/client';
 import { Button } from '@/components/ui/button';
+import { useLanguagePreference } from '@/context/language-context';
 
 type QueueView = 'rest' | 'input' | 'teachers' | 'success';
 
@@ -14,6 +15,7 @@ const NUMPAD = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', 'DEL'];
 
 export function TerminalQueueScreen() {
   const { firestore } = useFirebase();
+  const { tGlobal } = useLanguagePreference();
   const [view, setView] = useState<QueueView>('rest');
   const [studentNumber, setStudentNumber] = useState('');
   const [student, setStudent] = useState<any>(null);
@@ -57,14 +59,14 @@ export function TerminalQueueScreen() {
       const q = query(collection(firestore, 'students'), where('studentNumber', '==', studentNumber));
       const snapshot = await getDocs(q);
       if (snapshot.empty) {
-        setErrorMsg('Elevnummer ikke fundet. Prøv igen.');
+        setErrorMsg(tGlobal('Elevnummer ikke fundet. Prøv igen.'));
       } else {
         const docSnap = snapshot.docs[0];
         setStudent({ id: docSnap.id, ...docSnap.data() });
         setView('teachers');
       }
     } catch {
-      setErrorMsg('Der opstod en fejl.');
+      setErrorMsg(tGlobal('Der opstod en fejl.'));
     } finally {
       setLoading(false);
     }
@@ -98,7 +100,7 @@ export function TerminalQueueScreen() {
       }, 7000);
     } catch (e: any) {
       console.error('Queue join error:', e);
-      setErrorMsg(e.message || 'Kunne ikke tilføje til køen.');
+      setErrorMsg(e.message || tGlobal('Kunne ikke tilføje til køen.'));
     } finally {
       setLoading(false);
     }
@@ -123,14 +125,14 @@ export function TerminalQueueScreen() {
         <View className="mb-10 h-32 w-32 items-center justify-center rounded-full bg-white shadow-2xl">
           <Text className="text-4xl">🕌</Text>
         </View>
-        <Text className="mb-8 text-center text-5xl font-bold text-primary">Træk Nummer</Text>
+        <Text className="mb-8 text-center text-5xl font-bold text-primary">{tGlobal('Træk Nummer')}</Text>
         <View className="rounded-full bg-primary px-8 py-4">
           <Text className="text-base font-bold uppercase tracking-widest text-primary-foreground">
-            Tryk skærmen for at starte
+            {tGlobal('Tryk skærmen for at starte')}
           </Text>
         </View>
         <Pressable onPress={() => router.back()} className="absolute bottom-10">
-          <Text className="text-primary/50">Tilbage til Admin</Text>
+          <Text className="text-primary/50">{tGlobal('Tilbage til Admin')}</Text>
         </Pressable>
       </Pressable>
     );
@@ -139,8 +141,8 @@ export function TerminalQueueScreen() {
   if (view === 'input') {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-[#F0F5F3] p-6">
-        <Text className="mb-1 text-center text-3xl font-bold text-primary">Dit Elevnummer</Text>
-        <Text className="mb-8 text-center text-muted-foreground">Indtast dit elevnummer for at fortsætte</Text>
+        <Text className="mb-1 text-center text-3xl font-bold text-primary">{tGlobal('Dit Elevnummer')}</Text>
+        <Text className="mb-8 text-center text-muted-foreground">{tGlobal('Indtast dit elevnummer for at fortsætte')}</Text>
 
         <View className="w-full max-w-sm rounded-[32px] bg-white p-6 shadow-2xl">
           <View className="mb-6 h-20 items-center justify-center rounded-2xl bg-[#F0F5F3]">
@@ -163,10 +165,10 @@ export function TerminalQueueScreen() {
 
           <View className="flex-row gap-3">
             <Button variant="secondary" className="flex-1" onPress={reset}>
-              Annuller
+              {tGlobal('Annuller')}
             </Button>
             <Button className="flex-1" loading={loading} disabled={!studentNumber} onPress={handleLookupStudent}>
-              Næste
+              {tGlobal('Næste')}
             </Button>
           </View>
         </View>
@@ -180,25 +182,25 @@ export function TerminalQueueScreen() {
       <SafeAreaView className="flex-1 bg-[#F0F5F3] p-4">
         <View className="mb-6 flex-row items-center justify-between">
           <View>
-            <Text className="text-2xl font-bold text-primary">Kø System</Text>
+            <Text className="text-2xl font-bold text-primary">{tGlobal('Kø System')}</Text>
             <Text className="text-xs font-bold uppercase tracking-widest text-accent">
-              Elev: {student?.displayName || 'Ukendt'}
+              {tGlobal('Elev: ')}{student?.displayName || tGlobal('Ukendt')}
             </Text>
           </View>
           <Button variant="outline" onPress={reset}>
-            Afbryd
+            {tGlobal('Afbryd')}
           </Button>
         </View>
 
         <Pressable onPress={() => handleJoinQueue(null)} className="mb-4 rounded-[28px] bg-primary p-6">
-          <Text className="text-xl font-bold text-primary-foreground">Hurtig Tilmelding</Text>
+          <Text className="text-xl font-bold text-primary-foreground">{tGlobal('quickRegistration')}</Text>
           <Text className="mt-1 text-xs font-bold uppercase tracking-widest text-primary-foreground/60">
-            Find den første ledige lærer
+            {tGlobal('Find den første ledige lærer')}
           </Text>
         </Pressable>
 
         {matching.length === 0 ? (
-          <Text className="mt-10 text-center text-muted-foreground">Ingen lærere er fysisk tilgængelige lige nu.</Text>
+          <Text className="mt-10 text-center text-muted-foreground">{tGlobal('Ingen lærere er fysisk tilgængelige lige nu.')}</Text>
         ) : (
           matching.map((t) => (
             <Pressable
@@ -211,7 +213,7 @@ export function TerminalQueueScreen() {
               </View>
               <View className="flex-1">
                 <Text className="text-lg font-bold text-primary">{t.displayName}</Text>
-                <Text className="text-xs font-bold uppercase tracking-widest text-accent">Lokale {t.room}</Text>
+                <Text className="text-xs font-bold uppercase tracking-widest text-accent">{tGlobal('Lokale')} {t.room}</Text>
               </View>
             </Pressable>
           ))
@@ -229,18 +231,18 @@ export function TerminalQueueScreen() {
   return (
     <SafeAreaView className="flex-1 items-center justify-center bg-primary p-6">
       <View className="items-center gap-6">
-        <Text className="text-xs font-black uppercase tracking-[0.4em] text-accent">Du Er Tilmeldt Køen</Text>
+        <Text className="text-xs font-black uppercase tracking-[0.4em] text-accent">{tGlobal('Du Er Tilmeldt Køen')}</Text>
         <Text className="text-8xl font-light text-white">
           A{successInfo?.ticketNumber} <Text className="opacity-40">(#{successInfo?.studentNumber})</Text>
         </Text>
         {successInfo?.teacherName && (
-          <Text className="text-2xl font-bold text-white">Lærer {successInfo.teacherName}</Text>
+          <Text className="text-2xl font-bold text-white">{tGlobal('Lærer')} {successInfo.teacherName}</Text>
         )}
         <Text className="max-w-xs text-center text-white/70">
-          Sæt dig og vent på, at dit nummer eller navn bliver kaldt på skærmen.
+          {tGlobal('Sæt dig og vent på, at dit nummer eller navn bliver kaldt på skærmen.')}
         </Text>
         <Button className="mt-6 bg-white" onPress={() => setView('rest')}>
-          Færdig
+          {tGlobal('Færdig')}
         </Button>
       </View>
     </SafeAreaView>
