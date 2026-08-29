@@ -51,7 +51,14 @@
       ],
       "expo-font",
       "expo-web-browser",
-      "expo-video"
+      "expo-video",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/android-icon-monochrome.png",
+          "color": "#197670"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

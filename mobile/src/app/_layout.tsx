@@ -8,11 +8,13 @@ import { FirebaseProvider } from '@/firebase';
 import { AuthProvider } from '@/context/auth-context';
 import { LanguageProvider } from '@/context/language-context';
 import { useAuth } from '@/hooks/use-auth';
+import { usePushNotifications } from '@/hooks/use-push-notifications';
 
 SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
   const { loading } = useAuth();
+  usePushNotifications();
 
   useEffect(() => {
     if (!loading) SplashScreen.hideAsync();
