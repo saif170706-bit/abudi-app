@@ -77,6 +77,7 @@ function RootNavigator() {
         <Stack.Screen name="audio/[cid]" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
         <Stack.Screen name="livestream-view/[id]" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="livestream-broadcast/[id]" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
+        <Stack.Screen name="livestream-recording/[id]" options={{ presentation: 'fullScreenModal' }} />
       </Stack>
       <IncomingCallListener />
       <OfflineBanner />

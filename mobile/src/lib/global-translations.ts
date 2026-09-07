@@ -985,6 +985,8 @@ export const globalTranslations: Record<string, Record<LanguageCode, string>> = 
   "Vilkår og betingelser": { da: "Vilkår og betingelser", en: "Terms & Conditions", ar: "الشروط والأحكام", so: "Shuruudaha & Xaaladaha" },
   "Lektie & Bedømmelse": { da: "Lektie & Bedømmelse", en: "Assignment & Grading", ar: "الواجب والتقييم", so: "Casharka & Qiimeynta" },
   "Ingen internetforbindelse": { da: "Ingen internetforbindelse", en: "No internet connection", ar: "لا يوجد اتصال بالإنترنت", so: "Internet ma jiro" },
+  "Optagelse": { da: "Optagelse", en: "Recording", ar: "التسجيل", so: "Duubista" },
+  "Optagelsen behandles stadig... Prøv igen om et øjeblik.": { da: "Optagelsen behandles stadig... Prøv igen om et øjeblik.", en: "The recording is still processing... Try again in a moment.", ar: "لا يزال التسجيل قيد المعالجة... حاول مرة أخرى بعد قليل.", so: "Duubistu weli waa la habeeyaa... Isku day mar kale wax yar ka dib." },
   "Fremmøde": { da: "Fremmøde", en: "Attendance", ar: "الحضور", so: "Xaadiritaanka" },
   "uger siden": { da: "uger siden", en: "weeks ago", ar: "أسابيع مضت", so: "toddobaad ka hor" },
   "Ingen noter endnu.": { da: "Ingen noter endnu.", en: "No notes yet.", ar: "لا توجد ملاحظات بعد.", so: "Wali fiiro ma jirto." },

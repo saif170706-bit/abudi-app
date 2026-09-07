@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Pressable, FlatList, ActivityIndicator, Image, Alert } from 'react-native';
+import { View, Text, Pressable, FlatList, ActivityIndicator, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -45,7 +45,7 @@ function MeetingCta({ item, tGlobal }: { item: any; tGlobal: (s: string) => stri
   if (item.isRecordingAvailable) {
     return (
       <Pressable
-        onPress={() => Alert.alert(tGlobal('Kommer snart'), tGlobal('Optagelser er ikke tilgængelige i appen endnu.'))}
+        onPress={() => router.push(`/livestream-recording/${item.id}` as any)}
         className="mt-4 flex-row items-center justify-between rounded-2xl bg-foreground px-5 py-4"
       >
         <View className="flex-row items-center gap-3">
