@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, Alert, ActivityIndicator, Linking } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -40,15 +40,31 @@ export function QueueWaitingScreen() {
   const [calledBy, setCalledBy] = useState<CalledBy>(null);
   const [callingTeacherName, setCallingTeacherName] = useState<string | null>(null);
   const [callingTeacherRoom, setCallingTeacherRoom] = useState<string | null>(null);
+  const [redirectedFrom, setRedirectedFrom] = useState<string | null>(null);
   const clearedStaleRef = useRef(false);
 
   const queueType = (type as 'physical' | 'virtual') || 'physical';
 
+  // If the teacher closes their dedicated queue, the backend moves waiting
+  // students into the shared global pool and leaves a courtesy note on their
+  // doc — from then on this screen should track the global pool instead of
+  // the now-stale dedicated queue doc.
+  useEffect(() => {
+    if (!firestore || !user) return;
+    const unsub = onSnapshot(doc(firestore, 'students', user.uid), (snap) => {
+      const notice = snap.data()?.redirectNotification;
+      if (notice?.teacherName) setRedirectedFrom(notice.teacherName);
+    });
+    return unsub;
+  }, [firestore, user]);
+
+  const effectiveTeacherId = redirectedFrom ? null : teacherId;
+
   // Live position within the relevant queue (dedicated teacher queue, or the shared global pool).
   useEffect(() => {
     if (!firestore || !user) return;
-    const queueDocRef = teacherId
-      ? doc(firestore, 'queues', teacherId)
+    const queueDocRef = effectiveTeacherId
+      ? doc(firestore, 'queues', effectiveTeacherId)
       : doc(firestore, 'globalQueues', queueType);
 
     const unsub = onSnapshot(queueDocRef, (snap) => {
@@ -57,7 +73,7 @@ export function QueueWaitingScreen() {
       // Global pool splits by gender key; merge both since we don't know the
       // student's gender here without another read — only one will contain them.
       const genderKeys = ['manStudentsById', 'womanStudentsById'];
-      const pool = teacherId
+      const pool = effectiveTeacherId
         ? data.studentsById || {}
         : genderKeys.reduce((acc, key) => ({ ...acc, ...(data[key] || {}) }), {} as Record<string, any>);
       const list = Object.entries(pool)
@@ -67,7 +83,7 @@ export function QueueWaitingScreen() {
       if (idx >= 0) setLivePosition(idx + 1);
     });
     return unsub;
-  }, [firestore, user, teacherId, queueType]);
+  }, [firestore, user, effectiveTeacherId, queueType]);
 
   // Watch own student doc for calledBy (physical call banner + stale-call cleanup).
   useEffect(() => {
@@ -150,6 +166,14 @@ export function QueueWaitingScreen() {
         <Ionicons name="hourglass-outline" size={44} color="#197670" />
       </View>
       <Text className="mt-8 text-3xl font-bold text-foreground">{tGlobal('Du er tilmeldt køen')}</Text>
+      {redirectedFrom ? (
+        <View className="mt-4 flex-row items-center gap-2 rounded-2xl border border-accent/30 bg-accent/5 px-4 py-3">
+          <Ionicons name="information-circle" size={16} color="#b8860b" />
+          <Text className="flex-1 text-xs font-bold text-foreground">
+            {redirectedFrom} {tGlobal('har lukket sin kø. Du er nu i fælleskøen.')}
+          </Text>
+        </View>
+      ) : null}
       {ticketNumber ? (
         <Text className="mt-2 text-lg font-bold text-accent">
           {tGlobal('Billet #')}
