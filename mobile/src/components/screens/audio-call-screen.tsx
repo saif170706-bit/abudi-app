@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams, Redirect } from 'expo-router';
@@ -17,6 +17,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { useStreamVideo } from '@/hooks/use-stream-video';
 import { useLanguagePreference } from '@/context/language-context';
+import { StudentAssignmentsScreen } from './student-assignments-screen';
 
 function initials(name?: string) {
   if (!name) return '?';
@@ -124,6 +125,7 @@ function AudioCallContent({ callId }: { callId: string }) {
   const { microphone, isMute } = useMicrophoneState();
   const callingState = useCallCallingState();
   const [isLeaving, setIsLeaving] = useState(false);
+  const [showAssignment, setShowAssignment] = useState(false);
 
   useEffect(() => {
     if (!firestore || !callId) return;
@@ -149,6 +151,11 @@ function AudioCallContent({ callId }: { callId: string }) {
     participants.forEach((p) => map.set(p.userId, p));
     return Array.from(map.values());
   }, [participants]);
+
+  const student = useMemo(
+    () => (role === 'teacher' ? uniqueParticipants.find((p) => p.userId !== user?.uid) ?? null : null),
+    [uniqueParticipants, role, user?.uid]
+  );
 
   const handleLeave = async () => {
     if (isLeaving) return;
@@ -219,6 +226,14 @@ function AudioCallContent({ callId }: { callId: string }) {
 
       <View className="items-center px-6 pb-12 pt-6">
         <View className="flex-row items-center gap-4 rounded-3xl border border-border bg-card p-4 shadow-2xl">
+          {student && (
+            <Pressable
+              onPress={() => setShowAssignment(true)}
+              className={`h-16 w-16 items-center justify-center rounded-3xl ${showAssignment ? 'bg-accent' : 'bg-muted'}`}
+            >
+              <Ionicons name="book" size={24} color={showAssignment ? '#0f2e20' : '#374151'} />
+            </Pressable>
+          )}
           <Pressable
             onPress={toggleMic}
             className={`h-16 w-16 items-center justify-center rounded-3xl ${isMute ? 'bg-red-50' : 'bg-muted'}`}
@@ -233,6 +248,22 @@ function AudioCallContent({ callId }: { callId: string }) {
           </Pressable>
         </View>
       </View>
+
+      {student && (
+        <Modal visible={showAssignment} animationType="slide" onRequestClose={() => setShowAssignment(false)}>
+          <SafeAreaView className="flex-1 bg-background">
+            <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
+              <Text className="text-lg font-semibold text-foreground" numberOfLines={1}>
+                {tGlobal('Lektie & Bedømmelse')} — {student.name}
+              </Text>
+              <Pressable onPress={() => setShowAssignment(false)} className="px-2 py-1">
+                <Text className="text-muted-foreground">{tGlobal('Luk')}</Text>
+              </Pressable>
+            </View>
+            <StudentAssignmentsScreen studentId={student.userId} />
+          </SafeAreaView>
+        </Modal>
+      )}
     </SafeAreaView>
   );
 }
