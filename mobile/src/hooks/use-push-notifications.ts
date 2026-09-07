@@ -34,6 +34,7 @@ export function usePushNotifications() {
     })();
   }, [authLoading, profileLoading, user, role]);
 
+  // Handles a tap while the app is foregrounded or backgrounded.
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
       const link = response.notification.request.content.data?.link as string | undefined;
@@ -42,4 +43,18 @@ export function usePushNotifications() {
     });
     return () => subscription.remove();
   }, [role]);
+
+  // addNotificationResponseReceivedListener above never fires for a genuine
+  // cold start (app fully closed, launched by tapping the notification) —
+  // that response has to be read explicitly once on mount instead.
+  const handledColdStartRef = useRef(false);
+  useEffect(() => {
+    if (authLoading || profileLoading || !user || handledColdStartRef.current) return;
+    handledColdStartRef.current = true;
+    Notifications.getLastNotificationResponseAsync().then((response) => {
+      if (!response) return;
+      const link = response.notification.request.content.data?.link as string | undefined;
+      if (link) router.push(mapPushLinkToRoute(link, role) as any);
+    });
+  }, [authLoading, profileLoading, user, role]);
 }
