@@ -9,7 +9,10 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "bundleIdentifier": "dk.ibnamer.institute",
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "Appen har brug for adgang til mikrofonen for at du kan deltage i virtuelle opkald med din lærer/elev."
+      }
     },
     "android": {
       "package": "dk.ibnamer.institute",
@@ -64,7 +67,8 @@
           "icon": "./assets/images/android-icon-monochrome.png",
           "color": "#197670"
         }
-      ]
+      ],
+      "@stream-io/video-react-native-sdk"
     ],
     "experiments": {
       "typedRoutes": true,

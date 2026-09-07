@@ -95,15 +95,15 @@ export async function removePushToken(uid: string, role: UserRole, token: string
  * functions/index.js — e.g. `/audio/{callId}` for a virtual queue call,
  * `/?view=homework-reading&source=push` for a physical call) to a mobile
  * route. Falls back to the role-appropriate home tab for links with no
- * mobile equivalent (yet) — e.g. `/audio/*` needs Stream Video, which the
- * mobile app doesn't have wired up.
+ * mobile equivalent.
  */
 export function mapPushLinkToRoute(link: string | undefined, role: UserRole | null | undefined): string {
   if (!link) return '/';
   if (link.startsWith('/audio/')) {
-    // Virtual call — no in-app video/audio call screen yet, so send the
-    // student to the live queue-waiting screen instead of a dead end.
-    return '/queue-waiting';
+    // Virtual queue call — tapping the notification joins straight into the
+    // call screen, which itself registers the tap as "answered" (see
+    // audio-call-screen.tsx) the same way accepting via IncomingCallListener would.
+    return link;
   }
   if (link.includes('view=homework-reading')) {
     return role === 'teacher' ? '/teacher-queue' : '/';

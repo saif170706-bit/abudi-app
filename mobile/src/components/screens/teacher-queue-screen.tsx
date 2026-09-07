@@ -3,22 +3,27 @@ import { View, Text, Pressable, FlatList, Alert, ActivityIndicator } from 'react
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, deleteDoc, onSnapshot, writeBatch } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { useFirebase } from '@/firebase';
 import { functions } from '@/firebase/client';
 import { useAuth } from '@/hooks/use-auth';
+import { useUserProfile } from '@/hooks/use-user-profile';
 import { useLanguagePreference } from '@/context/language-context';
+import { CallingModal } from '@/components/ui/calling-modal';
 
 type QueuedStudent = { id: string; name: string; joinedAt?: any };
 
 export function TeacherQueueScreen() {
   const { firestore } = useFirebase();
   const { user } = useAuth();
+  const { profile } = useUserProfile();
   const { tGlobal } = useLanguagePreference();
   const [students, setStudents] = useState<QueuedStudent[]>([]);
   const [currentlyCalling, setCurrentlyCalling] = useState<any>(null);
   const [calling, setCalling] = useState<'physical' | 'virtual' | null>(null);
+  const [outgoingCallId, setOutgoingCallId] = useState<string | null>(null);
+  const [outgoingRecipientId, setOutgoingRecipientId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -41,7 +46,42 @@ export function TeacherQueueScreen() {
     setCalling(callType);
     try {
       const fn = httpsCallable(functions, 'callQueueStudent');
-      await fn({ callType });
+      const result = await fn({ callType });
+      const data = result.data as { success: boolean; student?: { id: string; name: string } };
+
+      // Virtual calls additionally need a Stream call set up and the student
+      // rung — mirrors the web app's TeacherDashboard.callStudent. Physical
+      // calls just needed the queue-position update above.
+      if (callType === 'virtual' && data.student && user) {
+        const callId = `q-${user.uid.slice(0, 12)}-${data.student.id.slice(0, 12)}-${Date.now()}`;
+        const inviteRef = doc(firestore, 'callInvites', data.student.id);
+        const callDocRef = doc(firestore, 'activeCalls', callId);
+        const batch = writeBatch(firestore);
+        batch.set(inviteRef, {
+          callId,
+          from: user.uid,
+          fromName: profile?.displayName || tGlobal('En lærer'),
+          fromPhoto: profile?.photoURL || '',
+          type: 'audio',
+        });
+        batch.set(callDocRef, { members: [user.uid], type: 'audio' });
+        await batch.commit();
+
+        try {
+          const sendCall = httpsCallable(functions, 'sendTeacherCall');
+          await sendCall({
+            studentId: data.student.id,
+            callId,
+            type: 'virtual',
+            teacherName: profile?.displayName || tGlobal('En lærer'),
+          });
+        } catch (pushError) {
+          console.warn('[teacher-queue] Push notification failed (non-fatal):', pushError);
+        }
+
+        setOutgoingCallId(callId);
+        setOutgoingRecipientId(data.student.id);
+      }
     } catch (error: any) {
       if (error?.code === 'functions/not-found') {
         Alert.alert(tGlobal('Køen er tom'), tGlobal('Der er ingen elever i køen lige nu.'));
@@ -52,6 +92,21 @@ export function TeacherQueueScreen() {
     } finally {
       setCalling(null);
     }
+  };
+
+  const cancelOutgoingCall = async (_reason: 'cancelled' | 'timeout') => {
+    if (outgoingRecipientId) {
+      await deleteDoc(doc(firestore, 'callInvites', outgoingRecipientId)).catch(() => {});
+    }
+    setOutgoingCallId(null);
+    setOutgoingRecipientId(null);
+  };
+
+  const onCallConnected = () => {
+    const callId = outgoingCallId;
+    setOutgoingCallId(null);
+    setOutgoingRecipientId(null);
+    if (callId) router.push(`/audio/${callId}` as any);
   };
 
   return (
@@ -89,7 +144,7 @@ export function TeacherQueueScreen() {
           ) : (
             <>
               <Ionicons name="book" size={18} color="#fff" />
-              <Text className="text-xs font-black uppercase tracking-widest text-primary-foreground">Kald Næste Fysisk</Text>
+              <Text className="text-xs font-black uppercase tracking-widest text-primary-foreground">{tGlobal('Kald Næste Fysisk')}</Text>
             </>
           )}
         </Pressable>
@@ -103,7 +158,7 @@ export function TeacherQueueScreen() {
           ) : (
             <>
               <Ionicons name="call" size={18} color="#fff" />
-              <Text className="text-xs font-black uppercase tracking-widest text-primary-foreground">Kald Næste Virtuel</Text>
+              <Text className="text-xs font-black uppercase tracking-widest text-primary-foreground">{tGlobal('Kald Næste Virtuel')}</Text>
             </>
           )}
         </Pressable>
@@ -115,7 +170,7 @@ export function TeacherQueueScreen() {
         contentContainerClassName="gap-2 px-6 pt-6 pb-10"
         ListHeaderComponent={
           <Text className="mb-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-            Din direkte kø ({students.length})
+            {tGlobal('Din direkte kø')} ({students.length})
           </Text>
         }
         renderItem={({ item, index }) => (
@@ -124,7 +179,14 @@ export function TeacherQueueScreen() {
             <Text className="flex-1 font-semibold text-card-foreground">{item.name}</Text>
           </View>
         )}
-        ListEmptyComponent={<Text className="mt-10 text-center text-muted-foreground">Ingen elever i din direkte kø.</Text>}
+        ListEmptyComponent={<Text className="mt-10 text-center text-muted-foreground">{tGlobal('Ingen elever i din direkte kø.')}</Text>}
+      />
+
+      <CallingModal
+        visible={!!outgoingCallId}
+        callId={outgoingCallId}
+        onCancel={cancelOutgoingCall}
+        onConnected={onCallConnected}
       />
     </SafeAreaView>
   );
