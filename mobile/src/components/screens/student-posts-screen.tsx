@@ -27,7 +27,7 @@ function MeetingCta({ item, tGlobal }: { item: any; tGlobal: (s: string) => stri
   if (item.isActive) {
     return (
       <Pressable
-        onPress={() => Alert.alert(tGlobal('Kommer snart'), tGlobal('Video-møder er ikke tilgængelige i appen endnu.'))}
+        onPress={() => router.push(`/livestream-view/${item.id}` as any)}
         className="mt-4 flex-row items-center justify-between rounded-2xl bg-red-600 px-5 py-4"
       >
         <View className="flex-row items-center gap-3">

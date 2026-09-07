@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, FlatList, Pressable, ActivityIndicator, Modal, Alert, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { deleteDoc, doc } from 'firebase/firestore';
 import { useFirebase } from '@/firebase';
 import { useAnnouncementsFeed } from '@/hooks/use-announcements-feed';
@@ -106,6 +107,17 @@ export function AdminPostsScreen() {
               <CardTitle>{item.title}</CardTitle>
               {(item.content || item.description) && (
                 <CardDescription numberOfLines={2}>{htmlToPlainText(item.content || item.description || '')}</CardDescription>
+              )}
+              {item.type === 'livestream' && (
+                <Pressable
+                  onPress={() => router.push(`/livestream-broadcast/${item.id}` as any)}
+                  className={`mt-3 flex-row items-center justify-center gap-2 rounded-2xl px-5 py-3 ${(item as any).isActive ? 'bg-red-600' : 'bg-primary'}`}
+                >
+                  <Ionicons name="videocam" size={18} color="#fff" />
+                  <Text className="font-black text-white">
+                    {(item as any).isActive ? tGlobal('Fortsæt Møde') : tGlobal('Start Møde')}
+                  </Text>
+                </Pressable>
               )}
               <View className="mt-3 flex-row gap-3">
                 <Text className="text-sm font-medium text-primary" onPress={() => handleItemPress(item)}>
