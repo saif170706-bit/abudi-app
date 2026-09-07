@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { pickAndUploadAvatar } from '@/lib/upload-image';
 import { requestAccountDeletion } from '@/lib/account-actions';
+import * as WebBrowser from 'expo-web-browser';
 
 function SettingsRow({
   icon,
@@ -369,6 +370,20 @@ export function StudentMoreScreen() {
                 <Ionicons name="chevron-forward" size={18} color="#9ca3af" />
               </View>
             }
+          />
+        </View>
+
+        <View className="gap-3">
+          <Text className="text-[10px] font-black uppercase tracking-widest text-accent">| {tGlobal('Om')}</Text>
+          <SettingsRow
+            icon="shield-checkmark-outline"
+            label={tGlobal('Privatlivspolitik')}
+            onPress={() => WebBrowser.openBrowserAsync('https://ibnamer.dk/privacy')}
+          />
+          <SettingsRow
+            icon="document-text-outline"
+            label={tGlobal('Vilkår og betingelser')}
+            onPress={() => WebBrowser.openBrowserAsync('https://ibnamer.dk/terms')}
           />
         </View>
 

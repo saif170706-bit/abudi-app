@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useColorScheme } from 'nativewind';
+import * as WebBrowser from 'expo-web-browser';
 import { useAuth } from '@/hooks/use-auth';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { InviteUserForm } from './invite-user-form';
@@ -60,6 +61,21 @@ export function AdminHubScreen() {
         </View>
 
         <InviteUserForm />
+
+        <View className="flex-row items-center justify-center gap-6 pb-2 pt-2">
+          <Text
+            className="text-xs font-bold text-muted-foreground underline"
+            onPress={() => WebBrowser.openBrowserAsync('https://ibnamer.dk/privacy')}
+          >
+            {tGlobal('Privatlivspolitik')}
+          </Text>
+          <Text
+            className="text-xs font-bold text-muted-foreground underline"
+            onPress={() => WebBrowser.openBrowserAsync('https://ibnamer.dk/terms')}
+          >
+            {tGlobal('Vilkår og betingelser')}
+          </Text>
+        </View>
       </ScrollView>
 
       <LanguageMenu visible={languageMenuOpen} onClose={() => setLanguageMenuOpen(false)} />
