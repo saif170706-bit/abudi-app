@@ -7,6 +7,8 @@ interface ButtonProps extends Omit<PressableProps, 'children'> {
   children: string;
   variant?: Variant;
   loading?: boolean;
+  /** Overrides the variant's default text color — e.g. a primary-colored label on a custom (non-variant) background. */
+  textClassName?: string;
 }
 
 const variantStyles: Record<Variant, { container: string; text: string }> = {
@@ -17,7 +19,7 @@ const variantStyles: Record<Variant, { container: string; text: string }> = {
   destructive: { container: 'bg-destructive', text: 'text-destructive-foreground' },
 };
 
-export function Button({ children, variant = 'primary', loading, disabled, className, ...props }: ButtonProps & { className?: string }) {
+export function Button({ children, variant = 'primary', loading, disabled, className, textClassName, ...props }: ButtonProps & { className?: string }) {
   const styles = variantStyles[variant];
   return (
     <Pressable
@@ -29,7 +31,7 @@ export function Button({ children, variant = 'primary', loading, disabled, class
       {loading ? (
         <ActivityIndicator />
       ) : (
-        <Text className={`text-base font-medium ${styles.text}`}>{children}</Text>
+        <Text className={`text-base font-medium ${textClassName ?? styles.text}`}>{children}</Text>
       )}
     </Pressable>
   );

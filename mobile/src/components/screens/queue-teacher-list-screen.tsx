@@ -97,7 +97,12 @@ export function QueueTeacherListScreen() {
       if (result.data?.success) {
         router.replace({
           pathname: '/queue-waiting',
-          params: { position: String(result.data.position ?? 1), ticketNumber: String(result.data.ticketNumber ?? '') },
+          params: {
+            position: String(result.data.position ?? 1),
+            ticketNumber: String(result.data.ticketNumber ?? ''),
+            type: isVirtual ? 'virtual' : 'physical',
+            teacherId: teacherId ?? '',
+          },
         } as any);
       }
     } catch (err: any) {
