@@ -32,6 +32,7 @@ function RootNavigator() {
         <Stack.Screen name="(teacher)" />
         <Stack.Screen name="(student)" />
         <Stack.Screen name="events/[eventId]" options={{ headerShown: true, title: 'Tilmelding', presentation: 'modal' }} />
+        <Stack.Screen name="surveys/[surveyId]" options={{ presentation: 'modal' }} />
         <Stack.Screen name="terminal/queue" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="terminal/tv" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="admin-waiting-list" />

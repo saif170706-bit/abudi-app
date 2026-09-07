@@ -3,8 +3,12 @@ import { View, Text, Pressable, FlatList, ActivityIndicator, Image, Alert } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { doc } from 'firebase/firestore';
+import { useFirebase, useDoc, useMemoFirebase } from '@/firebase';
+import { useAuth } from '@/hooks/use-auth';
 import { useAnnouncementsFeed } from '@/hooks/use-announcements-feed';
 import { Card, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { htmlToPlainText } from '@/lib/html-text';
 import { useLanguagePreference, LOCALE_MAP } from '@/context/language-context';
 
@@ -57,6 +61,33 @@ function MeetingCta({ item, tGlobal }: { item: any; tGlobal: (s: string) => stri
       <Ionicons name="time-outline" size={18} color="#9ca3af" />
       <Text className="font-black text-muted-foreground/50">{tGlobal('Møde ikke startet')}</Text>
     </View>
+  );
+}
+
+function SurveyCta({ item, tGlobal }: { item: any; tGlobal: (s: string) => string }) {
+  const { firestore } = useFirebase();
+  const { user } = useAuth();
+  const responseRef = useMemoFirebase(
+    () => (user ? doc(firestore, 'surveys', item.id, 'responses', user.uid) : null),
+    [firestore, item.id, user?.uid]
+  );
+  const { data: response } = useDoc(responseRef);
+
+  if (response) {
+    return (
+      <Button disabled className="mt-4 bg-amber-500/10" textClassName="text-amber-600">
+        {tGlobal('Besvaret')}
+      </Button>
+    );
+  }
+  return (
+    <Pressable
+      onPress={() => router.push(`/surveys/${item.id}` as any)}
+      className="mt-4 flex-row items-center justify-between rounded-2xl bg-amber-600 px-5 py-4"
+    >
+      <Text className="font-black text-white">{tGlobal('Start undersøgelse')}</Text>
+      <Ionicons name="arrow-forward" size={18} color="rgba(255,255,255,0.4)" />
+    </Pressable>
   );
 }
 
@@ -118,6 +149,8 @@ export function StudentPostsScreen() {
                     </View>
                     <MeetingCta item={item} tGlobal={tGlobal} />
                   </>
+                ) : item.type === 'survey' ? (
+                  <SurveyCta item={item} tGlobal={tGlobal} />
                 ) : null}
               </Card>
             </Pressable>
