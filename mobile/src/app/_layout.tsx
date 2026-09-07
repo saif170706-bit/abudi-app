@@ -1,6 +1,8 @@
 import '@/global.css';
 
 import { useEffect } from 'react';
+import { View, Text, Pressable } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
@@ -12,6 +14,31 @@ import { usePushNotifications } from '@/hooks/use-push-notifications';
 import { IncomingCallListener } from '@/components/ui/incoming-call-listener';
 
 SplashScreen.preventAutoHideAsync();
+
+/**
+ * Expo Router convention: a named `ErrorBoundary` export from any route file
+ * (including this root layout) catches render errors in that route's
+ * subtree instead of crashing to a blank/frozen screen — see
+ * expo-router/build/views/Try.js, which wraps every route's component with
+ * exactly this {error, retry} contract. No such boundary existed anywhere
+ * before this, so any uncaught render error in any screen took the whole
+ * app down with no recovery.
+ */
+export function ErrorBoundary({ error, retry }: { error: Error; retry: () => void }) {
+  if (__DEV__) console.error('[ErrorBoundary]', error);
+  return (
+    <SafeAreaView className="flex-1 items-center justify-center bg-background px-8">
+      <Text className="text-5xl">😔</Text>
+      <Text className="mt-4 text-center text-xl font-bold text-foreground">Der gik noget galt</Text>
+      <Text className="mt-2 text-center text-sm text-muted-foreground">
+        Prøv igen, eller genstart appen hvis problemet fortsætter.
+      </Text>
+      <Pressable onPress={retry} className="mt-8 rounded-2xl bg-primary px-8 py-4">
+        <Text className="font-bold text-primary-foreground">Prøv igen</Text>
+      </Pressable>
+    </SafeAreaView>
+  );
+}
 
 function RootNavigator() {
   const { loading } = useAuth();
