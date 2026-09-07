@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/hooks/use-auth';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { useLanguagePreference } from '@/context/language-context';
+import { useUnreadMailCount } from '@/hooks/use-unread-mail-count';
 
 function TabIcon(name: keyof typeof Ionicons.glyphMap) {
   return ({ color, size }: { color: string; size: number }) => <Ionicons name={name} size={size} color={color} />;
@@ -12,6 +13,7 @@ export default function AdminLayout() {
   const { user, loading } = useAuth();
   const { role, isLoading } = useUserProfile();
   const { tGlobal } = useLanguagePreference();
+  const unreadMailCount = useUnreadMailCount();
 
   if (loading || isLoading) return null;
   if (!user) return <Redirect href="/(auth)/login" />;
@@ -26,7 +28,10 @@ export default function AdminLayout() {
         name="announcements"
         options={{ title: tGlobal('Opslag'), tabBarIcon: TabIcon('add-circle-outline') }}
       />
-      <Tabs.Screen name="mail" options={{ title: tGlobal('Mail'), tabBarIcon: TabIcon('mail-outline') }} />
+      <Tabs.Screen
+        name="mail"
+        options={{ title: tGlobal('Mail'), tabBarIcon: TabIcon('mail-outline'), tabBarBadge: unreadMailCount > 0 ? unreadMailCount : undefined }}
+      />
 
       {/* Reachable, but not shown in the tab bar */}
       <Tabs.Screen name="dashboard" options={{ href: null }} />
