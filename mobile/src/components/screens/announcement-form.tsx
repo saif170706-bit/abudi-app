@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { ChipPicker } from '@/components/ui/chip-picker';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { pickAndUploadBanner } from '@/lib/upload-image';
+import { sendPostNotifications } from '@/lib/send-post-notifications';
 import { useLanguagePreference } from '@/context/language-context';
 import type { Announcement } from '@/shared/types';
 
@@ -63,6 +64,13 @@ export function AnnouncementForm({ announcement, onDone }: { announcement?: Anno
         await updateDoc(doc(firestore, 'announcements', announcement.id), data);
       } else {
         await addDoc(collection(firestore, 'announcements'), { ...data, createdAt: serverTimestamp() });
+        sendPostNotifications({
+          targetAudience: data.targetAudience,
+          targetGender: data.targetGender,
+          specificRecipients: [],
+          type: 'announcement',
+          title: data.title,
+        }).catch((err) => console.warn('[announcement-form] Notification failed (non-fatal):', err));
       }
       onDone();
     } catch (error) {

@@ -11,6 +11,7 @@ import { DeadlineField } from '@/components/ui/deadline-field';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { EventFieldBuilder } from '@/components/ui/event-field-builder';
 import { pickAndUploadBanner } from '@/lib/upload-image';
+import { sendPostNotifications } from '@/lib/send-post-notifications';
 import { useLanguagePreference } from '@/context/language-context';
 import type { Event, EventFormField } from '@/shared/types';
 
@@ -75,6 +76,13 @@ export function EventForm({ event, onDone }: { event?: Event; onDone: () => void
         await updateDoc(doc(firestore, 'events', event.id), data);
       } else {
         await addDoc(collection(firestore, 'events'), { ...data, registrationCount: 0, createdAt: serverTimestamp() });
+        sendPostNotifications({
+          targetAudience: data.targetAudience,
+          targetGender: data.targetGender,
+          specificRecipients: [],
+          type: 'event',
+          title: data.title,
+        }).catch((err) => console.warn('[event-form] Notification failed (non-fatal):', err));
       }
       onDone();
     } catch (error) {

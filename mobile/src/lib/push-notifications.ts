@@ -91,22 +91,57 @@ export async function removePushToken(uid: string, role: UserRole, token: string
 }
 
 /**
- * Maps the `link` the web backend already sends in its push payloads (see
- * functions/index.js — e.g. `/audio/{callId}` for a virtual queue call,
- * `/?view=homework-reading&source=push` for a physical call) to a mobile
- * route. Falls back to the role-appropriate home tab for links with no
- * mobile equivalent.
+ * Maps every `link` the shared backend actually sends in its push payloads
+ * (functions/index.js — grep for `link:`/`const link` there for the full,
+ * current list) to a mobile route. Previously only handled `/audio/{callId}`
+ * and `view=homework-reading`; every other notification type — new chat
+ * messages, new posts, the absence-reminder deep link — silently fell
+ * through to the home tab, so tapping them never actually took you to the
+ * relevant screen. Falls back to the role-appropriate home tab for anything
+ * unrecognized.
  */
 export function mapPushLinkToRoute(link: string | undefined, role: UserRole | null | undefined): string {
   if (!link) return '/';
+
   if (link.startsWith('/audio/')) {
     // Virtual queue call — tapping the notification joins straight into the
     // call screen, which itself registers the tap as "answered" (see
     // audio-call-screen.tsx) the same way accepting via IncomingCallListener would.
     return link;
   }
-  if (link.includes('view=homework-reading')) {
-    return role === 'teacher' ? '/teacher-queue' : '/';
+
+  const params = new URLSearchParams(link.includes('?') ? link.split('?')[1] : '');
+  const view = params.get('view');
+
+  if (view === 'chat') {
+    // Sent by the Stream webhook / sendChatPushOnRequest as
+    // `/?view=chat&cid={channelCid}`. Matches how chat-list-screen.tsx
+    // itself navigates into a channel on tap.
+    const cid = params.get('cid');
+    return cid ? `/chat/${encodeURIComponent(cid)}` : '/chat';
   }
+
+  if (view === 'announcements') {
+    // sendAdminPostNotifications — a new announcement/event/survey/meeting.
+    if (role === 'admin') return '/(admin)/announcements';
+    if (role === 'teacher') return '/(teacher)/opslag';
+    return '/(student)/opslag';
+  }
+
+  if (view === 'homework-reading') {
+    // Only ever sent to students in practice (a physical queue call, or a
+    // scheduled markaz attendance reminder) — queue-waiting-screen.tsx
+    // watches the student's own `calledBy` field regardless of the route
+    // params it was opened with, so it'll show the "it's your turn" banner
+    // even without the position/ticketNumber/type this link doesn't carry.
+    return role === 'teacher' ? '/teacher-queue' : '/queue-waiting';
+  }
+
+  if (view === 'profile' && params.get('open') === 'absence') {
+    // Weekly absence-reminder nudge — lands on the More tab, where "Meld
+    // Fravær" lives (auto-opening that modal isn't wired up yet).
+    return role === 'teacher' ? '/(teacher)/mere' : '/(student)/mere';
+  }
+
   return '/';
 }

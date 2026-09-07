@@ -12,6 +12,7 @@ import {
 } from '@stream-io/video-react-native-sdk';
 import { useFirebase } from '@/firebase';
 import { useStreamVideo } from '@/hooks/use-stream-video';
+import { sendPostNotifications } from '@/lib/send-post-notifications';
 import { useLanguagePreference } from '@/context/language-context';
 import type { Livestream } from '@/shared/types';
 
@@ -110,6 +111,13 @@ function BroadcastContent({ livestream }: { livestream: Livestream }) {
         await call.goLive();
         await new Promise((r) => setTimeout(r, 1000));
         await call.startRecording().catch(() => {});
+        sendPostNotifications({
+          targetAudience: livestream.targetAudience || 'all',
+          targetGender: livestream.targetGender || 'all',
+          specificRecipients: livestream.specificRecipients || [],
+          type: 'livestream_start',
+          title: livestream.title,
+        }).catch((err) => console.warn('[livestream-broadcast] Start notification failed (non-fatal):', err));
       }
     } catch (e) {
       console.error('Failed to toggle live state:', e);

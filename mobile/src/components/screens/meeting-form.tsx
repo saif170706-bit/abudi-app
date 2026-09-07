@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { ChipPicker } from '@/components/ui/chip-picker';
 import { DeadlineField } from '@/components/ui/deadline-field';
 import { pickAndUploadBanner } from '@/lib/upload-image';
+import { sendPostNotifications } from '@/lib/send-post-notifications';
 import { useLanguagePreference } from '@/context/language-context';
 import type { Livestream } from '@/shared/types';
 
@@ -73,6 +74,13 @@ export function MeetingForm({ meeting, onDone }: { meeting?: Livestream; onDone:
           callId: `meeting-${Date.now()}`,
           createdAt: serverTimestamp(),
         });
+        sendPostNotifications({
+          targetAudience: data.targetAudience,
+          targetGender: data.targetGender,
+          specificRecipients: [],
+          type: 'livestream',
+          title: data.title,
+        }).catch((err) => console.warn('[meeting-form] Notification failed (non-fatal):', err));
       }
       onDone();
     } catch (error) {

@@ -11,6 +11,7 @@ import { DeadlineField } from '@/components/ui/deadline-field';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { SurveyQuestionBuilder } from '@/components/ui/survey-question-builder';
 import { pickAndUploadBanner } from '@/lib/upload-image';
+import { sendPostNotifications } from '@/lib/send-post-notifications';
 import { useLanguagePreference } from '@/context/language-context';
 import type { Survey, SurveyQuestion } from '@/shared/types';
 
@@ -77,6 +78,13 @@ export function SurveyForm({ survey, onDone }: { survey?: Survey; onDone: () => 
         await updateDoc(doc(firestore, 'surveys', survey.id), data);
       } else {
         await addDoc(collection(firestore, 'surveys'), { ...data, createdAt: serverTimestamp() });
+        sendPostNotifications({
+          targetAudience: data.targetAudience,
+          targetGender: data.targetGender,
+          specificRecipients: [],
+          type: 'survey',
+          title: data.title,
+        }).catch((err) => console.warn('[survey-form] Notification failed (non-fatal):', err));
       }
       onDone();
     } catch (error) {
