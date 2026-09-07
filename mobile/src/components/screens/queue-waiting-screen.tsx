@@ -1,17 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '@/firebase/client';
 import { Button } from '@/components/ui/button';
 import { useLanguagePreference } from '@/context/language-context';
 
 // Minimal "you're in the queue" confirmation. The full live experience (position updates,
 // being called by a teacher, redirect notices) mirrors the web app's ~1000-line in_queue
-// flow and hasn't been built yet — this is a placeholder until that's scoped.
+// flow and hasn't been built yet — this is a placeholder until that's scoped. Leaving the
+// queue and being called (via the global IncomingCallListener/push notifications) do work.
 export function QueueWaitingScreen() {
-  const { position, ticketNumber } = useLocalSearchParams<{ position?: string; ticketNumber?: string }>();
+  const { position, ticketNumber, type } = useLocalSearchParams<{ position?: string; ticketNumber?: string; type?: string }>();
   const { tGlobal } = useLanguagePreference();
+  const [isLeaving, setIsLeaving] = useState(false);
+
+  const handleLeaveQueue = async () => {
+    setIsLeaving(true);
+    try {
+      const fn = httpsCallable(functions, 'leaveQueue');
+      await fn({ type: type || 'physical' });
+      router.dismissAll();
+    } catch (error) {
+      console.error('Failed to leave queue:', error);
+      Alert.alert(tGlobal('Fejl'), tGlobal('Kunne ikke forlade køen.'));
+    } finally {
+      setIsLeaving(false);
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 items-center justify-center bg-background px-6">
@@ -33,13 +51,7 @@ export function QueueWaitingScreen() {
       <Text className="mt-6 text-center text-sm text-muted-foreground">
         {tGlobal('Vi giver besked her i appen, når en lærer er klar til dig.')}
       </Text>
-      <Button
-        variant="outline"
-        className="mt-10 px-8"
-        onPress={() =>
-          Alert.alert(tGlobal('Kommer snart'), tGlobal('At forlade køen fra appen er ikke muligt endnu — kontakt en lærer.'))
-        }
-      >
+      <Button variant="outline" className="mt-10 px-8" loading={isLeaving} onPress={handleLeaveQueue}>
         {tGlobal('Forlad køen')}
       </Button>
       <Button variant="ghost" className="mt-2 px-8" onPress={() => router.dismissAll()}>
