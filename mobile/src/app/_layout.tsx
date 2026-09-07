@@ -12,6 +12,7 @@ import { LanguageProvider } from '@/context/language-context';
 import { useAuth } from '@/hooks/use-auth';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
 import { IncomingCallListener } from '@/components/ui/incoming-call-listener';
+import { OfflineBanner } from '@/components/ui/offline-banner';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -78,6 +79,7 @@ function RootNavigator() {
         <Stack.Screen name="livestream-broadcast/[id]" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
       </Stack>
       <IncomingCallListener />
+      <OfflineBanner />
     </>
   );
 }

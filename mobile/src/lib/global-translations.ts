@@ -984,6 +984,7 @@ export const globalTranslations: Record<string, Record<LanguageCode, string>> = 
   "Privatlivspolitik": { da: "Privatlivspolitik", en: "Privacy Policy", ar: "سياسة الخصوصية", so: "Siyaasadda Sirta" },
   "Vilkår og betingelser": { da: "Vilkår og betingelser", en: "Terms & Conditions", ar: "الشروط والأحكام", so: "Shuruudaha & Xaaladaha" },
   "Lektie & Bedømmelse": { da: "Lektie & Bedømmelse", en: "Assignment & Grading", ar: "الواجب والتقييم", so: "Casharka & Qiimeynta" },
+  "Ingen internetforbindelse": { da: "Ingen internetforbindelse", en: "No internet connection", ar: "لا يوجد اتصال بالإنترنت", so: "Internet ma jiro" },
   "Fremmøde": { da: "Fremmøde", en: "Attendance", ar: "الحضور", so: "Xaadiritaanka" },
   "uger siden": { da: "uger siden", en: "weeks ago", ar: "أسابيع مضت", so: "toddobaad ka hor" },
   "Ingen noter endnu.": { da: "Ingen noter endnu.", en: "No notes yet.", ar: "لا توجد ملاحظات بعد.", so: "Wali fiiro ma jirto." },
