@@ -42,7 +42,7 @@ export type AyahTiming = {
 // file-index scheme (`quran-audio/{fileIndex}{surah|segments}.json`).
 export const DEFAULT_RECITER_FILE_INDEX = 10;
 
-const SURAH_AYAH_COUNTS: Record<number, number> = {
+export const SURAH_AYAH_COUNTS: Record<number, number> = {
   1: 7, 2: 286, 3: 200, 4: 176, 5: 120, 6: 165, 7: 206, 8: 75, 9: 129, 10: 109,
   11: 123, 12: 111, 13: 43, 14: 52, 15: 99, 16: 128, 17: 111, 18: 110, 19: 98, 20: 135,
   21: 112, 22: 78, 23: 118, 24: 64, 25: 77, 26: 227, 27: 93, 28: 88, 29: 69, 30: 60,

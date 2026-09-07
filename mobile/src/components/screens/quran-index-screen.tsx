@@ -19,7 +19,8 @@ export function QuranIndexScreen() {
   const { visits } = useRecentQuranVisits();
   const { tGlobal } = useLanguagePreference();
   const segments = useSegments();
-  const basePath = segments[0] === '(teacher)' ? '/(teacher)/quran' : '/(student)/quran';
+  const basePath =
+    segments[0] === '(teacher)' ? '/(teacher)/quran' : segments[0] === '(admin)' ? '/(admin)/quran' : '/(student)/quran';
 
   const navigateToPage = (page: number) => router.push(`${basePath}?page=${page}` as any);
 

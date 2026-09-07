@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, Pressable, FlatList, ActivityIndicator, useWindowDimensions, type ViewToken } from 'react-native';
+import { View, Text, Pressable, FlatList, ActivityIndicator, Modal, useWindowDimensions, type ViewToken } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -9,10 +9,15 @@ import { useQuranPage } from '@/hooks/use-quran-page';
 import { useQuranProgress, getQuranProgress } from '@/hooks/use-quran-progress';
 import { useRecentQuranVisits } from '@/hooks/use-recent-quran-visits';
 import { useQuranAudioPlayer } from '@/hooks/use-quran-audio-player';
+import { useSelectedReciter } from '@/hooks/use-selected-reciter';
 import { fontFamilyForPage, type QuranPageWord } from '@/lib/quran-asset-cache';
+import { SURAH_AYAH_COUNTS } from '@/lib/quran-audio-data';
+import { findPageForVerse } from '@/lib/quran-page-lookup';
+import { reciters } from '@/lib/reciters';
 import { useLanguagePreference } from '@/context/language-context';
 
 const TOTAL_PAGES = 604;
+const TOTAL_SURAHS = 114;
 const PAGES = Array.from({ length: TOTAL_PAGES }, (_, i) => i + 1);
 
 type SelectedAyah = { surah: number; ayah: number } | null;
@@ -37,13 +42,13 @@ function groupWordsByAyah(words: QuranPageWord[]) {
 function QuranPageView({
   pageNumber,
   width,
-  selected,
+  highlighted,
   onSelectAyah,
   tGlobal,
 }: {
   pageNumber: number;
   width: number;
-  selected: SelectedAyah;
+  highlighted: SelectedAyah;
   onSelectAyah: (surah: number, ayah: number) => void;
   tGlobal: (text: string) => string;
 }) {
@@ -83,7 +88,7 @@ function QuranPageView({
             className="text-center text-2xl leading-[3rem] text-foreground"
           >
             {runs.map((run, runIdx) => {
-              const isSelected = selected?.surah === run.surah && selected?.ayah === run.ayah;
+              const isSelected = highlighted?.surah === run.surah && highlighted?.ayah === run.ayah;
               return (
                 <Text
                   key={runIdx}
@@ -107,39 +112,127 @@ function SelectionBar({
   selected,
   playing,
   isLoading,
+  canPrev,
+  canNext,
   onPlay,
   onTogglePlayPause,
+  onPrev,
+  onNext,
+  onOpenReciter,
+  reciterName,
   onDismiss,
   tGlobal,
 }: {
   selected: NonNullable<SelectedAyah>;
   playing: boolean;
   isLoading: boolean;
+  canPrev: boolean;
+  canNext: boolean;
   onPlay: () => void;
   onTogglePlayPause: () => void;
+  onPrev: () => void;
+  onNext: () => void;
+  onOpenReciter: () => void;
+  reciterName: string;
   onDismiss: () => void;
   tGlobal: (text: string) => string;
 }) {
   return (
-    <View className="flex-row items-center justify-between border-t border-border bg-card px-4 py-3">
-      <Text className="text-sm text-card-foreground">
-        {tGlobal('verseLabel')} {selected.surah}:{selected.ayah}
-      </Text>
-      <View className="flex-row items-center gap-3">
-        <Pressable
-          disabled={isLoading}
-          onPress={playing ? onTogglePlayPause : onPlay}
-          className="rounded-full bg-primary px-4 py-2"
-        >
-          <Text className="text-sm font-medium text-primary-foreground">
-            {isLoading ? '…' : playing ? tGlobal('Pause') : tGlobal('Afspil')}
+    <View className="border-t border-border bg-card px-4 py-3">
+      <View className="flex-row items-center justify-between">
+        <View className="flex-1">
+          <Text className="text-sm font-bold text-card-foreground">
+            {tGlobal('verseLabel')} {selected.surah}:{selected.ayah}
           </Text>
-        </Pressable>
-        <Pressable onPress={onDismiss} className="px-2 py-2">
-          <Text className="text-muted-foreground">✕</Text>
-        </Pressable>
+          <Pressable onPress={onOpenReciter} className="mt-0.5 flex-row items-center gap-1">
+            <Ionicons name="person-circle-outline" size={13} color="#9ca3af" />
+            <Text className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground" numberOfLines={1}>
+              {reciterName}
+            </Text>
+          </Pressable>
+        </View>
+        <View className="flex-row items-center gap-2">
+          <Pressable
+            disabled={isLoading || !canPrev}
+            onPress={onPrev}
+            className={`h-9 w-9 items-center justify-center rounded-full ${canPrev ? 'bg-muted' : 'opacity-30'}`}
+          >
+            <Ionicons name="play-skip-back" size={16} color="#374151" />
+          </Pressable>
+          <Pressable
+            disabled={isLoading}
+            onPress={playing ? onTogglePlayPause : onPlay}
+            className="h-11 w-11 items-center justify-center rounded-full bg-primary"
+          >
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Ionicons name={playing ? 'pause' : 'play'} size={18} color="#fff" />
+            )}
+          </Pressable>
+          <Pressable
+            disabled={isLoading || !canNext}
+            onPress={onNext}
+            className={`h-9 w-9 items-center justify-center rounded-full ${canNext ? 'bg-muted' : 'opacity-30'}`}
+          >
+            <Ionicons name="play-skip-forward" size={16} color="#374151" />
+          </Pressable>
+          <Pressable onPress={onDismiss} className="px-1 py-2">
+            <Text className="text-muted-foreground">✕</Text>
+          </Pressable>
+        </View>
       </View>
     </View>
+  );
+}
+
+function ReciterPickerModal({
+  visible,
+  currentId,
+  onSelect,
+  onClose,
+  tGlobal,
+}: {
+  visible: boolean;
+  currentId: string;
+  onSelect: (id: string) => void;
+  onClose: () => void;
+  tGlobal: (text: string) => string;
+}) {
+  return (
+    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
+      <SafeAreaView className="flex-1 bg-background">
+        <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
+          <Text className="text-lg font-semibold text-foreground">{tGlobal('Vælg oplæser')}</Text>
+          <Pressable onPress={onClose} className="px-2 py-1">
+            <Text className="text-muted-foreground">{tGlobal('Luk')}</Text>
+          </Pressable>
+        </View>
+        <FlatList
+          data={reciters}
+          keyExtractor={(r) => r.id}
+          contentContainerClassName="p-2"
+          renderItem={({ item }) => {
+            const isActive = item.id === currentId;
+            return (
+              <Pressable
+                onPress={() => {
+                  onSelect(item.id);
+                  onClose();
+                }}
+                className={`flex-row items-center justify-between rounded-2xl px-4 py-3 ${isActive ? 'bg-primary/10' : ''}`}
+              >
+                <Text className={`text-base ${isActive ? 'font-bold text-primary' : 'text-foreground'}`}>
+                  {item.name}
+                  {item.style ? ` (${item.style})` : ''}
+                </Text>
+                {isActive && <Ionicons name="checkmark" size={20} color="#197670" />}
+              </Pressable>
+            );
+          }}
+        />
+      </SafeAreaView>
+    </Modal>
   );
 }
 
@@ -153,12 +246,15 @@ export function QuranScreen({
   const { saveProgress } = useQuranProgress();
   const { addVisit } = useRecentQuranVisits();
   const { tGlobal } = useLanguagePreference();
+  const { reciterId, reciter, setReciterId } = useSelectedReciter();
 
   const [initialPage, setInitialPage] = useState<number | null>(null);
   const [selected, setSelected] = useState<SelectedAyah>(null);
+  const [reciterPickerOpen, setReciterPickerOpen] = useState(false);
   const listRef = useRef<FlatList<number>>(null);
+  const pendingAutoplayAyahRef = useRef<number | null>(null);
 
-  const audio = useQuranAudioPlayer(selected?.surah ?? 1);
+  const audio = useQuranAudioPlayer(selected?.surah ?? 1, Number(reciterId));
 
   useEffect(() => {
     if (initialPageOverride && initialPageOverride >= 1 && initialPageOverride <= TOTAL_PAGES) {
@@ -188,9 +284,17 @@ export function QuranScreen({
 
   const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 60 }).current;
 
-  const onSelectAyah = useCallback((surah: number, ayah: number) => {
-    setSelected((prev) => (prev?.surah === surah && prev?.ayah === ayah ? null : { surah, ayah }));
+  const scrollToVerse = useCallback((surah: number, ayah: number) => {
+    const page = findPageForVerse(surah, ayah);
+    if (page) listRef.current?.scrollToIndex({ index: page - 1, animated: true });
   }, []);
+
+  const onSelectAyah = useCallback(
+    (surah: number, ayah: number) => {
+      setSelected((prev) => (prev?.surah === surah && prev?.ayah === ayah ? null : { surah, ayah }));
+    },
+    []
+  );
 
   const onPlaySelected = useCallback(() => {
     if (selected) audio.playFromAyah(selected.ayah);
@@ -200,6 +304,74 @@ export function QuranScreen({
     audio.pause();
     setSelected(null);
   }, [audio]);
+
+  // Once loading a newly-selected surah (from crossing a surah boundary via
+  // next/prev/auto-continue) finishes, resume playback at the ayah that
+  // triggered the crossing — playFromAyah can't be called synchronously
+  // right after changing surah since the new surah's timings haven't loaded yet.
+  useEffect(() => {
+    if (!audio.isLoading && pendingAutoplayAyahRef.current != null) {
+      const ayah = pendingAutoplayAyahRef.current;
+      pendingAutoplayAyahRef.current = null;
+      audio.playFromAyah(ayah);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [audio.isLoading]);
+
+  const goToNextSurah = useCallback(() => {
+    if (!selected) return;
+    const nextSurah = selected.surah + 1;
+    if (nextSurah > TOTAL_SURAHS) return;
+    pendingAutoplayAyahRef.current = 1;
+    setSelected({ surah: nextSurah, ayah: 1 });
+    scrollToVerse(nextSurah, 1);
+  }, [selected, scrollToVerse]);
+
+  // Continuous "read aloud": once a surah's last ayah finishes on its own, keep going into the next surah.
+  useEffect(() => {
+    audio.setOnSurahEnd(goToNextSurah);
+    return () => audio.setOnSurahEnd(null);
+  }, [audio, goToNextSurah]);
+
+  const onNext = useCallback(() => {
+    if (!selected) return;
+    if (audio.isLastAyah) {
+      goToNextSurah();
+    } else {
+      audio.nextAyah();
+      const nextAyahNum = (selected.ayah ?? 0) + 1;
+      setSelected({ surah: selected.surah, ayah: nextAyahNum });
+      scrollToVerse(selected.surah, nextAyahNum);
+    }
+  }, [selected, audio, goToNextSurah, scrollToVerse]);
+
+  const onPrev = useCallback(() => {
+    if (!selected) return;
+    if (audio.isFirstAyah) {
+      const prevSurah = selected.surah - 1;
+      if (prevSurah < 1) return;
+      const lastAyah = SURAH_AYAH_COUNTS[prevSurah];
+      pendingAutoplayAyahRef.current = lastAyah;
+      setSelected({ surah: prevSurah, ayah: lastAyah });
+      scrollToVerse(prevSurah, lastAyah);
+    } else {
+      audio.prevAyah();
+      const prevAyahNum = (selected.ayah ?? 2) - 1;
+      setSelected({ surah: selected.surah, ayah: prevAyahNum });
+      scrollToVerse(selected.surah, prevAyahNum);
+    }
+  }, [selected, audio, scrollToVerse]);
+
+  // The highlighted/displayed ayah tracks actual playback progress once a
+  // session has started (so it moves forward automatically during continuous
+  // reading), falling back to whatever was tapped before playback began.
+  const highlighted = useMemo<SelectedAyah>(() => {
+    if (!selected) return null;
+    if (audio.activeAyah != null) return { surah: selected.surah, ayah: audio.activeAyah };
+    return selected;
+  }, [selected, audio.activeAyah]);
+
+  const reciterLabel = reciter ? `${reciter.name}${reciter.style ? ` (${reciter.style})` : ''}` : '';
 
   if (initialPage === null) {
     return (
@@ -234,7 +406,7 @@ export function QuranScreen({
         maxToRenderPerBatch={2}
         initialNumToRender={1}
         renderItem={({ item }) => (
-          <QuranPageView pageNumber={item} width={width} selected={selected} onSelectAyah={onSelectAyah} tGlobal={tGlobal} />
+          <QuranPageView pageNumber={item} width={width} highlighted={highlighted} onSelectAyah={onSelectAyah} tGlobal={tGlobal} />
         )}
       />
       {selected && (
@@ -242,12 +414,25 @@ export function QuranScreen({
           selected={selected}
           playing={audio.playing}
           isLoading={audio.isLoading}
+          canPrev={!(audio.isFirstAyah && selected.surah <= 1)}
+          canNext={!(audio.isLastAyah && selected.surah >= TOTAL_SURAHS)}
           onPlay={onPlaySelected}
           onTogglePlayPause={audio.togglePlayPause}
+          onPrev={onPrev}
+          onNext={onNext}
+          onOpenReciter={() => setReciterPickerOpen(true)}
+          reciterName={reciterLabel}
           onDismiss={onDismiss}
           tGlobal={tGlobal}
         />
       )}
+      <ReciterPickerModal
+        visible={reciterPickerOpen}
+        currentId={reciterId}
+        onSelect={setReciterId}
+        onClose={() => setReciterPickerOpen(false)}
+        tGlobal={tGlobal}
+      />
     </SafeAreaView>
   );
 }
