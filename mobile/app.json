@@ -70,7 +70,11 @@
           "color": "#197670"
         }
       ],
-      "@stream-io/video-react-native-sdk"
+      "@stream-io/video-react-native-sdk",
+      "expo-image",
+      "expo-sharing",
+      "expo-status-bar",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -1,13 +1,19 @@
 import { Tabs, Redirect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import type { ColorValue } from 'react-native';
 import { useAuth } from '@/hooks/use-auth';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { useLanguagePreference } from '@/context/language-context';
 import { useAnnouncementsFeed } from '@/hooks/use-announcements-feed';
 import { useChatUnreadCount } from '@/hooks/use-chat-unread-count';
 
+// React Navigation's tabBarIcon signature widened `color` from `string` to
+// `ColorValue` (and added `focused`) in the version SDK 57 pulls in —
+// Ionicons' own color prop is still typed as `string`, hence the cast.
 function TabIcon(name: keyof typeof Ionicons.glyphMap) {
-  return ({ color, size }: { color: string; size: number }) => <Ionicons name={name} size={size} color={color} />;
+  return ({ color, size }: { focused: boolean; color: ColorValue; size: number }) => (
+    <Ionicons name={name} size={size} color={color as string} />
+  );
 }
 
 export default function TeacherLayout() {
