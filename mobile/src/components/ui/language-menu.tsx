@@ -16,7 +16,8 @@ export function LanguageMenu({ visible, onClose }: { visible: boolean; onClose: 
                 setLanguage(lang.code);
                 onClose();
               }}
-              className={`rounded-xl px-4 py-3 ${language === lang.code ? 'bg-primary/10' : ''}`}
+              style={{ backgroundColor: language === lang.code ? 'rgba(25,118,112,0.1)' : 'transparent' }}
+              className="rounded-xl px-4 py-3"
             >
               <Text className={language === lang.code ? 'font-semibold text-primary' : 'text-card-foreground'}>
                 {lang.label}

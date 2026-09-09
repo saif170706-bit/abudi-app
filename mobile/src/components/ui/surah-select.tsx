@@ -74,7 +74,8 @@ function SurahRow({ surah, selected, onPress }: { surah: Surah; selected: boolea
   return (
     <Pressable
       onPress={onPress}
-      className={`flex-row items-center justify-between border-b border-border px-4 py-3 ${selected ? 'bg-accent/10' : ''}`}
+      style={{ backgroundColor: selected ? 'rgba(184,134,11,0.1)' : undefined }}
+      className="flex-row items-center justify-between border-b border-border px-4 py-3"
     >
       <Text className="text-base text-foreground">
         {surah.number}. {surah.englishName}

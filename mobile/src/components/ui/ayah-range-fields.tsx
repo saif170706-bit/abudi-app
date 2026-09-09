@@ -100,7 +100,8 @@ export function AyahRangeFields({
             </Text>
             <Pressable
               onPress={toggleCrossSurah}
-              className={`h-6 w-6 items-center justify-center rounded-full ${isCrossSurah ? 'bg-primary' : 'bg-primary/10'}`}
+              style={{ backgroundColor: isCrossSurah ? undefined : 'rgba(25,118,112,0.1)' }}
+              className={`h-6 w-6 items-center justify-center rounded-full ${isCrossSurah ? 'bg-primary' : ''}`}
             >
               <Text className={isCrossSurah ? 'text-primary-foreground' : 'text-primary'}>
                 {isCrossSurah ? '✕' : '+'}

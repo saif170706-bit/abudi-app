@@ -64,13 +64,13 @@ export function QuranIndexScreen() {
       <View className="mx-4 mt-6 flex-row rounded-2xl bg-primary/5 p-1">
         <Pressable
           onPress={() => setTab('surah')}
-          className={`flex-1 items-center rounded-xl py-3 ${tab === 'surah' ? 'bg-card shadow-sm' : ''}`}
+          className={`flex-1 items-center rounded-xl py-3 ${tab === 'surah' ? 'bg-card' : ''} shadow-sm`}
         >
           <Text className="text-[10px] font-black uppercase tracking-widest text-foreground">{tGlobal('surah')}</Text>
         </Pressable>
         <Pressable
           onPress={() => setTab('page')}
-          className={`flex-1 items-center rounded-xl py-3 ${tab === 'page' ? 'bg-card shadow-sm' : ''}`}
+          className={`flex-1 items-center rounded-xl py-3 ${tab === 'page' ? 'bg-card' : ''} shadow-sm`}
         >
           <Text className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{tGlobal('Side')}</Text>
         </Pressable>

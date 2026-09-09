@@ -89,7 +89,7 @@ export function AdminAbsenceScreen() {
         <View className="flex-row rounded-2xl bg-muted p-1">
           <Pressable
             onPress={() => setTab('report')}
-            className={`flex-1 items-center rounded-xl py-2 ${tab === 'report' ? 'bg-card shadow-sm' : ''}`}
+            className={`flex-1 items-center rounded-xl py-2 ${tab === 'report' ? 'bg-card' : ''} shadow-sm`}
           >
             <Text className={tab === 'report' ? 'font-semibold text-foreground' : 'text-muted-foreground'}>
               {tGlobal('Ugentlig Rapport')}
@@ -97,7 +97,7 @@ export function AdminAbsenceScreen() {
           </Pressable>
           <Pressable
             onPress={() => setTab('history')}
-            className={`flex-1 items-center rounded-xl py-2 ${tab === 'history' ? 'bg-card shadow-sm' : ''}`}
+            className={`flex-1 items-center rounded-xl py-2 ${tab === 'history' ? 'bg-card' : ''} shadow-sm`}
           >
             <Text className={tab === 'history' ? 'font-semibold text-foreground' : 'text-muted-foreground'}>
               {tGlobal('Historik & Søgning')}

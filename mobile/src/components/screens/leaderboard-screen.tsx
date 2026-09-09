@@ -215,8 +215,8 @@ export function LeaderboardScreen() {
             <Pressable
               key={f.id}
               onPress={() => setFilter(f.id)}
-              className={`flex-1 flex-row items-center justify-center gap-1.5 rounded-xl py-2.5 ${
-                filter === f.id ? 'bg-card shadow-sm' : ''
+              className={`flex-1 flex-row items-center justify-center gap-1.5 rounded-xl py-2.5 shadow-sm ${
+                filter === f.id ? 'bg-card' : ''
               }`}
             >
               <Ionicons name={f.icon} size={12} color={filter === f.id ? '#197670' : '#9ca3af'} />

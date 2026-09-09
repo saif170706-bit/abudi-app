@@ -176,7 +176,8 @@ function BroadcastContent({ livestream }: { livestream: Livestream }) {
         <View className="flex-row items-center gap-6">
           <Pressable
             onPress={() => queueDeviceOp(() => camera.toggle())}
-            className={`h-14 w-14 items-center justify-center rounded-full border border-white/5 ${isCamEnabled ? 'bg-white/10' : 'bg-red-500/20'}`}
+            style={{ backgroundColor: isCamEnabled ? 'rgba(255,255,255,0.1)' : 'rgba(239,68,68,0.2)' }}
+            className="h-14 w-14 items-center justify-center rounded-full border border-white/5"
           >
             <Ionicons name={isCamEnabled ? 'videocam' : 'videocam-off'} size={22} color={isCamEnabled ? '#fff' : '#ef4444'} />
           </Pressable>
@@ -193,7 +194,8 @@ function BroadcastContent({ livestream }: { livestream: Livestream }) {
           </Pressable>
           <Pressable
             onPress={() => queueDeviceOp(() => microphone.toggle())}
-            className={`h-14 w-14 items-center justify-center rounded-full border border-white/5 ${isMicEnabled ? 'bg-white/10' : 'bg-red-500/20'}`}
+            style={{ backgroundColor: isMicEnabled ? 'rgba(255,255,255,0.1)' : 'rgba(239,68,68,0.2)' }}
+            className="h-14 w-14 items-center justify-center rounded-full border border-white/5"
           >
             <Ionicons name={isMicEnabled ? 'mic' : 'mic-off'} size={22} color={isMicEnabled ? '#fff' : '#ef4444'} />
           </Pressable>

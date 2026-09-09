@@ -93,7 +93,7 @@ function QuranPageView({
                 <Text
                   key={runIdx}
                   onPress={() => onSelectAyah(run.surah, run.ayah)}
-                  className={isSelected ? 'bg-accent/30' : undefined}
+                  style={isSelected ? { backgroundColor: 'rgba(184,134,11,0.3)' } : undefined}
                 >
                   {run.words.map((w) => w.text).join(' ')}
                   {runIdx < runs.length - 1 ? ' ' : ''}
@@ -155,7 +155,8 @@ function SelectionBar({
           <Pressable
             disabled={isLoading || !canPrev}
             onPress={onPrev}
-            className={`h-9 w-9 items-center justify-center rounded-full ${canPrev ? 'bg-muted' : 'opacity-30'}`}
+            style={{ opacity: canPrev ? 1 : 0.3 }}
+            className="h-9 w-9 items-center justify-center rounded-full bg-muted"
           >
             <Ionicons name="play-skip-back" size={16} color="#374151" />
           </Pressable>
@@ -173,7 +174,8 @@ function SelectionBar({
           <Pressable
             disabled={isLoading || !canNext}
             onPress={onNext}
-            className={`h-9 w-9 items-center justify-center rounded-full ${canNext ? 'bg-muted' : 'opacity-30'}`}
+            style={{ opacity: canNext ? 1 : 0.3 }}
+            className="h-9 w-9 items-center justify-center rounded-full bg-muted"
           >
             <Ionicons name="play-skip-forward" size={16} color="#374151" />
           </Pressable>
@@ -220,7 +222,8 @@ function ReciterPickerModal({
                   onSelect(item.id);
                   onClose();
                 }}
-                className={`flex-row items-center justify-between rounded-2xl px-4 py-3 ${isActive ? 'bg-primary/10' : ''}`}
+                style={{ backgroundColor: isActive ? 'rgba(25,118,112,0.1)' : undefined }}
+                className="flex-row items-center justify-between rounded-2xl px-4 py-3"
               >
                 <Text className={`text-base ${isActive ? 'font-bold text-primary' : 'text-foreground'}`}>
                   {item.name}

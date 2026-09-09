@@ -69,13 +69,13 @@ export function AdminMailScreen() {
         <View className="flex-row rounded-2xl bg-muted p-1">
           <Pressable
             onPress={() => setTab('inbox')}
-            className={`flex-1 items-center rounded-xl py-2 ${tab === 'inbox' ? 'bg-card shadow-sm' : ''}`}
+            className={`flex-1 items-center rounded-xl py-2 shadow-sm ${tab === 'inbox' ? 'bg-card' : ''}`}
           >
             <Text className={tab === 'inbox' ? 'font-semibold text-foreground' : 'text-muted-foreground'}>{tGlobal('Indbakke')}</Text>
           </Pressable>
           <Pressable
             onPress={() => setTab('requests')}
-            className={`flex-1 items-center rounded-xl py-2 ${tab === 'requests' ? 'bg-card shadow-sm' : ''}`}
+            className={`flex-1 items-center rounded-xl py-2 shadow-sm ${tab === 'requests' ? 'bg-card' : ''}`}
           >
             <Text className={tab === 'requests' ? 'font-semibold text-foreground' : 'text-muted-foreground'}>
               {tGlobal('Anmodninger')}{deletionRequests.length > 0 ? ` (${deletionRequests.length})` : ''}

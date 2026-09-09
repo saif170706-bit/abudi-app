@@ -104,14 +104,14 @@ export function AdminWaitingListScreen() {
       <View className="flex-row rounded-2xl bg-muted mx-4 p-1">
         <Pressable
           onPress={() => setTab('man')}
-          className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl py-2 ${tab === 'man' ? 'bg-card shadow-sm' : ''}`}
+          className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl py-2 ${tab === 'man' ? 'bg-card' : ''} shadow-sm`}
         >
           <Text className="font-bold text-foreground">{tGlobal('Mænd')}</Text>
           <Badge className="bg-black/5">{String(menQueue.length)}</Badge>
         </Pressable>
         <Pressable
           onPress={() => setTab('woman')}
-          className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl py-2 ${tab === 'woman' ? 'bg-card shadow-sm' : ''}`}
+          className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl py-2 ${tab === 'woman' ? 'bg-card' : ''} shadow-sm`}
         >
           <Text className="font-bold text-foreground">{tGlobal('Kvinder')}</Text>
           <Badge className="bg-black/5">{String(womenQueue.length)}</Badge>

@@ -198,7 +198,8 @@ export default function NewChatRoute() {
             return (
               <Pressable
                 onPress={() => toggleUser(item)}
-                className={`flex-row items-center gap-3 rounded-2xl border px-4 py-3 ${isSelected ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}
+                style={{ backgroundColor: isSelected ? 'rgba(25,118,112,0.05)' : undefined }}
+                className={`flex-row items-center gap-3 rounded-2xl border px-4 py-3 ${isSelected ? 'border-primary' : 'border-border bg-card'}`}
               >
                 <View className="h-10 w-10 items-center justify-center rounded-full bg-primary/5">
                   <Text className="text-xs font-bold text-primary">{initials(item.displayName)}</Text>
