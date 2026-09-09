@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { Platform } from 'react-native';
 import { router } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import { useAuth } from './use-auth';
@@ -46,15 +47,23 @@ export function usePushNotifications() {
 
   // addNotificationResponseReceivedListener above never fires for a genuine
   // cold start (app fully closed, launched by tapping the notification) —
-  // that response has to be read explicitly once on mount instead.
+  // that response has to be read explicitly once on mount instead. Native
+  // only: ExpoNotifications.getLastNotificationResponse doesn't exist on
+  // web, and throws synchronously (as a rejected promise, since this is an
+  // async function) rather than just returning null there — crashing the
+  // whole app on login if left ungated.
   const handledColdStartRef = useRef(false);
   useEffect(() => {
-    if (authLoading || profileLoading || !user || handledColdStartRef.current) return;
+    if (Platform.OS === 'web' || authLoading || profileLoading || !user || handledColdStartRef.current) return;
     handledColdStartRef.current = true;
-    Notifications.getLastNotificationResponseAsync().then((response) => {
-      if (!response) return;
-      const link = response.notification.request.content.data?.link as string | undefined;
-      if (link) router.push(mapPushLinkToRoute(link, role) as any);
-    });
+    Notifications.getLastNotificationResponseAsync()
+      .then((response) => {
+        if (!response) return;
+        const link = response.notification.request.content.data?.link as string | undefined;
+        if (link) router.push(mapPushLinkToRoute(link, role) as any);
+      })
+      .catch((error) => {
+        console.warn('[push] getLastNotificationResponseAsync failed (non-fatal):', error);
+      });
   }, [authLoading, profileLoading, user, role]);
 }
