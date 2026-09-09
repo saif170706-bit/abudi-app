@@ -31,13 +31,16 @@ service cloud.firestore {
     match /admins/{uid} {
       allow get: if isSignedIn();
       allow list, write: if isAdmin();
+      match /fcmTokens/{token}      { allow read, write: if isOwner(uid) || isAdmin(); }
+      match /expoPushTokens/{token} { allow read, write: if isOwner(uid) || isAdmin(); }
     }
 
     // Teachers Collection
     match /teachers/{uid} {
       allow read, list: if isSignedIn();
       allow write: if isOwner(uid) || isAdmin();
-      match /fcmTokens/{token} { allow read, write: if isOwner(uid) || isAdmin(); }
+      match /fcmTokens/{token}      { allow read, write: if isOwner(uid) || isAdmin(); }
+      match /expoPushTokens/{token} { allow read, write: if isOwner(uid) || isAdmin(); }
     }
 
     // Students Collection
@@ -47,9 +50,10 @@ service cloud.firestore {
       allow update: if isAdmin() || isOwner(uid) || (isTeacher() && teacherChangingOnlyCallFields());
       allow delete: if isAdmin();
 
-      match /assignments/{id} { allow read: if isOwner(uid) || isTeacherOrAdmin(); allow write: if isTeacherOrAdmin(); }
-      match /fcmTokens/{id}    { allow read, write: if isOwner(uid) || isAdmin(); }
-      match /absenceNotes/{id} { allow read, write: if isOwner(uid) || isTeacherOrAdmin(); }
+      match /assignments/{id}       { allow read: if isOwner(uid) || isTeacherOrAdmin(); allow write: if isTeacherOrAdmin(); }
+      match /fcmTokens/{id}         { allow read, write: if isOwner(uid) || isAdmin(); }
+      match /expoPushTokens/{id}    { allow read, write: if isOwner(uid) || isAdmin(); }
+      match /absenceNotes/{id}      { allow read, write: if isOwner(uid) || isTeacherOrAdmin(); }
     }
 
     // Legacy Profiles / Auth Sync
